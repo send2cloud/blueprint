@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Palette, GitBranch, Columns3, Settings, LucideIcon, FileText, Image } from 'lucide-react';
+import { Palette, GitBranch, Columns3, Settings, LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useBlueprint } from '@/contexts/BlueprintContext';
@@ -32,20 +32,6 @@ const toolCards: Array<{
     description: 'Kanban boards, task trackers, and project roadmaps',
     icon: Columns3,
     path: '/board',
-  },
-  {
-    tool: 'notes',
-    title: 'Notes',
-    description: 'Documents, to-do lists, and rich text notes with formatting',
-    icon: FileText,
-    path: '/notes',
-  },
-  {
-    tool: 'gallery',
-    title: 'Gallery',
-    description: 'Voice notes, photos, files, and saved bookmarks',
-    icon: Image,
-    path: '/gallery',
   },
 ];
 

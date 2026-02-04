@@ -11,10 +11,6 @@ import DiagramGallery from "./pages/DiagramGallery";
 import DiagramPage from "./pages/DiagramPage";
 import BoardGallery from "./pages/BoardGallery";
 import BoardPage from "./pages/BoardPage";
-import NotesGallery from "./pages/NotesGallery";
-import NotesPage from "./pages/NotesPage";
-import GalleryPage from "./pages/GalleryPage";
-import GalleryItemPage from "./pages/GalleryItemPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
@@ -45,15 +41,6 @@ const App = () => (
             <Route path="/board" element={<BoardGallery />} />
             <Route path="/board/new" element={<BoardPage />} />
             <Route path="/board/:id" element={<BoardPage />} />
-            
-            {/* Notes (rich text documents) */}
-            <Route path="/notes" element={<NotesGallery />} />
-            <Route path="/notes/new" element={<NotesPage />} />
-            <Route path="/notes/:id" element={<NotesPage />} />
-            
-            {/* Gallery (media + bookmarks) */}
-            <Route path="/gallery" element={<GalleryPage />} />
-            <Route path="/gallery/:id" element={<GalleryItemPage />} />
             
             {/* Favorites */}
             <Route path="/favorites" element={<FavoritesPage />} />
