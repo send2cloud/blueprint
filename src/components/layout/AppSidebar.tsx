@@ -1,7 +1,7 @@
-import { Home, Palette, GitBranch, Columns3, FileText, Star, Settings } from 'lucide-react';
+import { Home, Star, Settings } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useBlueprint } from '@/contexts/BlueprintContext';
-import { ToolType } from '@/lib/storage';
+import { TOOL_LIST } from '@/lib/toolConfig';
 import {
   Sidebar,
   SidebarContent,
@@ -16,28 +16,14 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 
-interface ToolItem {
-  title: string;
-  url: string;
-  icon: typeof Home;
-  toolType?: ToolType;
-}
-
-const toolItems: ToolItem[] = [
-  { title: 'Canvas', url: '/canvas', icon: Palette, toolType: 'canvas' },
-  { title: 'Diagram', url: '/diagram', icon: GitBranch, toolType: 'diagram' },
-  { title: 'Board', url: '/board', icon: Columns3, toolType: 'board' },
-  { title: 'Notes', url: '/notes', icon: FileText, toolType: 'notes' },
-];
-
 export function AppSidebar() {
   const { state } = useSidebar();
   const { isToolEnabled, loading } = useBlueprint();
   const collapsed = state === 'collapsed';
 
   const visibleTools = loading 
-    ? toolItems 
-    : toolItems.filter(item => !item.toolType || isToolEnabled(item.toolType));
+    ? TOOL_LIST 
+    : TOOL_LIST.filter(item => isToolEnabled(item.type));
 
   return (
     <Sidebar collapsible="icon">
@@ -65,15 +51,20 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {visibleTools.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
+                <SidebarMenuItem key={item.type}>
+                  <SidebarMenuButton asChild tooltip={`${item.title} (${item.shortcut})`}>
                     <NavLink 
-                      to={item.url} 
+                      to={item.path} 
                       className="flex items-center gap-2"
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
                     >
                       <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!collapsed && (
+                        <span className="flex-1 flex items-center justify-between">
+                          <span>{item.title}</span>
+                          <kbd className="text-[10px] font-mono text-muted-foreground">{item.shortcut}</kbd>
+                        </span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

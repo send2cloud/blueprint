@@ -1,8 +1,11 @@
 import { useParams } from 'react-router-dom';
-import { GitBranch, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { ToolHeader } from '@/components/layout/ToolHeader';
 import { DiagramEditor } from '@/components/tools/diagram/DiagramEditor';
 import { useArtifact } from '@/hooks/useArtifact';
+import { TOOL_CONFIG } from '@/lib/toolConfig';
+
+const tool = TOOL_CONFIG.diagram;
 
 export default function DiagramPage() {
   const { id } = useParams<{ id: string }>();
@@ -11,7 +14,7 @@ export default function DiagramPage() {
   if (loading) {
     return (
       <div className="flex flex-col h-full">
-        <ToolHeader title="Diagram" icon={GitBranch} />
+        <ToolHeader title={tool.title} icon={tool.icon} />
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
@@ -22,7 +25,7 @@ export default function DiagramPage() {
   if (error) {
     return (
       <div className="flex flex-col h-full">
-        <ToolHeader title="Diagram" icon={GitBranch} />
+        <ToolHeader title={tool.title} icon={tool.icon} />
         <div className="flex-1 flex items-center justify-center">
           <p className="text-destructive">{error}</p>
         </div>
@@ -33,8 +36,8 @@ export default function DiagramPage() {
   return (
     <div className="flex flex-col h-full">
       <ToolHeader
-        title="Diagram"
-        icon={GitBranch}
+        title={tool.title}
+        icon={tool.icon}
         artifactId={artifact?.id}
         artifactName={artifact?.name}
         artifactType="diagram"
