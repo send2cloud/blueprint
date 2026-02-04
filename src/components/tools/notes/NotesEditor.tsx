@@ -1,8 +1,7 @@
-import { useEffect, useRef } from 'react';
-import { useCreateBlockNote } from '@blocknote/react';
+import { useEffect, useMemo, useRef } from 'react';
+import { BlockNoteEditor, PartialBlock } from '@blocknote/core';
 import { BlockNoteView } from '@blocknote/mantine';
 import { useTheme } from 'next-themes';
-import { PartialBlock } from '@blocknote/core';
 import '@blocknote/mantine/style.css';
 
 interface NotesEditorProps {
@@ -15,10 +14,12 @@ export function NotesEditor({ initialData, onSave }: NotesEditorProps) {
   onSaveRef.current = onSave;
   const { resolvedTheme } = useTheme();
 
-  // Use the official React hook for proper lifecycle management
-  const editor = useCreateBlockNote({
-    initialContent: initialData as PartialBlock[] | undefined,
-  });
+  // Create editor only once with stable initial content
+  const editor = useMemo(() => {
+    return BlockNoteEditor.create({
+      initialContent: initialData as PartialBlock[] | undefined,
+    });
+  }, []); // Empty deps - only create once
 
   // Handle content changes
   useEffect(() => {
