@@ -107,7 +107,7 @@ function getPreviewHeight(artifact: Artifact): string {
   const data = artifact.data as Record<string, unknown> | undefined;
   
   if (artifact.type === 'notes') {
-    const blocks = data as Array<{ content?: Array<{ text?: string }> }> | undefined;
+    const blocks = data as unknown as Array<{ content?: Array<{ text?: string }> }> | undefined;
     if (Array.isArray(blocks) && blocks.length > 3) {
       return 'h-48';
     }
