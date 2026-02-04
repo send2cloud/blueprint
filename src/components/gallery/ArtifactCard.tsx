@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
-import { Palette, GitBranch, Columns3, Trash2, Share2, Star } from 'lucide-react';
+import { Palette, GitBranch, Columns3, FileText, Trash2, Share2, Star } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -16,12 +16,14 @@ const TOOL_ICONS: Record<ToolType, React.ComponentType<{ className?: string }>> 
   canvas: Palette,
   diagram: GitBranch,
   board: Columns3,
+  notes: FileText,
 };
 
 const TYPE_LABELS: Record<ToolType, string> = {
   canvas: 'canvas',
   diagram: 'diagram',
   board: 'board',
+  notes: 'note',
 };
 
 export function ArtifactCard({ artifact, onDelete, onToggleFavorite }: ArtifactCardProps) {

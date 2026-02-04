@@ -11,6 +11,8 @@ import DiagramGallery from "./pages/DiagramGallery";
 import DiagramPage from "./pages/DiagramPage";
 import BoardGallery from "./pages/BoardGallery";
 import BoardPage from "./pages/BoardPage";
+import NotesGallery from "./pages/NotesGallery";
+import NotesPage from "./pages/NotesPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
@@ -41,6 +43,11 @@ const App = () => (
             <Route path="/board" element={<BoardGallery />} />
             <Route path="/board/new" element={<BoardPage />} />
             <Route path="/board/:id" element={<BoardPage />} />
+            
+            {/* Notes */}
+            <Route path="/notes" element={<NotesGallery />} />
+            <Route path="/notes/new" element={<NotesPage />} />
+            <Route path="/notes/:id" element={<NotesPage />} />
             
             {/* Favorites */}
             <Route path="/favorites" element={<FavoritesPage />} />

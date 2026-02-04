@@ -1,6 +1,6 @@
-export type ToolType = 'canvas' | 'diagram' | 'board';
+export type ToolType = 'canvas' | 'diagram' | 'board' | 'notes';
 
-export const ALL_TOOLS: ToolType[] = ['canvas', 'diagram', 'board'];
+export const ALL_TOOLS: ToolType[] = ['canvas', 'diagram', 'board', 'notes'];
 
 export interface BlueprintSettings {
   enabledTools: ToolType[];
