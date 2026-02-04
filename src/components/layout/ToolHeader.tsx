@@ -58,8 +58,12 @@ export function ToolHeader({
   const showArtifactInfo = artifactId && artifactName && artifactType;
   const galleryPath = artifactType ? TOOL_CONFIG[artifactType].path : '/';
 
-  const handleClose = () => {
+  const handleBack = () => {
     navigate(galleryPath);
+  };
+
+  const handleClose = () => {
+    navigate('/');
   };
 
   return (
@@ -70,10 +74,10 @@ export function ToolHeader({
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleClose}
+              onClick={handleBack}
               className="h-8 w-8 flex-shrink-0"
             >
-              <X className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
@@ -133,6 +137,21 @@ export function ToolHeader({
         {showArtifactInfo && (
           <ShareButton artifactId={artifactId} type={artifactType} />
         )}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleClose}
+              className="h-8 w-8"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            <span>Close to home</span>
+          </TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );
