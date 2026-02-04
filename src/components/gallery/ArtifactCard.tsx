@@ -1,10 +1,27 @@
 import { useNavigate } from 'react-router-dom';
+import { Palette, GitBranch, Columns3, Trash2, Star, FileText, Image, Share2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { Palette, GitBranch, Columns3, Trash2, Share2, Star } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ToolType, Artifact } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
-import { Artifact, ToolType } from '@/lib/storage';
+import { ComponentType } from 'react';
+
+const TYPE_ICONS: Record<ToolType, ComponentType<{ className?: string }>> = {
+  canvas: Palette,
+  diagram: GitBranch,
+  board: Columns3,
+  notes: FileText,
+  gallery: Image,
+};
+
+const TYPE_LABELS: Record<ToolType, string> = {
+  canvas: 'Canvas',
+  diagram: 'Diagram',
+  board: 'Board',
+  notes: 'Note',
+  gallery: 'Gallery Item',
+};
 
 interface ArtifactCardProps {
   artifact: Artifact;
@@ -12,22 +29,10 @@ interface ArtifactCardProps {
   onToggleFavorite?: (id: string) => void;
 }
 
-const TOOL_ICONS: Record<ToolType, React.ComponentType<{ className?: string }>> = {
-  canvas: Palette,
-  diagram: GitBranch,
-  board: Columns3,
-};
-
-const TYPE_LABELS: Record<ToolType, string> = {
-  canvas: 'canvas',
-  diagram: 'diagram',
-  board: 'board',
-};
-
 export function ArtifactCard({ artifact, onDelete, onToggleFavorite }: ArtifactCardProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const Icon = TOOL_ICONS[artifact.type];
+  const Icon = TYPE_ICONS[artifact.type];
 
   const handleClick = () => {
     navigate(`/${artifact.type}/${artifact.id}`);
