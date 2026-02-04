@@ -46,8 +46,4 @@ export function NotesEditor({ initialData, onSave }: NotesEditorProps) {
       </div>
     </div>
   );
-        />
-      </div>
-    </div>
-  );
 }
