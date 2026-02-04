@@ -11,6 +11,8 @@ import DiagramGallery from "./pages/DiagramGallery";
 import DiagramPage from "./pages/DiagramPage";
 import BoardGallery from "./pages/BoardGallery";
 import BoardPage from "./pages/BoardPage";
+import NotesGallery from "./pages/NotesGallery";
+import NotesPage from "./pages/NotesPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
