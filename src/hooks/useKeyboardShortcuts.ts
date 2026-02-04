@@ -23,11 +23,25 @@ export function useKeyboardShortcuts() {
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     // Ignore if user is typing in an input, textarea, or contenteditable
     const target = e.target as HTMLElement;
+    const tagName = target.tagName?.toUpperCase();
+    
+    // Check for direct input elements
+    if (tagName === 'INPUT' || tagName === 'TEXTAREA') {
+      return;
+    }
+    
+    // Check for contenteditable (BlockNote, rich text editors)
+    if (target.isContentEditable || target.closest('[contenteditable="true"]')) {
+      return;
+    }
+    
+    // Check for common editor containers (tldraw, xyflow, etc.)
     if (
-      target.tagName === 'INPUT' ||
-      target.tagName === 'TEXTAREA' ||
-      target.isContentEditable ||
-      target.closest('[contenteditable="true"]')
+      target.closest('.tl-container') ||      // tldraw
+      target.closest('.react-flow') ||        // xyflow/react-flow
+      target.closest('.bn-container') ||      // BlockNote
+      target.closest('[data-editor]') ||      // Generic editor marker
+      target.closest('[role="textbox"]')      // ARIA textbox
     ) {
       return;
     }
