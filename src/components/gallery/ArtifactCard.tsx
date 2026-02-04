@@ -97,7 +97,7 @@ export function ArtifactCard({ artifact, onDelete, onToggleFavorite }: ArtifactC
                 className="h-8 w-8"
                 onClick={handleToggleFavorite}
               >
-                <Star className={`h-4 w-4 ${artifact.favorite ? 'text-yellow-500 fill-yellow-500' : ''}`} />
+                <Star className={`h-4 w-4 ${artifact.favorite ? 'text-warning fill-warning' : ''}`} />
               </Button>
             )}
             <Button
