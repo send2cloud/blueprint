@@ -1,5 +1,6 @@
-import { useEffect, useMemo } from 'react';
-import { useCreateBlockNote } from '@blocknote/react';
+import { useEffect, useMemo, useRef } from 'react';
+import { BlockNoteEditor, PartialBlock } from '@blocknote/core';
+import { useBlockNote } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/mantine/style.css';
 
@@ -9,24 +10,29 @@ interface NotesEditorProps {
 }
 
 export function NotesEditor({ initialData, onSave }: NotesEditorProps) {
-  const editor = useCreateBlockNote({
-    initialContent: initialData as any[] | undefined,
-  });
+  const onSaveRef = useRef(onSave);
+  onSaveRef.current = onSave;
 
-  // Save on content change
+  // Create editor only once with stable initial content
+  const editor = useMemo(() => {
+    return BlockNoteEditor.create({
+      initialContent: initialData as PartialBlock[] | undefined,
+    });
+  }, []); // Empty deps - only create once
+
+  // Handle content changes
   useEffect(() => {
     const handleChange = () => {
       const content = editor.document;
-      onSave(content);
+      onSaveRef.current(content);
     };
 
-    // Subscribe to changes
     const unsubscribe = editor.onChange(handleChange);
     
     return () => {
       unsubscribe();
     };
-  }, [editor, onSave]);
+  }, [editor]);
 
   return (
     <div className="h-full w-full overflow-auto bg-background">
