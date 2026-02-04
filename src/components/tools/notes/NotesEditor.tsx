@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { BlockNoteEditor, PartialBlock } from '@blocknote/core';
 import { BlockNoteView } from '@blocknote/mantine';
+import { useTheme } from '@/contexts/ThemeContext';
 import '@blocknote/mantine/style.css';
 
 interface NotesEditorProps {
@@ -11,6 +12,7 @@ interface NotesEditorProps {
 export function NotesEditor({ initialData, onSave }: NotesEditorProps) {
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
+  const { resolvedTheme } = useTheme();
 
   // Create editor only once with stable initial content
   const editor = useMemo(() => {
@@ -38,7 +40,7 @@ export function NotesEditor({ initialData, onSave }: NotesEditorProps) {
       <div className="max-w-4xl mx-auto py-8 px-4">
         <BlockNoteView 
           editor={editor} 
-          theme="light"
+          theme={resolvedTheme}
           className="min-h-[500px]"
         />
       </div>

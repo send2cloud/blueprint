@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
 import CanvasGallery from "./pages/CanvasGallery";
@@ -21,43 +22,45 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<Index />} />
-            
-            {/* Canvas (drawings, whiteboards) */}
-            <Route path="/canvas" element={<CanvasGallery />} />
-            <Route path="/canvas/new" element={<CanvasPage />} />
-            <Route path="/canvas/:id" element={<CanvasPage />} />
-            
-            {/* Diagram (flows, mind maps) */}
-            <Route path="/diagram" element={<DiagramGallery />} />
-            <Route path="/diagram/new" element={<DiagramPage />} />
-            <Route path="/diagram/:id" element={<DiagramPage />} />
-            
-            {/* Board (kanban) */}
-            <Route path="/board" element={<BoardGallery />} />
-            <Route path="/board/new" element={<BoardPage />} />
-            <Route path="/board/:id" element={<BoardPage />} />
-            
-            {/* Notes */}
-            <Route path="/notes" element={<NotesGallery />} />
-            <Route path="/notes/new" element={<NotesPage />} />
-            <Route path="/notes/:id" element={<NotesPage />} />
-            
-            {/* Favorites */}
-            <Route path="/favorites" element={<FavoritesPage />} />
-            
-            <Route path="/settings" element={<SettingsPage />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider defaultTheme="system" storageKey="blueprint-ui-theme">
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<Index />} />
+              
+              {/* Canvas (drawings, whiteboards) */}
+              <Route path="/canvas" element={<CanvasGallery />} />
+              <Route path="/canvas/new" element={<CanvasPage />} />
+              <Route path="/canvas/:id" element={<CanvasPage />} />
+              
+              {/* Diagram (flows, mind maps) */}
+              <Route path="/diagram" element={<DiagramGallery />} />
+              <Route path="/diagram/new" element={<DiagramPage />} />
+              <Route path="/diagram/:id" element={<DiagramPage />} />
+              
+              {/* Board (kanban) */}
+              <Route path="/board" element={<BoardGallery />} />
+              <Route path="/board/new" element={<BoardPage />} />
+              <Route path="/board/:id" element={<BoardPage />} />
+              
+              {/* Notes */}
+              <Route path="/notes" element={<NotesGallery />} />
+              <Route path="/notes/new" element={<NotesPage />} />
+              <Route path="/notes/:id" element={<NotesPage />} />
+              
+              {/* Favorites */}
+              <Route path="/favorites" element={<FavoritesPage />} />
+              
+              <Route path="/settings" element={<SettingsPage />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

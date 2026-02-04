@@ -80,7 +80,7 @@ export function ArtifactCard({ artifact, onDelete, onToggleFavorite }: ArtifactC
                   {artifact.name}
                 </h3>
                 {artifact.favorite && (
-                  <Star className="h-3 w-3 text-yellow-500 fill-yellow-500 flex-shrink-0" />
+                  <Star className="h-3 w-3 text-warning fill-warning flex-shrink-0" />
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
@@ -97,7 +97,7 @@ export function ArtifactCard({ artifact, onDelete, onToggleFavorite }: ArtifactC
                 className="h-8 w-8"
                 onClick={handleToggleFavorite}
               >
-                <Star className={`h-4 w-4 ${artifact.favorite ? 'text-yellow-500 fill-yellow-500' : ''}`} />
+                <Star className={`h-4 w-4 ${artifact.favorite ? 'text-warning fill-warning' : ''}`} />
               </Button>
             )}
             <Button
