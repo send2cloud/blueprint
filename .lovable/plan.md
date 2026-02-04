@@ -1,175 +1,183 @@
 
+# Simplify Tools + Add Favorites System
 
-# Artifact Gallery System - Implementation Plan
+## What You're Asking For
 
-## Overview
+1. **Consolidate duplicate tools**: Flow and Mind Map both use React Flow. Draw and Whiteboard both use tldraw. Instead of separate tool types, let users create artifacts with one tool and optionally **favorite** them as a specific concept (like "Mind Map" or "Whiteboard").
 
-Transform the current tool pages into a **gallery-first workflow**:
-1. Each tool page shows a gallery of saved artifacts
-2. "New" button creates a fresh artifact and opens the editor
-3. Click on an artifact card to open and edit it
-4. Each artifact has a share/copy-link option
-5. Auto-save as you work
+2. **Tool-based approach**: 
+   - Canvas Tool (tldraw) → Can create drawings, whiteboards, sketches, stickies
+   - Diagram Tool (React Flow) → Can create flows, mind maps, system diagrams
+   - Board Tool (Kanban) → Task tracking, roadmaps
 
----
-
-## Current State
-
-- Storage adapter system exists with full CRUD for artifacts (`saveArtifact`, `getArtifact`, `listArtifacts`, `deleteArtifact`)
-- Tools currently have in-memory state only - no persistence
-- No URL-based artifact routing (e.g., `/draw/:id`)
-- No gallery views
+3. **Favorites system**: Any artifact can be favorited. Favorites appear in the sidebar as a dedicated section, showing all favorited items across all tools.
 
 ---
 
 ## New Architecture
 
-```text
-Routes:
-  /draw                   -> DrawGallery (list of drawings + "New" button)
-  /draw/:id               -> DrawEditor (edit specific drawing)
-  /draw/new               -> DrawEditor (new drawing, generates ID on save)
-  
-  /flow                   -> FlowGallery
-  /flow/:id               -> FlowEditor
-  /flow/new               -> FlowEditor (new)
-  
-  (same pattern for mindmap, kanban, whiteboard)
+### Simplified Tools (3 instead of 5)
 
-Components:
-  src/components/gallery/
-    ArtifactGallery.tsx     # Reusable gallery grid
-    ArtifactCard.tsx        # Card with preview, name, actions
-    NewArtifactButton.tsx   # "New" button component
-    ShareButton.tsx         # Copy deep link to clipboard
+| Tool | Package | Creates |
+|------|---------|---------|
+| **Canvas** | tldraw | Drawings, whiteboards, sketches |
+| **Diagram** | @xyflow/react | Flows, mind maps, system diagrams |
+| **Board** | @hello-pangea/dnd | Kanban boards, task lists |
+
+### Updated Type System
+
+```typescript
+// Simplified tool types
+export type ToolType = 'canvas' | 'diagram' | 'board';
+
+// Artifact now has optional favorite flag
+export interface Artifact {
+  id: string;
+  type: ToolType;
+  name: string;
+  data: unknown;
+  createdAt: string;
+  updatedAt: string;
+  favorite: boolean;  // NEW: Can be favorited
+}
+```
+
+### Routes
+
+```text
+/canvas           → Gallery of canvas artifacts
+/canvas/new       → New canvas (tldraw)
+/canvas/:id       → Edit specific canvas
+
+/diagram          → Gallery of diagram artifacts  
+/diagram/new      → New diagram (React Flow)
+/diagram/:id      → Edit specific diagram
+
+/board            → Gallery of boards
+/board/new        → New board (Kanban)
+/board/:id        → Edit specific board
+
+/favorites        → All favorited artifacts across tools
 ```
 
 ---
 
 ## Implementation Steps
 
-### Step 1: Create Gallery Components
+### Step 1: Update Storage Types
 
-**ArtifactCard.tsx**
-- Displays artifact name, type icon, last updated timestamp
-- Click to navigate to `/[tool]/:id`
-- Hover shows action buttons (share, delete)
-- Share button copies URL to clipboard with toast notification
+Update `src/lib/storage/types.ts`:
+- Change `ToolType` from 5 types to 3: `'canvas' | 'diagram' | 'board'`
+- Add `favorite: boolean` to `Artifact` interface
+- Update `ALL_TOOLS` array
 
-**ArtifactGallery.tsx**
-- Grid layout of ArtifactCard components
-- "New" button at the top
-- Empty state with prompt to create first artifact
-- Sorted by last updated (most recent first)
+### Step 2: Update LocalStorage Adapter
 
-**ShareButton.tsx**
-- Copies current artifact URL to clipboard
-- Shows toast: "Link copied! Share this to show your [drawing/flow/etc.]"
+Update `src/lib/storage/localStorage.ts`:
+- Handle the new `favorite` field
+- Add method to list all favorites: `listFavorites(): Promise<Artifact[]>`
 
-### Step 2: Create Shared Editor Wrapper Hook
+### Step 3: Remove Duplicate Components
 
-**useArtifact.ts** - Custom hook for artifact management:
-```typescript
-function useArtifact(type: ToolType, id?: string) {
-  // Load artifact by ID (or create new if id === 'new')
-  // Provide save function that updates storage
-  // Provide rename function
-  // Auto-generate ID for new artifacts on first save
-  // Return loading, error, artifact, save, rename
-}
-```
+**Delete these (merged into unified components):**
+- `src/components/tools/mindmap/` folder (merge into diagram)
+- `src/components/tools/whiteboard/` folder (merge into canvas)
+- `src/components/tools/draw/` folder (renamed to canvas)
+- `src/pages/DrawPage.tsx`, `src/pages/DrawGallery.tsx`
+- `src/pages/MindMapPage.tsx`, `src/pages/MindMapGallery.tsx`
+- `src/pages/WhiteboardPage.tsx`, `src/pages/WhiteboardGallery.tsx`
 
-### Step 3: Update Draw Tool
+### Step 4: Create Unified Tool Components
 
-**DrawGallery.tsx** (new page component):
-- List all `type: 'draw'` artifacts from storage
-- "New Drawing" button navigates to `/draw/new`
-- Click artifact card navigates to `/draw/:id`
+**Canvas Tool** (`src/components/tools/canvas/CanvasEditor.tsx`):
+- Uses tldraw
+- Replaces both DrawingCanvas and StickyWhiteboard
+- Same component, one tool
 
-**DrawEditor.tsx** (updated):
-- Receives artifact ID from URL params
-- Uses `useArtifact('draw', id)` to load/save
-- Integrates tldraw's persistence API:
-  - `store.listen()` for changes
-  - Save to storage adapter on change (debounced)
-  - Load snapshot on mount
-- Header shows artifact name (editable) + Share button
+**Diagram Tool** (`src/components/tools/diagram/DiagramEditor.tsx`):
+- Uses React Flow
+- Combines FlowEditor capabilities
+- Can be used for flows OR mind maps (user names it accordingly)
+- Keep the "Add Node" button for any diagram type
 
-**Routing**:
-- `/draw` -> DrawGallery
-- `/draw/:id` -> DrawEditor
-- `/draw/new` -> DrawEditor (creates new)
+**Board Tool** (keep existing `kanban/KanbanBoard.tsx`):
+- Rename folder from `kanban` to `board` for consistency
 
-### Step 4: Update Flow Tool
+### Step 5: Create New Pages
 
-**FlowGallery.tsx**:
-- Same pattern as DrawGallery
-- Shows flow diagram artifacts
+**Canvas Pages:**
+- `src/pages/CanvasGallery.tsx` - List all canvas artifacts
+- `src/pages/CanvasPage.tsx` - Edit canvas
 
-**FlowEditor.tsx** (updated):
-- Load nodes/edges from artifact.data
-- Save nodes/edges to artifact.data on change
-- Editable name in header
-- Share button
+**Diagram Pages:**
+- `src/pages/DiagramGallery.tsx` - List all diagram artifacts
+- `src/pages/DiagramPage.tsx` - Edit diagram
 
-### Step 5: Update Mind Map Tool
+**Board Pages:**
+- `src/pages/BoardGallery.tsx` - List all board artifacts
+- `src/pages/BoardPage.tsx` - Edit board
 
-**MindMapGallery.tsx**:
-- Gallery of mind maps
+**Favorites Page:**
+- `src/pages/FavoritesPage.tsx` - List all favorited artifacts
 
-**MindMapEditor.tsx** (updated):
-- Load/save nodes and edges
-- Same pattern as Flow
+### Step 6: Update Artifact Card with Favorite Toggle
 
-### Step 6: Update Kanban Tool
+Update `src/components/gallery/ArtifactCard.tsx`:
+- Add star/heart icon button to toggle favorite
+- Show filled star if favorited
+- On click, call storage to toggle favorite
 
-**KanbanGallery.tsx**:
-- Gallery of kanban boards
+### Step 7: Update Tool Header with Favorite Toggle
 
-**KanbanEditor.tsx** (updated):
-- Load/save columns and cards
-- Same pattern
+Update `src/components/layout/ToolHeader.tsx`:
+- Add favorite toggle button next to share
+- Star icon that toggles artifact.favorite
 
-### Step 7: Update Whiteboard Tool
+### Step 8: Update Sidebar
 
-**WhiteboardGallery.tsx**:
-- Gallery of whiteboards
+Update `src/components/layout/AppSidebar.tsx`:
+- Show only 3 tools: Canvas, Diagram, Board
+- Add "Favorites" section with star icon
+- Show count of favorites next to the link
 
-**WhiteboardEditor.tsx** (updated):
-- Same tldraw persistence as Draw
-- Different default tool/zoom settings
+### Step 9: Update Dashboard (Index.tsx)
 
-### Step 8: Update Routing in App.tsx
+Update `src/pages/Index.tsx`:
+- Show 3 tool cards instead of 5
+- Update descriptions
+- Add quick link to favorites if any exist
 
+### Step 10: Update Settings Page
+
+Update `src/pages/SettingsPage.tsx`:
+- Update to only show 3 tools
+- Update descriptions for new unified tools
+
+### Step 11: Update Routing
+
+Update `src/App.tsx`:
 ```typescript
 <Routes>
   <Route element={<AppLayout />}>
     <Route path="/" element={<Index />} />
     
-    {/* Draw */}
-    <Route path="/draw" element={<DrawGallery />} />
-    <Route path="/draw/new" element={<DrawEditor />} />
-    <Route path="/draw/:id" element={<DrawEditor />} />
+    {/* Canvas (drawings, whiteboards) */}
+    <Route path="/canvas" element={<CanvasGallery />} />
+    <Route path="/canvas/new" element={<CanvasPage />} />
+    <Route path="/canvas/:id" element={<CanvasPage />} />
     
-    {/* Flow */}
-    <Route path="/flow" element={<FlowGallery />} />
-    <Route path="/flow/new" element={<FlowEditor />} />
-    <Route path="/flow/:id" element={<FlowEditor />} />
+    {/* Diagram (flows, mind maps) */}
+    <Route path="/diagram" element={<DiagramGallery />} />
+    <Route path="/diagram/new" element={<DiagramPage />} />
+    <Route path="/diagram/:id" element={<DiagramPage />} />
     
-    {/* Mind Map */}
-    <Route path="/mindmap" element={<MindMapGallery />} />
-    <Route path="/mindmap/new" element={<MindMapEditor />} />
-    <Route path="/mindmap/:id" element={<MindMapEditor />} />
+    {/* Board (kanban) */}
+    <Route path="/board" element={<BoardGallery />} />
+    <Route path="/board/new" element={<BoardPage />} />
+    <Route path="/board/:id" element={<BoardPage />} />
     
-    {/* Kanban */}
-    <Route path="/kanban" element={<KanbanGallery />} />
-    <Route path="/kanban/new" element={<KanbanEditor />} />
-    <Route path="/kanban/:id" element={<KanbanEditor />} />
-    
-    {/* Whiteboard */}
-    <Route path="/whiteboard" element={<WhiteboardGallery />} />
-    <Route path="/whiteboard/new" element={<WhiteboardEditor />} />
-    <Route path="/whiteboard/:id" element={<WhiteboardEditor />} />
+    {/* Favorites */}
+    <Route path="/favorites" element={<FavoritesPage />} />
     
     <Route path="/settings" element={<SettingsPage />} />
   </Route>
@@ -177,101 +185,49 @@ function useArtifact(type: ToolType, id?: string) {
 </Routes>
 ```
 
-### Step 9: Update Sidebar Navigation
+### Step 12: Update useArtifact Hook
 
-Sidebar links go to gallery pages (`/draw`, `/flow`, etc.), not directly to editors.
-
----
-
-## Deep Linking / Share Feature
-
-When you click "Share" on an artifact:
-1. Build URL: `{origin}/draw/{artifactId}` (or flow, mindmap, etc.)
-2. Copy to clipboard
-3. Show toast: "Link copied!"
-
-When someone opens that URL:
-1. Router matches `/draw/:id`
-2. DrawEditor loads artifact by ID from storage
-3. They see your exact drawing/flow/etc.
-
-For now this works within the same browser (localStorage). Future: backend sync.
+Update `src/hooks/useArtifact.ts`:
+- Add `toggleFavorite()` function
+- Update default names for new tool types
 
 ---
 
-## Files to Create/Update
+## Files Summary
 
-| File | Action | Purpose |
-|------|--------|---------|
-| `src/hooks/useArtifact.ts` | Create | Artifact load/save logic |
-| `src/components/gallery/ArtifactGallery.tsx` | Create | Reusable gallery grid |
-| `src/components/gallery/ArtifactCard.tsx` | Create | Individual artifact card |
-| `src/components/gallery/ShareButton.tsx` | Create | Copy link button |
-| `src/pages/DrawGallery.tsx` | Create | Draw gallery page |
-| `src/pages/FlowGallery.tsx` | Create | Flow gallery page |
-| `src/pages/MindMapGallery.tsx` | Create | Mind map gallery page |
-| `src/pages/KanbanGallery.tsx` | Create | Kanban gallery page |
-| `src/pages/WhiteboardGallery.tsx` | Create | Whiteboard gallery page |
-| `src/components/tools/draw/DrawingCanvas.tsx` | Update | Add persistence |
-| `src/components/tools/flow/FlowEditor.tsx` | Update | Add persistence |
-| `src/components/tools/mindmap/MindMapEditor.tsx` | Update | Add persistence |
-| `src/components/tools/kanban/KanbanBoard.tsx` | Update | Add persistence |
-| `src/components/tools/whiteboard/StickyWhiteboard.tsx` | Update | Add persistence |
-| `src/pages/DrawPage.tsx` | Update | Handle :id param |
-| `src/pages/FlowPage.tsx` | Update | Handle :id param |
-| `src/pages/MindMapPage.tsx` | Update | Handle :id param |
-| `src/pages/KanbanPage.tsx` | Update | Handle :id param |
-| `src/pages/WhiteboardPage.tsx` | Update | Handle :id param |
-| `src/components/layout/ToolHeader.tsx` | Update | Add editable name + share |
-| `src/App.tsx` | Update | Add gallery routes |
-| `src/components/layout/AppSidebar.tsx` | Update | Link to galleries |
-
----
-
-## User Flow Example
-
-1. Navigate to `/draw` (via sidebar)
-2. See gallery: empty state with "Create your first drawing" message
-3. Click "New Drawing" button
-4. Redirected to `/draw/new`, tldraw editor opens
-5. Start drawing - auto-saves to localStorage
-6. Artifact gets ID, URL updates to `/draw/abc123`
-7. Click "Share" - copies `https://your-app.com/draw/abc123`
-8. Paste link anywhere to share
-9. Click sidebar "Draw" again - see your drawing in the gallery
-10. Click the card - opens `/draw/abc123` to continue editing
+| Action | File |
+|--------|------|
+| **Update** | `src/lib/storage/types.ts` |
+| **Update** | `src/lib/storage/localStorage.ts` |
+| **Delete** | `src/components/tools/draw/` |
+| **Delete** | `src/components/tools/whiteboard/` |
+| **Delete** | `src/components/tools/mindmap/` |
+| **Create** | `src/components/tools/canvas/CanvasEditor.tsx` |
+| **Rename** | `src/components/tools/kanban/` → `src/components/tools/board/` |
+| **Update** | `src/components/tools/flow/FlowEditor.tsx` → `DiagramEditor.tsx` |
+| **Delete** | `src/pages/DrawPage.tsx`, `DrawGallery.tsx` |
+| **Delete** | `src/pages/WhiteboardPage.tsx`, `WhiteboardGallery.tsx` |
+| **Delete** | `src/pages/MindMapPage.tsx`, `MindMapGallery.tsx` |
+| **Create** | `src/pages/CanvasGallery.tsx`, `CanvasPage.tsx` |
+| **Create** | `src/pages/DiagramGallery.tsx`, `DiagramPage.tsx` |
+| **Create** | `src/pages/BoardGallery.tsx`, `BoardPage.tsx` |
+| **Create** | `src/pages/FavoritesPage.tsx` |
+| **Update** | `src/components/gallery/ArtifactCard.tsx` |
+| **Update** | `src/components/layout/ToolHeader.tsx` |
+| **Update** | `src/components/layout/AppSidebar.tsx` |
+| **Update** | `src/pages/Index.tsx` |
+| **Update** | `src/pages/SettingsPage.tsx` |
+| **Update** | `src/App.tsx` |
+| **Update** | `src/hooks/useArtifact.ts` |
+| **Update** | `src/contexts/BlueprintContext.tsx` |
 
 ---
 
-## Technical Details
+## User Experience After Changes
 
-### tldraw Persistence
-
-tldraw provides a `store` that can be serialized:
-```typescript
-const store = editor.store;
-const snapshot = store.getSnapshot();
-// Save snapshot to artifact.data
-
-// To restore:
-store.loadSnapshot(artifact.data);
-```
-
-### React Flow Persistence
-
-React Flow state is already in `nodes` and `edges` arrays - save directly:
-```typescript
-// Save
-artifact.data = { nodes, edges };
-
-// Restore
-const { nodes, edges } = artifact.data;
-```
-
-### Auto-Save Strategy
-
-- Debounce saves (e.g., 1 second after last change)
-- Show "Saving..." indicator briefly
-- Show "Saved" when complete
-- This prevents excessive localStorage writes
-
+1. **Sidebar shows**: Home, Canvas, Diagram, Board, Favorites, Settings
+2. **Click "Canvas"** → See gallery of all canvas artifacts (drawings, whiteboards, etc.)
+3. **Create new canvas** → Name it "Authentication Whiteboard" or "Logo Sketch"
+4. **Click the star** → Artifact is now favorited
+5. **Click "Favorites"** → See all starred artifacts across all tools
+6. **The artifact type is what YOU name it** - the tool is just the technology
