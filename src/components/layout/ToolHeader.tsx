@@ -56,10 +56,31 @@ export function ToolHeader({
   }, [handleBlur, artifactName]);
 
   const showArtifactInfo = artifactId && artifactName && artifactType;
+  const galleryPath = artifactType ? TOOL_CONFIG[artifactType].path : '/';
+
+  const handleClose = () => {
+    navigate(galleryPath);
+  };
 
   return (
     <div className="flex items-center justify-between border-b border-border bg-background px-4 py-3">
       <div className="flex items-center gap-2 min-w-0 flex-1">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleClose}
+              className="h-8 w-8 flex-shrink-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            <span>Back to gallery</span>
+            <kbd className="ml-2 px-1.5 py-0.5 text-xs font-mono bg-muted rounded">G</kbd>
+          </TooltipContent>
+        </Tooltip>
         <Icon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
         {showArtifactInfo ? (
           isEditing ? (
