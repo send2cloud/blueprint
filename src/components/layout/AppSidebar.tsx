@@ -1,4 +1,4 @@
-import { Home, Palette, GitBranch, Columns3, Star, Settings } from 'lucide-react';
+import { Home, Palette, GitBranch, Columns3, FileText, Star, Settings } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useBlueprint } from '@/contexts/BlueprintContext';
 import { ToolType } from '@/lib/storage';
@@ -27,6 +27,7 @@ const toolItems: ToolItem[] = [
   { title: 'Canvas', url: '/canvas', icon: Palette, toolType: 'canvas' },
   { title: 'Diagram', url: '/diagram', icon: GitBranch, toolType: 'diagram' },
   { title: 'Board', url: '/board', icon: Columns3, toolType: 'board' },
+  { title: 'Notes', url: '/notes', icon: FileText, toolType: 'notes' },
 ];
 
 export function AppSidebar() {

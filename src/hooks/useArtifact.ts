@@ -23,6 +23,7 @@ const DEFAULT_NAMES: Record<ToolType, string> = {
   canvas: 'Untitled Canvas',
   diagram: 'Untitled Diagram',
   board: 'Untitled Board',
+  notes: 'Untitled Note',
 };
 
 export function useArtifact(

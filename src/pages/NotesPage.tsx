@@ -38,11 +38,13 @@ export default function NotesPage() {
   return (
     <div className="flex flex-col h-full">
       <ToolHeader
-        title={artifact.name}
+        title="Notes"
         icon={FileText}
-        editable
-        onTitleChange={rename}
-        artifact={artifact}
+        artifactId={artifact.id}
+        artifactName={artifact.name}
+        artifactType={artifact.type}
+        artifactFavorite={artifact.favorite}
+        onRename={rename}
         onToggleFavorite={toggleFavorite}
         saving={saving}
       />

@@ -44,6 +44,11 @@ const App = () => (
             <Route path="/board/new" element={<BoardPage />} />
             <Route path="/board/:id" element={<BoardPage />} />
             
+            {/* Notes */}
+            <Route path="/notes" element={<NotesGallery />} />
+            <Route path="/notes/new" element={<NotesPage />} />
+            <Route path="/notes/:id" element={<NotesPage />} />
+            
             {/* Favorites */}
             <Route path="/favorites" element={<FavoritesPage />} />
             
