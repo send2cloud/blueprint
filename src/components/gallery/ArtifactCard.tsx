@@ -62,7 +62,7 @@ function ArtifactPreview({ artifact }: { artifact: Artifact }) {
   // Docs - show text excerpt
   if (artifact.type === 'notes') {
     // BlockNote stores content as array of blocks
-    const blocks = data as Array<{ content?: Array<{ text?: string }> }> | undefined;
+    const blocks = data as unknown as Array<{ content?: Array<{ text?: string }> }> | undefined;
     let excerpt = '';
     if (Array.isArray(blocks)) {
       for (const block of blocks) {
