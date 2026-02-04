@@ -1,11 +1,13 @@
 import { useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTheme } from 'next-themes';
 import { TOOL_CONFIG, TOOL_LIST } from '@/lib/toolConfig';
 import { ToolType } from '@/lib/storage';
 
 export function useKeyboardShortcuts() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme, setTheme } = useTheme();
 
   // Determine current tool context from the route
   const getCurrentTool = useCallback((): ToolType | null => {
@@ -17,15 +19,6 @@ export function useKeyboardShortcuts() {
     }
     return null;
   }, [location.pathname]);
-
-  // Check if we're in a gallery view (not editing an artifact)
-  const isGalleryView = useCallback((): boolean => {
-    const path = location.pathname;
-    const currentTool = getCurrentTool();
-    if (!currentTool) return false;
-    const toolPath = TOOL_CONFIG[currentTool].path;
-    return path === toolPath;
-  }, [location.pathname, getCurrentTool]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     // Ignore if user is typing in an input, textarea, or contenteditable
@@ -44,12 +37,27 @@ export function useKeyboardShortcuts() {
       return;
     }
 
-    const key = e.key.toUpperCase();
+    const key = e.key;
+    const keyUpper = key.toUpperCase();
     const currentTool = getCurrentTool();
+
+    // Backslash - Toggle theme
+    if (key === '\\') {
+      e.preventDefault();
+      setTheme(theme === 'dark' ? 'light' : 'dark');
+      return;
+    }
+
+    // S - Favorites (Star)
+    if (keyUpper === 'S') {
+      e.preventDefault();
+      navigate('/favorites');
+      return;
+    }
 
     // Tool shortcuts: W, F, T, D - navigate to tool gallery
     for (const tool of TOOL_LIST) {
-      if (key === tool.shortcut) {
+      if (keyUpper === tool.shortcut) {
         e.preventDefault();
         navigate(tool.path);
         return;
@@ -57,7 +65,7 @@ export function useKeyboardShortcuts() {
     }
 
     // N - New artifact (contextual)
-    if (key === 'N') {
+    if (keyUpper === 'N') {
       e.preventDefault();
       if (currentTool) {
         navigate(`${TOOL_CONFIG[currentTool].path}/new`);
@@ -69,14 +77,14 @@ export function useKeyboardShortcuts() {
     }
 
     // G - Gallery view (contextual)
-    if (key === 'G') {
+    if (keyUpper === 'G') {
       e.preventDefault();
       if (currentTool) {
         navigate(TOOL_CONFIG[currentTool].path);
       }
       return;
     }
-  }, [navigate, getCurrentTool]);
+  }, [navigate, getCurrentTool, theme, setTheme]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);

@@ -79,6 +79,14 @@ export default function SettingsPage() {
                 <span>Docs</span>
               </div>
               <div className="flex items-center gap-2">
+                <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">S</kbd>
+                <span>Favorites</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">\</kbd>
+                <span>Toggle theme</span>
+              </div>
+              <div className="flex items-center gap-2">
                 <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">N</kbd>
                 <span>New (in context)</span>
               </div>
