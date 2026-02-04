@@ -7,7 +7,7 @@ import { ToolType } from '@/lib/storage';
 export function useKeyboardShortcuts() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
 
   // Determine current tool context from the route
   const getCurrentTool = useCallback((): ToolType | null => {
@@ -44,7 +44,7 @@ export function useKeyboardShortcuts() {
     // Backslash - Toggle theme
     if (key === '\\') {
       e.preventDefault();
-      setTheme(theme === 'dark' ? 'light' : 'dark');
+      setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
       return;
     }
 
@@ -84,7 +84,7 @@ export function useKeyboardShortcuts() {
       }
       return;
     }
-  }, [navigate, getCurrentTool, theme, setTheme]);
+  }, [navigate, getCurrentTool, resolvedTheme, setTheme]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
