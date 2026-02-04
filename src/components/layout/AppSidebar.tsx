@@ -1,4 +1,4 @@
-import { Home, Star, Settings } from 'lucide-react';
+import { Home, Star, Settings, PanelLeft } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useBlueprint } from '@/contexts/BlueprintContext';
 import { TOOL_LIST } from '@/lib/toolConfig';
@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
+  SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
 
@@ -107,6 +108,9 @@ export function AppSidebar() {
                 {!collapsed && <span>Settings</span>}
               </NavLink>
             </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarTrigger className="w-full justify-start" />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
