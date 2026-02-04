@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -23,12 +23,35 @@ interface MindMapNodeData {
 
 type MindMapNodeType = Node<MindMapNodeData>;
 
+interface MindMapData {
+  nodes: MindMapNodeType[];
+  edges: Edge[];
+  nodeId: number;
+}
+
+interface MindMapEditorProps {
+  initialData?: unknown;
+  onSave?: (data: unknown) => void;
+}
+
 const nodeTypes = { mindMapNode: MindMapNode };
 
-export function MindMapEditor() {
-  const [nodeId, setNodeId] = useState(2);
-  const [nodes, setNodes, onNodesChange] = useNodesState<MindMapNodeType>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+const defaultNode: MindMapNodeType = {
+  id: '1',
+  type: 'mindMapNode',
+  data: { label: 'Main Idea' },
+  position: { x: 300, y: 200 },
+};
+
+export function MindMapEditor({ initialData, onSave }: MindMapEditorProps) {
+  const mindMapData = initialData as MindMapData | undefined;
+  
+  const [nodeId, setNodeId] = useState(mindMapData?.nodeId || 2);
+  const [nodes, setNodes, onNodesChange] = useNodesState<MindMapNodeType>(
+    mindMapData?.nodes || [defaultNode]
+  );
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(mindMapData?.edges || []);
+  const [initialized, setInitialized] = useState(false);
 
   const addChildNode = useCallback((parentId: string) => {
     const newId = String(nodeId);
@@ -67,16 +90,9 @@ export function MindMapEditor() {
     ]);
   }, [nodeId, edges, setNodes, setEdges]);
 
-  // Initialize with the root node
+  // Mark as initialized after first render
   useEffect(() => {
-    setNodes([
-      {
-        id: '1',
-        type: 'mindMapNode',
-        data: { label: 'Main Idea', onAddChild: addChildNode },
-        position: { x: 300, y: 200 },
-      },
-    ]);
+    setInitialized(true);
   }, []);
 
   // Update all nodes with the latest addChildNode callback
@@ -88,6 +104,18 @@ export function MindMapEditor() {
       }))
     );
   }, [addChildNode, setNodes]);
+
+  // Save on changes (after initialization)
+  useEffect(() => {
+    if (initialized && onSave) {
+      // Remove the callback function before saving
+      const nodesForSave = nodes.map((node) => ({
+        ...node,
+        data: { ...node.data, onAddChild: undefined },
+      }));
+      onSave({ nodes: nodesForSave, edges, nodeId });
+    }
+  }, [nodes, edges, nodeId, initialized, onSave]);
 
   const onConnect = useCallback(
     (params: Connection) =>
