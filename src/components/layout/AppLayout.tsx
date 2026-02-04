@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { BlueprintProvider } from '@/contexts/BlueprintContext';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 export function AppLayout() {
   return (
