@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import { LucideIcon, Check, Loader2, Star } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { LucideIcon, Check, Loader2, Star, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ShareButton } from '@/components/gallery/ShareButton';
 import { ToolType } from '@/lib/storage';
+import { TOOL_CONFIG } from '@/lib/toolConfig';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ToolHeaderProps {
   title: string;
