@@ -1,323 +1,277 @@
 
 
-# Blueprint Creator Suite - Complete Implementation Plan
+# Artifact Gallery System - Implementation Plan
 
 ## Overview
 
-We're building a **portable Idea Room** - an embeddable creative suite with five tools (Draw, Flow, Mind Map, Kanban, Whiteboard), a Settings page for toggling tool visibility, and an **adapter-based storage system** that defaults to localStorage but can be swapped for any host project's database.
+Transform the current tool pages into a **gallery-first workflow**:
+1. Each tool page shows a gallery of saved artifacts
+2. "New" button creates a fresh artifact and opens the editor
+3. Click on an artifact card to open and edit it
+4. Each artifact has a share/copy-link option
+5. Auto-save as you work
 
 ---
 
-## Architecture Summary
+## Current State
+
+- Storage adapter system exists with full CRUD for artifacts (`saveArtifact`, `getArtifact`, `listArtifacts`, `deleteArtifact`)
+- Tools currently have in-memory state only - no persistence
+- No URL-based artifact routing (e.g., `/draw/:id`)
+- No gallery views
+
+---
+
+## New Architecture
 
 ```text
-src/
-  lib/
-    storage/
-      types.ts              # StorageAdapter interface + types
-      adapter.ts            # Adapter registry + current adapter
-      localStorage.ts       # Default localStorage implementation
-      index.ts              # Public exports
-  contexts/
-    BlueprintContext.tsx    # Global state: enabled tools, storage adapter
-  components/
-    layout/
-      AppLayout.tsx         # Main layout wrapper
-      AppSidebar.tsx        # Tool navigation (filtered by settings)
-      ToolHeader.tsx        # Consistent header for each tool
-    tools/
-      draw/DrawingCanvas.tsx
-      flow/FlowEditor.tsx
-      mindmap/MindMapEditor.tsx + MindMapNode.tsx
-      kanban/KanbanBoard.tsx + KanbanColumn.tsx + KanbanCard.tsx
-      whiteboard/StickyWhiteboard.tsx
-  pages/
-    Index.tsx               # Dashboard
-    DrawPage.tsx
-    FlowPage.tsx
-    MindMapPage.tsx
-    KanbanPage.tsx
-    WhiteboardPage.tsx
-    SettingsPage.tsx        # Toggle tools on/off
-```
-
----
-
-## Step 1: Install Dependencies
-
-Add to `package.json`:
-- `tldraw` - Drawing canvas and whiteboard
-- `@xyflow/react` - Flow diagrams and mind maps
-- `@hello-pangea/dnd` - Kanban drag-and-drop
-- `uuid` - Generate artifact IDs
-
----
-
-## Step 2: Create Storage Adapter System
-
-This is the key to making the suite embeddable. We define an interface that any storage backend can implement.
-
-### Storage Types (`src/lib/storage/types.ts`)
-
-```typescript
-export type ToolType = 'draw' | 'flow' | 'mindmap' | 'kanban' | 'whiteboard';
-
-export interface BlueprintSettings {
-  enabledTools: ToolType[];
-}
-
-export interface Artifact {
-  id: string;
-  type: ToolType;
-  name: string;
-  data: unknown;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface StorageAdapter {
-  // Settings
-  getSettings(): Promise<BlueprintSettings>;
-  saveSettings(settings: BlueprintSettings): Promise<void>;
+Routes:
+  /draw                   -> DrawGallery (list of drawings + "New" button)
+  /draw/:id               -> DrawEditor (edit specific drawing)
+  /draw/new               -> DrawEditor (new drawing, generates ID on save)
   
-  // Artifacts (flows, drawings, etc.)
-  getArtifact(id: string): Promise<Artifact | null>;
-  saveArtifact(artifact: Artifact): Promise<void>;
-  deleteArtifact(id: string): Promise<void>;
-  listArtifacts(type?: ToolType): Promise<Artifact[]>;
-}
+  /flow                   -> FlowGallery
+  /flow/:id               -> FlowEditor
+  /flow/new               -> FlowEditor (new)
+  
+  (same pattern for mindmap, kanban, whiteboard)
+
+Components:
+  src/components/gallery/
+    ArtifactGallery.tsx     # Reusable gallery grid
+    ArtifactCard.tsx        # Card with preview, name, actions
+    NewArtifactButton.tsx   # "New" button component
+    ShareButton.tsx         # Copy deep link to clipboard
 ```
 
-### LocalStorage Implementation (`src/lib/storage/localStorage.ts`)
+---
 
-Default implementation using localStorage:
-- Settings stored under `blueprint:settings`
-- Artifacts stored under `blueprint:artifact:{id}`
-- Full implementation of all StorageAdapter methods
+## Implementation Steps
 
-### Adapter Registry (`src/lib/storage/adapter.ts`)
+### Step 1: Create Gallery Components
 
+**ArtifactCard.tsx**
+- Displays artifact name, type icon, last updated timestamp
+- Click to navigate to `/[tool]/:id`
+- Hover shows action buttons (share, delete)
+- Share button copies URL to clipboard with toast notification
+
+**ArtifactGallery.tsx**
+- Grid layout of ArtifactCard components
+- "New" button at the top
+- Empty state with prompt to create first artifact
+- Sorted by last updated (most recent first)
+
+**ShareButton.tsx**
+- Copies current artifact URL to clipboard
+- Shows toast: "Link copied! Share this to show your [drawing/flow/etc.]"
+
+### Step 2: Create Shared Editor Wrapper Hook
+
+**useArtifact.ts** - Custom hook for artifact management:
 ```typescript
-let currentAdapter: StorageAdapter = new LocalStorageAdapter();
-
-export function setStorageAdapter(adapter: StorageAdapter) {
-  currentAdapter = adapter;
-}
-
-export function getStorageAdapter(): StorageAdapter {
-  return currentAdapter;
+function useArtifact(type: ToolType, id?: string) {
+  // Load artifact by ID (or create new if id === 'new')
+  // Provide save function that updates storage
+  // Provide rename function
+  // Auto-generate ID for new artifacts on first save
+  // Return loading, error, artifact, save, rename
 }
 ```
 
-This allows host projects to call `setStorageAdapter(mySupabaseAdapter)` to plug in their own persistence.
+### Step 3: Update Draw Tool
 
----
+**DrawGallery.tsx** (new page component):
+- List all `type: 'draw'` artifacts from storage
+- "New Drawing" button navigates to `/draw/new`
+- Click artifact card navigates to `/draw/:id`
 
-## Step 3: Create Blueprint Context
+**DrawEditor.tsx** (updated):
+- Receives artifact ID from URL params
+- Uses `useArtifact('draw', id)` to load/save
+- Integrates tldraw's persistence API:
+  - `store.listen()` for changes
+  - Save to storage adapter on change (debounced)
+  - Load snapshot on mount
+- Header shows artifact name (editable) + Share button
 
-A React context that provides:
-- Current enabled tools (from settings)
-- Methods to toggle tools
-- Access to storage adapter
+**Routing**:
+- `/draw` -> DrawGallery
+- `/draw/:id` -> DrawEditor
+- `/draw/new` -> DrawEditor (creates new)
 
-```typescript
-interface BlueprintContextValue {
-  enabledTools: ToolType[];
-  toggleTool: (tool: ToolType) => void;
-  isToolEnabled: (tool: ToolType) => boolean;
-  storage: StorageAdapter;
-  loading: boolean;
-}
-```
+### Step 4: Update Flow Tool
 
-The context loads settings on mount and saves when tools are toggled.
+**FlowGallery.tsx**:
+- Same pattern as DrawGallery
+- Shows flow diagram artifacts
 
----
+**FlowEditor.tsx** (updated):
+- Load nodes/edges from artifact.data
+- Save nodes/edges to artifact.data on change
+- Editable name in header
+- Share button
 
-## Step 4: Create Layout Components
+### Step 5: Update Mind Map Tool
 
-### AppLayout.tsx
-- Uses shadcn SidebarProvider
-- Renders AppSidebar + main content area
-- Wraps children in BlueprintProvider
+**MindMapGallery.tsx**:
+- Gallery of mind maps
 
-### AppSidebar.tsx
-- Navigation links for each enabled tool
-- Uses `isToolEnabled()` from context to filter
-- Icons: Pencil (Draw), GitBranch (Flow), Brain (Mind Map), Columns (Kanban), StickyNote (Whiteboard), Settings (Settings)
-- Active route highlighting
-- Collapsible with toggle button
+**MindMapEditor.tsx** (updated):
+- Load/save nodes and edges
+- Same pattern as Flow
 
-### ToolHeader.tsx
-- Reusable header for each tool page
-- Shows icon + tool name
-- Placeholder "Share" button (for future deep linking)
+### Step 6: Update Kanban Tool
 
----
+**KanbanGallery.tsx**:
+- Gallery of kanban boards
 
-## Step 5: Create Dashboard (Index.tsx)
+**KanbanEditor.tsx** (updated):
+- Load/save columns and cards
+- Same pattern
 
-Transform into an "Idea Room" hub:
-- Welcome message: "Your Project's Creative Memory"
-- Grid of tool cards (only enabled tools shown)
-- Each card: icon, name, description, click to navigate
-- Quick access to Settings
+### Step 7: Update Whiteboard Tool
 
----
+**WhiteboardGallery.tsx**:
+- Gallery of whiteboards
 
-## Step 6: Create Settings Page
+**WhiteboardEditor.tsx** (updated):
+- Same tldraw persistence as Draw
+- Different default tool/zoom settings
 
-Settings UI with:
-- List of all tools with Switch toggles
-- Toggle on/off updates context and persists via adapter
-- Visual feedback when a tool is disabled
-- Explanation that disabled tools are hidden from sidebar
-
----
-
-## Step 7: Create Draw Page (tldraw)
-
-- Import `tldraw/tldraw.css`
-- Mount `<Tldraw />` component
-- Full drawing capabilities
-- Future: load/save via storage adapter
-
----
-
-## Step 8: Create Flow Page (React Flow)
-
-- Import `@xyflow/react/dist/style.css`
-- ReactFlow canvas with:
-  - Default, Input, Output node types
-  - Add node button
-  - Connect nodes by dragging
-  - Delete with backspace
-  - Controls (zoom, fit)
-  - MiniMap
-- In-memory state for now
-
----
-
-## Step 9: Create Mind Map Page (React Flow)
-
-Uses React Flow with custom styling for mind maps:
-
-### MindMapNode.tsx
-- Rounded, thought-bubble style
-- Different background color (subtle blue/purple tint)
-- Edit-in-place for text
-- "+" button to add child node
-
-### MindMapEditor.tsx
-- Curved bezier edges
-- Starts with a central "Main Idea" node
-- Add children from any node
-- Auto-layout option (future)
-
----
-
-## Step 10: Create Kanban Page
-
-### KanbanBoard.tsx
-- Three columns: Ideas, In Progress, Done
-- DragDropContext from @hello-pangea/dnd
-
-### KanbanColumn.tsx
-- Droppable area
-- Column header with count
-- "Add card" button
-
-### KanbanCard.tsx
-- Draggable card
-- Title + optional description
-- Delete button on hover
-
----
-
-## Step 11: Create Whiteboard Page (tldraw)
-
-- Same tldraw component as Draw
-- Different initial state: zoom level, default tool = sticky note
-- Different page title/context
-
----
-
-## Step 12: Wire Up Routing
-
-Update `App.tsx`:
+### Step 8: Update Routing in App.tsx
 
 ```typescript
 <Routes>
   <Route element={<AppLayout />}>
     <Route path="/" element={<Index />} />
-    <Route path="/draw" element={<DrawPage />} />
-    <Route path="/flow" element={<FlowPage />} />
-    <Route path="/mindmap" element={<MindMapPage />} />
-    <Route path="/kanban" element={<KanbanPage />} />
-    <Route path="/whiteboard" element={<WhiteboardPage />} />
+    
+    {/* Draw */}
+    <Route path="/draw" element={<DrawGallery />} />
+    <Route path="/draw/new" element={<DrawEditor />} />
+    <Route path="/draw/:id" element={<DrawEditor />} />
+    
+    {/* Flow */}
+    <Route path="/flow" element={<FlowGallery />} />
+    <Route path="/flow/new" element={<FlowEditor />} />
+    <Route path="/flow/:id" element={<FlowEditor />} />
+    
+    {/* Mind Map */}
+    <Route path="/mindmap" element={<MindMapGallery />} />
+    <Route path="/mindmap/new" element={<MindMapEditor />} />
+    <Route path="/mindmap/:id" element={<MindMapEditor />} />
+    
+    {/* Kanban */}
+    <Route path="/kanban" element={<KanbanGallery />} />
+    <Route path="/kanban/new" element={<KanbanEditor />} />
+    <Route path="/kanban/:id" element={<KanbanEditor />} />
+    
+    {/* Whiteboard */}
+    <Route path="/whiteboard" element={<WhiteboardGallery />} />
+    <Route path="/whiteboard/new" element={<WhiteboardEditor />} />
+    <Route path="/whiteboard/:id" element={<WhiteboardEditor />} />
+    
     <Route path="/settings" element={<SettingsPage />} />
   </Route>
   <Route path="*" element={<NotFound />} />
 </Routes>
 ```
 
+### Step 9: Update Sidebar Navigation
+
+Sidebar links go to gallery pages (`/draw`, `/flow`, etc.), not directly to editors.
+
 ---
 
-## How Host Projects Will Use This
+## Deep Linking / Share Feature
 
-When this suite is embedded in another project:
+When you click "Share" on an artifact:
+1. Build URL: `{origin}/draw/{artifactId}` (or flow, mindmap, etc.)
+2. Copy to clipboard
+3. Show toast: "Link copied!"
 
+When someone opens that URL:
+1. Router matches `/draw/:id`
+2. DrawEditor loads artifact by ID from storage
+3. They see your exact drawing/flow/etc.
+
+For now this works within the same browser (localStorage). Future: backend sync.
+
+---
+
+## Files to Create/Update
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `src/hooks/useArtifact.ts` | Create | Artifact load/save logic |
+| `src/components/gallery/ArtifactGallery.tsx` | Create | Reusable gallery grid |
+| `src/components/gallery/ArtifactCard.tsx` | Create | Individual artifact card |
+| `src/components/gallery/ShareButton.tsx` | Create | Copy link button |
+| `src/pages/DrawGallery.tsx` | Create | Draw gallery page |
+| `src/pages/FlowGallery.tsx` | Create | Flow gallery page |
+| `src/pages/MindMapGallery.tsx` | Create | Mind map gallery page |
+| `src/pages/KanbanGallery.tsx` | Create | Kanban gallery page |
+| `src/pages/WhiteboardGallery.tsx` | Create | Whiteboard gallery page |
+| `src/components/tools/draw/DrawingCanvas.tsx` | Update | Add persistence |
+| `src/components/tools/flow/FlowEditor.tsx` | Update | Add persistence |
+| `src/components/tools/mindmap/MindMapEditor.tsx` | Update | Add persistence |
+| `src/components/tools/kanban/KanbanBoard.tsx` | Update | Add persistence |
+| `src/components/tools/whiteboard/StickyWhiteboard.tsx` | Update | Add persistence |
+| `src/pages/DrawPage.tsx` | Update | Handle :id param |
+| `src/pages/FlowPage.tsx` | Update | Handle :id param |
+| `src/pages/MindMapPage.tsx` | Update | Handle :id param |
+| `src/pages/KanbanPage.tsx` | Update | Handle :id param |
+| `src/pages/WhiteboardPage.tsx` | Update | Handle :id param |
+| `src/components/layout/ToolHeader.tsx` | Update | Add editable name + share |
+| `src/App.tsx` | Update | Add gallery routes |
+| `src/components/layout/AppSidebar.tsx` | Update | Link to galleries |
+
+---
+
+## User Flow Example
+
+1. Navigate to `/draw` (via sidebar)
+2. See gallery: empty state with "Create your first drawing" message
+3. Click "New Drawing" button
+4. Redirected to `/draw/new`, tldraw editor opens
+5. Start drawing - auto-saves to localStorage
+6. Artifact gets ID, URL updates to `/draw/abc123`
+7. Click "Share" - copies `https://your-app.com/draw/abc123`
+8. Paste link anywhere to share
+9. Click sidebar "Draw" again - see your drawing in the gallery
+10. Click the card - opens `/draw/abc123` to continue editing
+
+---
+
+## Technical Details
+
+### tldraw Persistence
+
+tldraw provides a `store` that can be serialized:
 ```typescript
-// In the host project's setup
-import { setStorageAdapter } from '@/blueprint/lib/storage';
-import { createSupabaseAdapter } from './mySupabaseAdapter';
+const store = editor.store;
+const snapshot = store.getSnapshot();
+// Save snapshot to artifact.data
 
-// Plug in the host's database
-setStorageAdapter(createSupabaseAdapter(supabaseClient));
+// To restore:
+store.loadSnapshot(artifact.data);
 ```
 
-Then all settings and artifacts automatically persist to the host's database instead of localStorage.
+### React Flow Persistence
 
----
+React Flow state is already in `nodes` and `edges` arrays - save directly:
+```typescript
+// Save
+artifact.data = { nodes, edges };
 
-## Files to Create
+// Restore
+const { nodes, edges } = artifact.data;
+```
 
-| File | Purpose |
-|------|---------|
-| `src/lib/storage/types.ts` | TypeScript interfaces for storage |
-| `src/lib/storage/localStorage.ts` | Default localStorage adapter |
-| `src/lib/storage/adapter.ts` | Adapter registry |
-| `src/lib/storage/index.ts` | Public exports |
-| `src/contexts/BlueprintContext.tsx` | Global state provider |
-| `src/components/layout/AppLayout.tsx` | Layout wrapper |
-| `src/components/layout/AppSidebar.tsx` | Navigation sidebar |
-| `src/components/layout/ToolHeader.tsx` | Tool page header |
-| `src/components/tools/draw/DrawingCanvas.tsx` | tldraw wrapper |
-| `src/components/tools/flow/FlowEditor.tsx` | React Flow wrapper |
-| `src/components/tools/mindmap/MindMapEditor.tsx` | Mind map canvas |
-| `src/components/tools/mindmap/MindMapNode.tsx` | Custom node |
-| `src/components/tools/kanban/KanbanBoard.tsx` | Board container |
-| `src/components/tools/kanban/KanbanColumn.tsx` | Column component |
-| `src/components/tools/kanban/KanbanCard.tsx` | Card component |
-| `src/components/tools/whiteboard/StickyWhiteboard.tsx` | Sticky canvas |
-| `src/pages/Index.tsx` | Dashboard (update) |
-| `src/pages/DrawPage.tsx` | Draw tool page |
-| `src/pages/FlowPage.tsx` | Flow tool page |
-| `src/pages/MindMapPage.tsx` | Mind map page |
-| `src/pages/KanbanPage.tsx` | Kanban page |
-| `src/pages/WhiteboardPage.tsx` | Whiteboard page |
-| `src/pages/SettingsPage.tsx` | Settings page |
-| `src/App.tsx` | Routing (update) |
+### Auto-Save Strategy
 
----
-
-## Visual Cohesion
-
-All tools will share:
-- Same neutral color palette from `index.css`
-- Consistent ToolHeader component
-- Inter/JetBrains Mono typography
-- Sidebar always present for navigation
-- Same hover/focus states
-- Unified card styling for dashboard
+- Debounce saves (e.g., 1 second after last change)
+- Show "Saving..." indicator briefly
+- Show "Saved" when complete
+- This prevents excessive localStorage writes
 
