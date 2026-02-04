@@ -102,7 +102,7 @@ export function ToolHeader({
             onClick={onToggleFavorite}
             className="h-8 w-8"
           >
-            <Star className={`h-4 w-4 ${artifactFavorite ? 'text-warning fill-warning' : ''}`} />
+            <Star className={`h-4 w-4 ${artifactFavorite ? 'text-yellow-500 fill-yellow-500' : ''}`} />
           </Button>
         )}
         {showArtifactInfo && (
