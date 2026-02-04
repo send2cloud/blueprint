@@ -21,7 +21,10 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
     const loadSettings = async () => {
       try {
         const settings = await storage.getSettings();
-        setEnabledTools(settings.enabledTools);
+        // Filter out old tool types that no longer exist
+        const validTools = settings.enabledTools.filter(t => ALL_TOOLS.includes(t));
+        // If no valid tools, default to all tools
+        setEnabledTools(validTools.length > 0 ? validTools : [...ALL_TOOLS]);
       } catch (e) {
         console.error('Failed to load blueprint settings:', e);
       } finally {

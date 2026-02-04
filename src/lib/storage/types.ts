@@ -1,6 +1,6 @@
-export type ToolType = 'draw' | 'flow' | 'mindmap' | 'kanban' | 'whiteboard';
+export type ToolType = 'canvas' | 'diagram' | 'board';
 
-export const ALL_TOOLS: ToolType[] = ['draw', 'flow', 'mindmap', 'kanban', 'whiteboard'];
+export const ALL_TOOLS: ToolType[] = ['canvas', 'diagram', 'board'];
 
 export interface BlueprintSettings {
   enabledTools: ToolType[];
@@ -13,6 +13,7 @@ export interface Artifact {
   data: unknown;
   createdAt: string;
   updatedAt: string;
+  favorite: boolean;
 }
 
 export interface StorageAdapter {
@@ -25,4 +26,5 @@ export interface StorageAdapter {
   saveArtifact(artifact: Artifact): Promise<void>;
   deleteArtifact(id: string): Promise<void>;
   listArtifacts(type?: ToolType): Promise<Artifact[]>;
+  listFavorites(): Promise<Artifact[]>;
 }

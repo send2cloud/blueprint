@@ -30,7 +30,12 @@ export class LocalStorageAdapter implements StorageAdapter {
     try {
       const stored = localStorage.getItem(ARTIFACT_PREFIX + id);
       if (stored) {
-        return JSON.parse(stored);
+        const artifact = JSON.parse(stored);
+        // Ensure favorite field exists for backward compatibility
+        if (artifact.favorite === undefined) {
+          artifact.favorite = false;
+        }
+        return artifact;
       }
     } catch (e) {
       console.error('Failed to load artifact:', e);
@@ -40,7 +45,12 @@ export class LocalStorageAdapter implements StorageAdapter {
 
   async saveArtifact(artifact: Artifact): Promise<void> {
     try {
-      localStorage.setItem(ARTIFACT_PREFIX + artifact.id, JSON.stringify(artifact));
+      // Ensure favorite field exists
+      const artifactWithFavorite = {
+        ...artifact,
+        favorite: artifact.favorite ?? false,
+      };
+      localStorage.setItem(ARTIFACT_PREFIX + artifact.id, JSON.stringify(artifactWithFavorite));
       // Update index
       const index = await this.getArtifactIndex();
       if (!index.includes(artifact.id)) {
@@ -83,6 +93,27 @@ export class LocalStorageAdapter implements StorageAdapter {
       );
     } catch (e) {
       console.error('Failed to list artifacts:', e);
+      return [];
+    }
+  }
+
+  async listFavorites(): Promise<Artifact[]> {
+    try {
+      const index = await this.getArtifactIndex();
+      const favorites: Artifact[] = [];
+      
+      for (const id of index) {
+        const artifact = await this.getArtifact(id);
+        if (artifact && artifact.favorite) {
+          favorites.push(artifact);
+        }
+      }
+      
+      return favorites.sort((a, b) => 
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+    } catch (e) {
+      console.error('Failed to list favorites:', e);
       return [];
     }
   }

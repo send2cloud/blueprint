@@ -15,15 +15,14 @@ interface UseArtifactReturn {
   saving: boolean;
   save: (data: unknown) => Promise<void>;
   rename: (name: string) => Promise<void>;
+  toggleFavorite: () => Promise<void>;
   isNew: boolean;
 }
 
 const DEFAULT_NAMES: Record<ToolType, string> = {
-  draw: 'Untitled Drawing',
-  flow: 'Untitled Flow',
-  mindmap: 'Untitled Mind Map',
-  kanban: 'Untitled Board',
-  whiteboard: 'Untitled Whiteboard',
+  canvas: 'Untitled Canvas',
+  diagram: 'Untitled Diagram',
+  board: 'Untitled Board',
 };
 
 export function useArtifact(
@@ -60,6 +59,7 @@ export function useArtifact(
             data: null,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
+            favorite: false,
           };
           setArtifact(newArtifact);
         } else if (id) {
@@ -148,6 +148,19 @@ export function useArtifact(
     setArtifact(updatedArtifact);
   }, [artifact, storage]);
 
+  const toggleFavorite = useCallback(async () => {
+    if (!artifact) return;
+
+    const updatedArtifact: Artifact = {
+      ...artifact,
+      favorite: !artifact.favorite,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await storage.saveArtifact(updatedArtifact);
+    setArtifact(updatedArtifact);
+  }, [artifact, storage]);
+
   return {
     artifact,
     loading,
@@ -155,6 +168,7 @@ export function useArtifact(
     saving,
     save,
     rename,
+    toggleFavorite,
     isNew,
   };
 }
@@ -185,9 +199,18 @@ export function useArtifactList(type: ToolType) {
     setArtifacts((prev) => prev.filter((a) => a.id !== id));
   }, [storage]);
 
+  const toggleFavorite = useCallback(async (id: string) => {
+    const artifact = artifacts.find((a) => a.id === id);
+    if (artifact) {
+      const updated = { ...artifact, favorite: !artifact.favorite, updatedAt: new Date().toISOString() };
+      await storage.saveArtifact(updated);
+      setArtifacts((prev) => prev.map((a) => (a.id === id ? updated : a)));
+    }
+  }, [artifacts, storage]);
+
   useEffect(() => {
     refresh();
   }, [refresh]);
 
-  return { artifacts, loading, error, refresh, deleteArtifact };
+  return { artifacts, loading, error, refresh, deleteArtifact, toggleFavorite };
 }

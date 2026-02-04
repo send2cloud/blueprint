@@ -4,33 +4,23 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useBlueprint } from '@/contexts/BlueprintContext';
 import { ToolType, ALL_TOOLS } from '@/lib/storage';
-import { Pencil, GitBranch, Brain, Columns3, StickyNote, LucideIcon } from 'lucide-react';
+import { Palette, GitBranch, Columns3, LucideIcon } from 'lucide-react';
 
 const toolMeta: Record<ToolType, { label: string; icon: LucideIcon; description: string }> = {
-  draw: {
-    label: 'Draw',
-    icon: Pencil,
-    description: 'Freeform sketches, diagrams, and drawings',
+  canvas: {
+    label: 'Canvas',
+    icon: Palette,
+    description: 'Drawings, whiteboards, sketches, and visual notes',
   },
-  flow: {
-    label: 'Flow',
+  diagram: {
+    label: 'Diagram',
     icon: GitBranch,
-    description: 'Node-based flow diagrams and charts',
+    description: 'Flow charts, mind maps, and system diagrams',
   },
-  mindmap: {
-    label: 'Mind Map',
-    icon: Brain,
-    description: 'Hierarchical brainstorming and idea trees',
-  },
-  kanban: {
-    label: 'Kanban',
+  board: {
+    label: 'Board',
     icon: Columns3,
-    description: 'Task boards for tracking progress',
-  },
-  whiteboard: {
-    label: 'Whiteboard',
-    icon: StickyNote,
-    description: 'Infinite canvas with sticky notes',
+    description: 'Kanban boards and task trackers',
   },
 };
 

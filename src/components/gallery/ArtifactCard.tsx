@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
-import { Pencil, GitBranch, Brain, Columns3, StickyNote, Trash2, Share2 } from 'lucide-react';
+import { Palette, GitBranch, Columns3, Trash2, Share2, Star } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -9,25 +9,22 @@ import { Artifact, ToolType } from '@/lib/storage';
 interface ArtifactCardProps {
   artifact: Artifact;
   onDelete: (id: string) => void;
+  onToggleFavorite?: (id: string) => void;
 }
 
 const TOOL_ICONS: Record<ToolType, React.ComponentType<{ className?: string }>> = {
-  draw: Pencil,
-  flow: GitBranch,
-  mindmap: Brain,
-  kanban: Columns3,
-  whiteboard: StickyNote,
+  canvas: Palette,
+  diagram: GitBranch,
+  board: Columns3,
 };
 
 const TYPE_LABELS: Record<ToolType, string> = {
-  draw: 'drawing',
-  flow: 'flow diagram',
-  mindmap: 'mind map',
-  kanban: 'board',
-  whiteboard: 'whiteboard',
+  canvas: 'canvas',
+  diagram: 'diagram',
+  board: 'board',
 };
 
-export function ArtifactCard({ artifact, onDelete }: ArtifactCardProps) {
+export function ArtifactCard({ artifact, onDelete, onToggleFavorite }: ArtifactCardProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const Icon = TOOL_ICONS[artifact.type];
@@ -54,6 +51,11 @@ export function ArtifactCard({ artifact, onDelete }: ArtifactCardProps) {
     }
   };
 
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleFavorite?.(artifact.id);
+  };
+
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDelete(artifact.id);
@@ -71,9 +73,14 @@ export function ArtifactCard({ artifact, onDelete }: ArtifactCardProps) {
               <Icon className="h-5 w-5 text-muted-foreground" />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="font-medium text-foreground truncate">
-                {artifact.name}
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-medium text-foreground truncate">
+                  {artifact.name}
+                </h3>
+                {artifact.favorite && (
+                  <Star className="h-3 w-3 text-yellow-500 fill-yellow-500 flex-shrink-0" />
+                )}
+              </div>
               <p className="text-sm text-muted-foreground">
                 {formatDistanceToNow(new Date(artifact.updatedAt), { addSuffix: true })}
               </p>
@@ -81,6 +88,16 @@ export function ArtifactCard({ artifact, onDelete }: ArtifactCardProps) {
           </div>
           
           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            {onToggleFavorite && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleToggleFavorite}
+              >
+                <Star className={`h-4 w-4 ${artifact.favorite ? 'text-yellow-500 fill-yellow-500' : ''}`} />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
