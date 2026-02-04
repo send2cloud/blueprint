@@ -1,7 +1,7 @@
 import "@blocknote/core/fonts/inter.css";
-import "@blocknote/mantine/style.css";
+import "@blocknote/shadcn/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
+import { BlockNoteView } from "@blocknote/shadcn";
 import { useEffect, useMemo } from "react";
 
 interface NotesEditorProps {
