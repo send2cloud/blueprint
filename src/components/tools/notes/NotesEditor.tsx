@@ -40,8 +40,12 @@ export function NotesEditor({ initialData, onSave }: NotesEditorProps) {
       <div className="max-w-4xl mx-auto py-8 px-4">
         <BlockNoteView 
           editor={editor} 
-          theme="light"
+          theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
           className="min-h-[500px]"
+        />
+      </div>
+    </div>
+  );
         />
       </div>
     </div>
