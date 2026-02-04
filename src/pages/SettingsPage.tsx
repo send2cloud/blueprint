@@ -1,10 +1,9 @@
-import { Settings } from 'lucide-react';
+import { Settings, Palette, GitBranch, Columns3, FileText, Image, LucideIcon } from 'lucide-react';
 import { ToolHeader } from '@/components/layout/ToolHeader';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useBlueprint } from '@/contexts/BlueprintContext';
 import { ToolType, ALL_TOOLS } from '@/lib/storage';
-import { Palette, GitBranch, Columns3, LucideIcon } from 'lucide-react';
 
 const toolMeta: Record<ToolType, { label: string; icon: LucideIcon; description: string }> = {
   canvas: {
@@ -21,6 +20,16 @@ const toolMeta: Record<ToolType, { label: string; icon: LucideIcon; description:
     label: 'Board',
     icon: Columns3,
     description: 'Kanban boards and task trackers',
+  },
+  notes: {
+    label: 'Notes',
+    icon: FileText,
+    description: 'Documents, to-do lists, and rich text notes',
+  },
+  gallery: {
+    label: 'Gallery',
+    icon: Image,
+    description: 'Media files, voice notes, and saved bookmarks',
   },
 };
 
