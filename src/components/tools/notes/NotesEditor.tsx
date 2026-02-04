@@ -12,6 +12,7 @@ interface NotesEditorProps {
 export function NotesEditor({ initialData, onSave }: NotesEditorProps) {
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
+  const { resolvedTheme } = useTheme();
 
   // Create editor only once with stable initial content
   const editor = useMemo(() => {
