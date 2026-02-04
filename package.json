@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@blocknote/core": "^0.18.0",
-    "@blocknote/shadcn": "^0.46.2",
     "@hello-pangea/dnd": "^16.6.0",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.11",
