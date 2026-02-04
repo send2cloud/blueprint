@@ -10,11 +10,9 @@ interface ShareButtonProps {
 }
 
 const TYPE_LABELS: Record<ToolType, string> = {
-  draw: 'drawing',
-  flow: 'flow diagram',
-  mindmap: 'mind map',
-  kanban: 'board',
-  whiteboard: 'whiteboard',
+  canvas: 'canvas',
+  diagram: 'diagram',
+  board: 'board',
 };
 
 export function ShareButton({ artifactId, type, className }: ShareButtonProps) {

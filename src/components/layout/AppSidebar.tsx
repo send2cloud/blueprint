@@ -1,4 +1,4 @@
-import { Home, Pencil, GitBranch, Brain, Columns3, StickyNote, Settings } from 'lucide-react';
+import { Home, Palette, GitBranch, Columns3, Star, Settings } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useBlueprint } from '@/contexts/BlueprintContext';
 import { ToolType } from '@/lib/storage';
@@ -24,11 +24,9 @@ interface ToolItem {
 }
 
 const toolItems: ToolItem[] = [
-  { title: 'Draw', url: '/draw', icon: Pencil, toolType: 'draw' },
-  { title: 'Flow', url: '/flow', icon: GitBranch, toolType: 'flow' },
-  { title: 'Mind Map', url: '/mindmap', icon: Brain, toolType: 'mindmap' },
-  { title: 'Kanban', url: '/kanban', icon: Columns3, toolType: 'kanban' },
-  { title: 'Whiteboard', url: '/whiteboard', icon: StickyNote, toolType: 'whiteboard' },
+  { title: 'Canvas', url: '/canvas', icon: Palette, toolType: 'canvas' },
+  { title: 'Diagram', url: '/diagram', icon: GitBranch, toolType: 'diagram' },
+  { title: 'Board', url: '/board', icon: Columns3, toolType: 'board' },
 ];
 
 export function AppSidebar() {
@@ -79,6 +77,26 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Library</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="Favorites">
+                  <NavLink 
+                    to="/favorites" 
+                    className="flex items-center gap-2"
+                    activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                  >
+                    <Star className="h-4 w-4" />
+                    {!collapsed && <span>Favorites</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

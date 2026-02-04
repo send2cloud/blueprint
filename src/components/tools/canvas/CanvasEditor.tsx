@@ -1,13 +1,13 @@
 import 'tldraw/tldraw.css';
-import { useEffect, useCallback, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { Tldraw, Editor, TLStoreSnapshot } from 'tldraw';
 
-interface DrawingCanvasProps {
+interface CanvasEditorProps {
   initialData?: unknown;
   onSave?: (data: unknown) => void;
 }
 
-export function DrawingCanvas({ initialData, onSave }: DrawingCanvasProps) {
+export function CanvasEditor({ initialData, onSave }: CanvasEditorProps) {
   const editorRef = useRef<Editor | null>(null);
 
   const handleMount = useCallback((editor: Editor) => {

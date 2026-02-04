@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Pencil, GitBranch, Brain, Columns3, StickyNote, Settings, LucideIcon } from 'lucide-react';
+import { Palette, GitBranch, Columns3, Settings, LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useBlueprint } from '@/contexts/BlueprintContext';
@@ -13,39 +13,25 @@ const toolCards: Array<{
   path: string;
 }> = [
   {
-    tool: 'draw',
-    title: 'Draw',
-    description: 'Freeform sketches, diagrams, and architecture drawings',
-    icon: Pencil,
-    path: '/draw',
+    tool: 'canvas',
+    title: 'Canvas',
+    description: 'Freeform drawings, whiteboards, sketches, and visual notes',
+    icon: Palette,
+    path: '/canvas',
   },
   {
-    tool: 'flow',
-    title: 'Flow',
-    description: 'Node-based flow diagrams for processes and systems',
+    tool: 'diagram',
+    title: 'Diagram',
+    description: 'Flow charts, mind maps, system diagrams, and process flows',
     icon: GitBranch,
-    path: '/flow',
+    path: '/diagram',
   },
   {
-    tool: 'mindmap',
-    title: 'Mind Map',
-    description: 'Hierarchical brainstorming and idea exploration',
-    icon: Brain,
-    path: '/mindmap',
-  },
-  {
-    tool: 'kanban',
-    title: 'Kanban',
-    description: 'Task boards to track ideas, progress, and completion',
+    tool: 'board',
+    title: 'Board',
+    description: 'Kanban boards, task trackers, and project roadmaps',
     icon: Columns3,
-    path: '/kanban',
-  },
-  {
-    tool: 'whiteboard',
-    title: 'Whiteboard',
-    description: 'Infinite canvas with sticky notes for quick thoughts',
-    icon: StickyNote,
-    path: '/whiteboard',
+    path: '/board',
   },
 ];
 

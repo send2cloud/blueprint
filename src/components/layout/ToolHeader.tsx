@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { LucideIcon, Check, Loader2 } from 'lucide-react';
+import { LucideIcon, Check, Loader2, Star } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { ShareButton } from '@/components/gallery/ShareButton';
 import { ToolType } from '@/lib/storage';
 
@@ -10,8 +11,10 @@ interface ToolHeaderProps {
   artifactId?: string;
   artifactName?: string;
   artifactType?: ToolType;
+  artifactFavorite?: boolean;
   saving?: boolean;
   onRename?: (name: string) => void;
+  onToggleFavorite?: () => void;
 }
 
 export function ToolHeader({ 
@@ -20,8 +23,10 @@ export function ToolHeader({
   artifactId, 
   artifactName, 
   artifactType,
+  artifactFavorite,
   saving,
-  onRename 
+  onRename,
+  onToggleFavorite,
 }: ToolHeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(artifactName || '');
@@ -90,6 +95,16 @@ export function ToolHeader({
       </div>
       
       <div className="flex items-center gap-2">
+        {showArtifactInfo && onToggleFavorite && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleFavorite}
+            className="h-8 w-8"
+          >
+            <Star className={`h-4 w-4 ${artifactFavorite ? 'text-yellow-500 fill-yellow-500' : ''}`} />
+          </Button>
+        )}
         {showArtifactInfo && (
           <ShareButton artifactId={artifactId} type={artifactType} />
         )}
