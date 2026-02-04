@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { BlockNoteEditor, PartialBlock } from '@blocknote/core';
 import { BlockNoteView } from '@blocknote/mantine';
+import { useTheme } from 'next-themes';
 import '@blocknote/mantine/style.css';
 
 interface NotesEditorProps {
