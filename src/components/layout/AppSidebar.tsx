@@ -1,4 +1,5 @@
-import { Home, Star, Settings, PanelLeft } from 'lucide-react';
+import { Home, Star, Settings, Moon, Sun, PanelLeftClose, PanelLeft } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { NavLink } from '@/components/NavLink';
 import { useBlueprint } from '@/contexts/BlueprintContext';
 import { TOOL_LIST } from '@/lib/toolConfig';
@@ -13,18 +14,22 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
-  SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, toggleSidebar } = useSidebar();
   const { isToolEnabled, loading } = useBlueprint();
+  const { resolvedTheme, setTheme } = useTheme();
   const collapsed = state === 'collapsed';
 
   const visibleTools = loading 
     ? TOOL_LIST 
     : TOOL_LIST.filter(item => isToolEnabled(item.type));
+
+  const toggleTheme = () => {
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -79,14 +84,19 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Favorites">
+                <SidebarMenuButton asChild tooltip="Favorites (S)">
                   <NavLink 
                     to="/favorites" 
                     className="flex items-center gap-2"
                     activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
                   >
                     <Star className="h-4 w-4" />
-                    {!collapsed && <span>Favorites</span>}
+                    {!collapsed && (
+                      <span className="flex-1 flex items-center justify-between">
+                        <span>Favorites</span>
+                        <kbd className="text-[10px] font-mono text-muted-foreground">S</kbd>
+                      </span>
+                    )}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -110,7 +120,23 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarTrigger className="w-full justify-start" />
+            <SidebarMenuButton tooltip={`Toggle theme (\\)`} onClick={toggleTheme}>
+              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              {!collapsed && <span>Toggle theme</span>}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton tooltip={collapsed ? "Expand sidebar" : "Collapse sidebar"} onClick={toggleSidebar}>
+              {collapsed ? (
+                <PanelLeft className="h-4 w-4" />
+              ) : (
+                <>
+                  <PanelLeftClose className="h-4 w-4" />
+                  <span>Collapse</span>
+                </>
+              )}
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
