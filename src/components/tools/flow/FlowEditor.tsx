@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -16,7 +16,18 @@ import '@xyflow/react/dist/style.css';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 
-const initialNodes: Node[] = [
+interface FlowData {
+  nodes: Node[];
+  edges: Edge[];
+  nodeId: number;
+}
+
+interface FlowEditorProps {
+  initialData?: unknown;
+  onSave?: (data: unknown) => void;
+}
+
+const defaultNodes: Node[] = [
   {
     id: '1',
     type: 'input',
@@ -36,15 +47,30 @@ const initialNodes: Node[] = [
   },
 ];
 
-const initialEdges: Edge[] = [
+const defaultEdges: Edge[] = [
   { id: 'e1-2', source: '1', target: '2' },
   { id: 'e2-3', source: '2', target: '3' },
 ];
 
-export function FlowEditor() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [nodeId, setNodeId] = useState(4);
+export function FlowEditor({ initialData, onSave }: FlowEditorProps) {
+  const flowData = initialData as FlowData | undefined;
+  
+  const [nodes, setNodes, onNodesChange] = useNodesState(flowData?.nodes || defaultNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(flowData?.edges || defaultEdges);
+  const [nodeId, setNodeId] = useState(flowData?.nodeId || 4);
+  const [initialized, setInitialized] = useState(false);
+
+  // Mark as initialized after first render
+  useEffect(() => {
+    setInitialized(true);
+  }, []);
+
+  // Save on changes (after initialization)
+  useEffect(() => {
+    if (initialized && onSave) {
+      onSave({ nodes, edges, nodeId });
+    }
+  }, [nodes, edges, nodeId, initialized, onSave]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
 import { v4 as uuidv4 } from 'uuid';
 import { KanbanColumn } from './KanbanColumn';
@@ -14,14 +14,38 @@ interface Column {
   cards: Card[];
 }
 
-const initialColumns: Column[] = [
+interface KanbanData {
+  columns: Column[];
+}
+
+interface KanbanBoardProps {
+  initialData?: unknown;
+  onSave?: (data: unknown) => void;
+}
+
+const defaultColumns: Column[] = [
   { id: 'ideas', title: 'Ideas', cards: [] },
   { id: 'in-progress', title: 'In Progress', cards: [] },
   { id: 'done', title: 'Done', cards: [] },
 ];
 
-export function KanbanBoard() {
-  const [columns, setColumns] = useState<Column[]>(initialColumns);
+export function KanbanBoard({ initialData, onSave }: KanbanBoardProps) {
+  const kanbanData = initialData as KanbanData | undefined;
+  
+  const [columns, setColumns] = useState<Column[]>(kanbanData?.columns || defaultColumns);
+  const [initialized, setInitialized] = useState(false);
+
+  // Mark as initialized after first render
+  useEffect(() => {
+    setInitialized(true);
+  }, []);
+
+  // Save on changes (after initialization)
+  useEffect(() => {
+    if (initialized && onSave) {
+      onSave({ columns });
+    }
+  }, [columns, initialized, onSave]);
 
   const onDragEnd = useCallback((result: DropResult) => {
     const { source, destination } = result;
