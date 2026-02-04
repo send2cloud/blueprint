@@ -31,6 +31,7 @@ export function ToolHeader({
   onRename,
   onToggleFavorite,
 }: ToolHeaderProps) {
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(artifactName || '');
 
