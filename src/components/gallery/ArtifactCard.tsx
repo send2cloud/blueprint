@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { Palette, GitBranch, Columns3, Trash2, Star, FileText, Image } from 'lucide-react';
+import { Palette, GitBranch, Columns3, Trash2, Star, FileText, Image, Share2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ToolType, Artifact } from '@/lib/storage';
+import { useToast } from '@/hooks/use-toast';
 import { ComponentType } from 'react';
 
 const TYPE_ICONS: Record<ToolType, ComponentType<{ className?: string }>> = {
@@ -21,6 +22,21 @@ const TYPE_LABELS: Record<ToolType, string> = {
   notes: 'Note',
   gallery: 'Gallery Item',
 };
+
+interface ArtifactCardProps {
+  artifact: Artifact;
+  onDelete: (id: string) => void;
+  onToggleFavorite?: (id: string) => void;
+}
+
+export function ArtifactCard({ artifact, onDelete, onToggleFavorite }: ArtifactCardProps) {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const Icon = TYPE_ICONS[artifact.type];
+
+  const handleClick = () => {
+    navigate(`/${artifact.type}/${artifact.id}`);
+  };
 
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
