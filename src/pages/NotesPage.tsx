@@ -1,9 +1,12 @@
 import { useParams } from 'react-router-dom';
-import { FileText, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { ToolHeader } from '@/components/layout/ToolHeader';
 import { NotesEditor } from '@/components/tools/notes/NotesEditor';
 import { useArtifact } from '@/hooks/useArtifact';
 import { useCallback } from 'react';
+import { TOOL_CONFIG } from '@/lib/toolConfig';
+
+const tool = TOOL_CONFIG.notes;
 
 export default function NotesPage() {
   const { id } = useParams();
@@ -16,7 +19,7 @@ export default function NotesPage() {
   if (loading) {
     return (
       <div className="flex flex-col h-full">
-        <ToolHeader title="Notes" icon={FileText} />
+        <ToolHeader title={tool.title} icon={tool.icon} />
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
@@ -27,9 +30,9 @@ export default function NotesPage() {
   if (error || !artifact) {
     return (
       <div className="flex flex-col h-full">
-        <ToolHeader title="Notes" icon={FileText} />
+        <ToolHeader title={tool.title} icon={tool.icon} />
         <div className="flex-1 flex items-center justify-center">
-          <p className="text-destructive">{error || 'Failed to load note'}</p>
+          <p className="text-destructive">{error || 'Failed to load doc'}</p>
         </div>
       </div>
     );
@@ -38,8 +41,8 @@ export default function NotesPage() {
   return (
     <div className="flex flex-col h-full">
       <ToolHeader
-        title="Notes"
-        icon={FileText}
+        title={tool.title}
+        icon={tool.icon}
         artifactId={artifact.id}
         artifactName={artifact.name}
         artifactType={artifact.type}

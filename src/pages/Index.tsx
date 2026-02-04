@@ -1,52 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import { Palette, GitBranch, Columns3, FileText, Settings, LucideIcon } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useBlueprint } from '@/contexts/BlueprintContext';
-import { ToolType } from '@/lib/storage';
-
-const toolCards: Array<{
-  tool: ToolType;
-  title: string;
-  description: string;
-  icon: LucideIcon;
-  path: string;
-}> = [
-  {
-    tool: 'canvas',
-    title: 'Canvas',
-    description: 'Freeform drawings, whiteboards, sketches, and visual notes',
-    icon: Palette,
-    path: '/canvas',
-  },
-  {
-    tool: 'diagram',
-    title: 'Diagram',
-    description: 'Flow charts, mind maps, system diagrams, and process flows',
-    icon: GitBranch,
-    path: '/diagram',
-  },
-  {
-    tool: 'board',
-    title: 'Board',
-    description: 'Kanban boards, task trackers, and project roadmaps',
-    icon: Columns3,
-    path: '/board',
-  },
-  {
-    tool: 'notes',
-    title: 'Notes',
-    description: 'Rich text documents, notes, and Notion-style content',
-    icon: FileText,
-    path: '/notes',
-  },
-];
+import { TOOL_LIST } from '@/lib/toolConfig';
 
 const Index = () => {
   const navigate = useNavigate();
   const { isToolEnabled, loading } = useBlueprint();
 
-  const visibleTools = loading ? toolCards : toolCards.filter((t) => isToolEnabled(t.tool));
+  const visibleTools = loading ? TOOL_LIST : TOOL_LIST.filter((t) => isToolEnabled(t.type));
 
   return (
     <div className="flex-1 p-6 overflow-auto">
@@ -67,16 +30,21 @@ const Index = () => {
             const Icon = tool.icon;
             return (
               <Card
-                key={tool.tool}
+                key={tool.type}
                 className="cursor-pointer transition-all hover:shadow-md hover:border-ring"
                 onClick={() => navigate(tool.path)}
               >
                 <CardHeader className="pb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-md bg-muted">
-                      <Icon className="h-5 w-5 text-muted-foreground" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 rounded-md bg-muted">
+                        <Icon className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <CardTitle className="text-lg">{tool.title}</CardTitle>
                     </div>
-                    <CardTitle className="text-lg">{tool.title}</CardTitle>
+                    <kbd className="px-2 py-1 text-xs font-mono bg-muted rounded text-muted-foreground">
+                      {tool.shortcut}
+                    </kbd>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -85,6 +53,14 @@ const Index = () => {
               </Card>
             );
           })}
+        </div>
+
+        {/* Keyboard shortcuts hint */}
+        <div className="text-center text-sm text-muted-foreground space-y-1">
+          <p>
+            <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">N</kbd> new • 
+            <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded ml-2">G</kbd> gallery
+          </p>
         </div>
 
         {/* Settings Link */}

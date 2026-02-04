@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
-import { Palette, GitBranch, Columns3, FileText, Trash2, Share2, Star } from 'lucide-react';
+import { Trash2, Share2, Star } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Artifact, ToolType } from '@/lib/storage';
+import { Artifact } from '@/lib/storage';
+import { TOOL_CONFIG } from '@/lib/toolConfig';
 
 interface ArtifactCardProps {
   artifact: Artifact;
@@ -12,24 +13,11 @@ interface ArtifactCardProps {
   onToggleFavorite?: (id: string) => void;
 }
 
-const TOOL_ICONS: Record<ToolType, React.ComponentType<{ className?: string }>> = {
-  canvas: Palette,
-  diagram: GitBranch,
-  board: Columns3,
-  notes: FileText,
-};
-
-const TYPE_LABELS: Record<ToolType, string> = {
-  canvas: 'canvas',
-  diagram: 'diagram',
-  board: 'board',
-  notes: 'note',
-};
-
 export function ArtifactCard({ artifact, onDelete, onToggleFavorite }: ArtifactCardProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const Icon = TOOL_ICONS[artifact.type];
+  const toolConfig = TOOL_CONFIG[artifact.type];
+  const Icon = toolConfig.icon;
 
   const handleClick = () => {
     navigate(`/${artifact.type}/${artifact.id}`);
@@ -43,7 +31,7 @@ export function ArtifactCard({ artifact, onDelete, onToggleFavorite }: ArtifactC
       await navigator.clipboard.writeText(url);
       toast({
         title: 'Link copied!',
-        description: `Share this link to show your ${TYPE_LABELS[artifact.type]}.`,
+        description: `Share this link to show your ${toolConfig.typeLabel}.`,
       });
     } catch {
       toast({
