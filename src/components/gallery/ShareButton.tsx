@@ -13,6 +13,7 @@ const TYPE_LABELS: Record<ToolType, string> = {
   canvas: 'canvas',
   diagram: 'diagram',
   board: 'board',
+  notes: 'note',
 };
 
 export function ShareButton({ artifactId, type, className }: ShareButtonProps) {
