@@ -3,7 +3,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   Bold, 
@@ -69,6 +69,11 @@ export function NotesEditor({ initialContent, onChange }: NotesEditorProps) {
     return null;
   }
 
+  const runCommand = (command: () => boolean) => {
+    command();
+    editor.chain().focus().run();
+  };
+
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       {/* Toolbar */}
@@ -98,7 +103,7 @@ export function NotesEditor({ initialContent, onChange }: NotesEditorProps) {
           variant={editor.isActive('heading', { level: 1 }) ? 'secondary' : 'ghost'}
           size="icon"
           className="h-8 w-8"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          onClick={() => runCommand(() => (editor.chain().focus() as any).toggleHeading({ level: 1 }).run())}
         >
           <Heading1 className="h-4 w-4" />
         </Button>
@@ -106,7 +111,7 @@ export function NotesEditor({ initialContent, onChange }: NotesEditorProps) {
           variant={editor.isActive('heading', { level: 2 }) ? 'secondary' : 'ghost'}
           size="icon"
           className="h-8 w-8"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          onClick={() => runCommand(() => (editor.chain().focus() as any).toggleHeading({ level: 2 }).run())}
         >
           <Heading2 className="h-4 w-4" />
         </Button>
@@ -144,7 +149,7 @@ export function NotesEditor({ initialContent, onChange }: NotesEditorProps) {
           variant={editor.isActive('bulletList') ? 'secondary' : 'ghost'}
           size="icon"
           className="h-8 w-8"
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          onClick={() => runCommand(() => (editor.chain().focus() as any).toggleBulletList().run())}
         >
           <List className="h-4 w-4" />
         </Button>
@@ -152,7 +157,7 @@ export function NotesEditor({ initialContent, onChange }: NotesEditorProps) {
           variant={editor.isActive('orderedList') ? 'secondary' : 'ghost'}
           size="icon"
           className="h-8 w-8"
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          onClick={() => runCommand(() => (editor.chain().focus() as any).toggleOrderedList().run())}
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
@@ -160,7 +165,7 @@ export function NotesEditor({ initialContent, onChange }: NotesEditorProps) {
           variant={editor.isActive('taskList') ? 'secondary' : 'ghost'}
           size="icon"
           className="h-8 w-8"
-          onClick={() => editor.chain().focus().toggleTaskList().run()}
+          onClick={() => runCommand(() => (editor.chain().focus() as any).toggleTaskList().run())}
         >
           <CheckSquare className="h-4 w-4" />
         </Button>
@@ -171,7 +176,7 @@ export function NotesEditor({ initialContent, onChange }: NotesEditorProps) {
           variant={editor.isActive('blockquote') ? 'secondary' : 'ghost'}
           size="icon"
           className="h-8 w-8"
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          onClick={() => runCommand(() => (editor.chain().focus() as any).toggleBlockquote().run())}
         >
           <Quote className="h-4 w-4" />
         </Button>
