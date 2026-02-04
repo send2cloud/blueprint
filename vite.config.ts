@@ -17,5 +17,22 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    // BlockNote is built on ProseMirror/Tiptap. If Vite resolves multiple copies of
+    // these packages, ProseMirror selection types can be registered twice and crash
+    // with: "Duplicate use of selection JSON ID ...".
+    dedupe: [
+      "@tiptap/pm",
+      "prosemirror-state",
+      "prosemirror-view",
+      "prosemirror-model",
+      "prosemirror-transform",
+      "prosemirror-commands",
+      "prosemirror-history",
+      "prosemirror-keymap",
+      "prosemirror-inputrules",
+      "prosemirror-schema-list",
+      "prosemirror-gapcursor",
+      "prosemirror-dropcursor",
+    ],
   },
 }));
