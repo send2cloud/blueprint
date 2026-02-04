@@ -211,7 +211,7 @@ export function ArtifactCard({ artifact, onDelete, onToggleFavorite }: ArtifactC
         {/* Favorite indicator */}
         {artifact.favorite && (
           <div className="absolute top-2 right-2">
-            <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 drop-shadow" />
+            <Star className="h-4 w-4 text-primary fill-primary drop-shadow" />
           </div>
         )}
       </div>
