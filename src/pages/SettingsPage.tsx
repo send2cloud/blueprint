@@ -3,31 +3,8 @@ import { ToolHeader } from '@/components/layout/ToolHeader';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useBlueprint } from '@/contexts/BlueprintContext';
-import { ToolType, ALL_TOOLS } from '@/lib/storage';
-import { Palette, GitBranch, Columns3, FileText, LucideIcon } from 'lucide-react';
-
-const toolMeta: Record<ToolType, { label: string; icon: LucideIcon; description: string }> = {
-  canvas: {
-    label: 'Canvas',
-    icon: Palette,
-    description: 'Drawings, whiteboards, sketches, and visual notes',
-  },
-  diagram: {
-    label: 'Diagram',
-    icon: GitBranch,
-    description: 'Flow charts, mind maps, and system diagrams',
-  },
-  board: {
-    label: 'Board',
-    icon: Columns3,
-    description: 'Kanban boards and task trackers',
-  },
-  notes: {
-    label: 'Notes',
-    icon: FileText,
-    description: 'Rich text documents, notes, and Notion-style content',
-  },
-};
+import { ALL_TOOLS } from '@/lib/storage';
+import { TOOL_CONFIG } from '@/lib/toolConfig';
 
 export default function SettingsPage() {
   const { enabledTools, toggleTool, loading } = useBlueprint();
@@ -46,8 +23,8 @@ export default function SettingsPage() {
 
           <div className="space-y-4">
             {ALL_TOOLS.map((tool) => {
-              const meta = toolMeta[tool];
-              const Icon = meta.icon;
+              const config = TOOL_CONFIG[tool];
+              const Icon = config.icon;
               const isEnabled = enabledTools.includes(tool);
 
               return (
@@ -60,10 +37,15 @@ export default function SettingsPage() {
                       <Icon className="h-5 w-5 text-muted-foreground" />
                     </div>
                     <div>
-                      <Label htmlFor={tool} className="text-sm font-medium text-foreground cursor-pointer">
-                        {meta.label}
-                      </Label>
-                      <p className="text-xs text-muted-foreground">{meta.description}</p>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor={tool} className="text-sm font-medium text-foreground cursor-pointer">
+                          {config.title}
+                        </Label>
+                        <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded text-muted-foreground">
+                          {config.shortcut}
+                        </kbd>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{config.description}</p>
                     </div>
                   </div>
                   <Switch
@@ -75,6 +57,36 @@ export default function SettingsPage() {
                 </div>
               );
             })}
+          </div>
+
+          <div className="pt-4 border-t border-border">
+            <h3 className="text-sm font-medium text-foreground mb-2">Keyboard Shortcuts</h3>
+            <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">W</kbd>
+                <span>Whiteboard</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">F</kbd>
+                <span>Flow</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">T</kbd>
+                <span>Tasks</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">D</kbd>
+                <span>Docs</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">N</kbd>
+                <span>New (in context)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">G</kbd>
+                <span>Gallery (in context)</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
