@@ -128,13 +128,13 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
       setCurrentDate(new Date());
     } else if (direction instanceof Date) {
       setCurrentDate(direction);
-      if (currentView === 'quarter') {
+      if (currentView === 'year') {
         setCurrentView('day');
       }
     } else {
       const delta = direction === 'prev' ? -1 : 1;
-      if (currentView === 'quarter') {
-        setCurrentDate(prev => delta > 0 ? addMonths(prev, 3) : subMonths(prev, 3));
+      if (currentView === 'year') {
+        setCurrentDate(prev => delta > 0 ? addYears(prev, 1) : subYears(prev, 1));
       } else {
         setCurrentDate(prev => {
           if (currentView === 'day') return new Date(prev.setDate(prev.getDate() + delta));
@@ -146,16 +146,16 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
     }
   };
 
-  const getQuarterLabel = () => {
-    const q = Math.floor(currentDate.getMonth() / 3) + 1;
-    return `Q${q} ${format(currentDate, 'yyyy')}`;
+  const getViewLabel = () => {
+    if (currentView === 'year') return format(currentDate, 'yyyy');
+    return format(currentDate, 'MMMM yyyy');
   };
 
   const viewLabels: Record<ViewType, string> = {
     day: 'Day',
     week: 'Week',
     month: 'Month',
-    quarter: 'Quarter',
+    year: 'Year',
     agenda: 'Agenda',
   };
 
