@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getStorageAdapter, Artifact } from '@/lib/storage';
+import { sortArtifacts } from '@/lib/artifactUtils';
 
+/**
+ * Hook for listing all artifacts across all tool types
+ */
 export function useAllArtifacts() {
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
   const [loading, setLoading] = useState(true);
@@ -12,11 +16,7 @@ export function useAllArtifacts() {
     setError(null);
     try {
       const list = await storage.listArtifacts();
-      list.sort((a, b) => {
-        if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
-        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-      });
-      setArtifacts(list);
+      setArtifacts(sortArtifacts(list));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load');
     } finally {
