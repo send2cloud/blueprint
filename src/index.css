@@ -102,3 +102,94 @@
     font-family: 'JetBrains Mono', monospace;
   }
 }
+ 
+ /* React Big Calendar Theming */
+ .calendar-container .rbc-calendar {
+   @apply bg-background text-foreground;
+ }
+ 
+ .calendar-container .rbc-toolbar {
+   @apply mb-4 flex-wrap gap-2;
+ }
+ 
+ .calendar-container .rbc-toolbar button {
+   @apply px-3 py-1.5 text-sm rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors;
+ }
+ 
+ .calendar-container .rbc-toolbar button.rbc-active {
+   @apply bg-primary text-primary-foreground;
+ }
+ 
+ .calendar-container .rbc-header {
+   @apply py-2 text-sm font-medium text-muted-foreground border-b border-border;
+ }
+ 
+ .calendar-container .rbc-month-view,
+ .calendar-container .rbc-time-view {
+   @apply border border-border rounded-lg overflow-hidden;
+ }
+ 
+ .calendar-container .rbc-day-bg {
+   @apply border-l border-border;
+ }
+ 
+ .calendar-container .rbc-day-bg:first-child {
+   @apply border-l-0;
+ }
+ 
+ .calendar-container .rbc-off-range-bg {
+   @apply bg-muted/30;
+ }
+ 
+ .calendar-container .rbc-today {
+   @apply bg-accent/50;
+ }
+ 
+ .calendar-container .rbc-date-cell {
+   @apply text-right px-2 py-1 text-sm;
+ }
+ 
+ .calendar-container .rbc-date-cell.rbc-now {
+   @apply font-bold text-primary;
+ }
+ 
+ .calendar-container .rbc-event {
+   @apply px-2 py-0.5;
+ }
+ 
+ .calendar-container .rbc-show-more {
+   @apply text-xs text-muted-foreground hover:text-foreground cursor-pointer;
+ }
+ 
+ .calendar-container .rbc-time-header-content {
+   @apply border-l border-border;
+ }
+ 
+ .calendar-container .rbc-timeslot-group {
+   @apply border-b border-border;
+ }
+ 
+ .calendar-container .rbc-time-slot {
+   @apply text-xs text-muted-foreground;
+ }
+ 
+ .calendar-container .rbc-current-time-indicator {
+   @apply bg-destructive h-0.5;
+ }
+ 
+ .calendar-container .rbc-agenda-view table {
+   @apply w-full;
+ }
+ 
+ .calendar-container .rbc-agenda-table {
+   @apply border border-border rounded-lg overflow-hidden;
+ }
+ 
+ .calendar-container .rbc-agenda-date-cell,
+ .calendar-container .rbc-agenda-time-cell {
+   @apply px-3 py-2 text-sm whitespace-nowrap;
+ }
+ 
+ .calendar-container .rbc-agenda-event-cell {
+   @apply px-3 py-2;
+ }
