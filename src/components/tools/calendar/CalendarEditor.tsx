@@ -29,7 +29,7 @@
      if (initialData && typeof initialData === 'object') {
        const data = initialData as CalendarData;
        if (data.events && Array.isArray(data.events)) {
-         return data.events.map((e) => deserializeEvent(e as Record<string, unknown>));
+         return data.events.map((e) => deserializeEvent(e as unknown as Record<string, unknown>));
        }
      }
      return [];

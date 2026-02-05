@@ -14,6 +14,7 @@ const TYPE_LABELS: Record<ToolType, string> = {
   diagram: 'diagram',
   board: 'board',
   notes: 'note',
+   calendar: 'calendar',
 };
 
 export function ShareButton({ artifactId, type, className }: ShareButtonProps) {

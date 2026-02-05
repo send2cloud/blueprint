@@ -33,7 +33,7 @@ export function AppSidebar() {
   const counts = artifacts.reduce<Record<ToolType, number>>((acc, artifact) => {
     acc[artifact.type] = (acc[artifact.type] ?? 0) + 1;
     return acc;
-  }, { canvas: 0, diagram: 0, board: 0, notes: 0 });
+   }, { canvas: 0, diagram: 0, board: 0, notes: 0, calendar: 0 });
 
   const favoriteCount = artifacts.filter((artifact) => artifact.favorite).length;
 
