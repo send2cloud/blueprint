@@ -36,10 +36,11 @@ export function AppSidebar() {
     ? TOOL_LIST 
     : TOOL_LIST.filter(item => isToolEnabled(item.type));
 
-  const counts = artifacts.reduce<Record<ToolType, number>>((acc, artifact) => {
+  // Only count artifacts for non-singular tools
+  const counts = artifacts.reduce<Record<string, number>>((acc, artifact) => {
     acc[artifact.type] = (acc[artifact.type] ?? 0) + 1;
     return acc;
-   }, { canvas: 0, diagram: 0, board: 0, notes: 0, calendar: 0 });
+  }, {});
 
   const favoriteCount = artifacts.filter((artifact) => artifact.favorite).length;
 
