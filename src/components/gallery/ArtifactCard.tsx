@@ -3,6 +3,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Trash2, Share2, Star, Pin } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Artifact } from '@/lib/storage';
 import { TOOL_CONFIG } from '@/lib/toolConfig';
@@ -57,6 +58,11 @@ export function ArtifactCard({ artifact, onDelete, onToggleFavorite, onTogglePin
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDelete(artifact.id);
+  };
+
+  const handleTagClick = (e: React.MouseEvent, tag: string) => {
+    e.stopPropagation();
+    navigate(`/tag/${encodeURIComponent(tag)}`);
   };
 
   return (
@@ -136,6 +142,27 @@ export function ArtifactCard({ artifact, onDelete, onToggleFavorite, onTogglePin
             </p>
           </div>
         </div>
+        
+        {/* Tags */}
+        {artifact.tags && artifact.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {artifact.tags.slice(0, 3).map((tag) => (
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="text-[10px] px-1.5 py-0 cursor-pointer hover:bg-accent"
+                onClick={(e) => handleTagClick(e, tag)}
+              >
+                {tag}
+              </Badge>
+            ))}
+            {artifact.tags.length > 3 && (
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                +{artifact.tags.length - 3}
+              </Badge>
+            )}
+          </div>
+        )}
       </div>
     </Card>
   );
