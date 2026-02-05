@@ -2,9 +2,8 @@ import { Home, Star, Settings, Moon, Sun, PanelLeftClose, PanelLeft, HelpCircle,
 import { useTheme } from 'next-themes';
 import { NavLink } from '@/components/NavLink';
 import { useBlueprint } from '@/contexts/BlueprintContext';
-import { TOOL_LIST } from '@/lib/toolConfig';
+import { TOOL_LIST, TOOL_CONFIG } from '@/lib/toolConfig';
 import { useAllArtifacts } from '@/hooks/useArtifacts';
-import { ToolType } from '@/lib/storage';
 import { TagCloud } from '@/components/sidebar/TagCloud';
 import {
   Sidebar,
