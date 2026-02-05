@@ -5,6 +5,7 @@ import { NotesEditor } from '@/components/tools/notes/NotesEditor';
 import { useArtifact } from '@/hooks/useArtifact';
 import { useCallback } from 'react';
 import { TOOL_CONFIG } from '@/lib/toolConfig';
+import { HiddenLlmPayload } from '@/components/llm/HiddenLlmPayload';
 
 const tool = TOOL_CONFIG.notes;
 
@@ -51,6 +52,7 @@ export default function NotesPage() {
         onToggleFavorite={toggleFavorite}
         saving={saving}
       />
+      <HiddenLlmPayload artifact={artifact} />
       <div className="flex-1 overflow-hidden">
         <NotesEditor
           initialData={artifact.data}

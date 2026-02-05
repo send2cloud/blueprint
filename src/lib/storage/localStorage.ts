@@ -1,4 +1,5 @@
 import { StorageAdapter, BlueprintSettings, Artifact, ToolType, ALL_TOOLS } from './types';
+import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from './schema';
 
 const SETTINGS_KEY = 'blueprint:settings';
 const ARTIFACT_PREFIX = 'blueprint:artifact:';
@@ -9,7 +10,11 @@ export class LocalStorageAdapter implements StorageAdapter {
     try {
       const stored = localStorage.getItem(SETTINGS_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored) as BlueprintSettings;
+        return {
+          enabledTools: Array.isArray(parsed.enabledTools) ? parsed.enabledTools : [...ALL_TOOLS],
+          seededNoteCreated: parsed.seededNoteCreated,
+        };
       }
     } catch (e) {
       console.error('Failed to load settings:', e);
@@ -30,12 +35,8 @@ export class LocalStorageAdapter implements StorageAdapter {
     try {
       const stored = localStorage.getItem(ARTIFACT_PREFIX + id);
       if (stored) {
-        const artifact = JSON.parse(stored);
-        // Ensure favorite field exists for backward compatibility
-        if (artifact.favorite === undefined) {
-          artifact.favorite = false;
-        }
-        return artifact;
+        const parsed = JSON.parse(stored) as Partial<Artifact>;
+        return normalizeArtifact(parsed);
       }
     } catch (e) {
       console.error('Failed to load artifact:', e);
@@ -46,15 +47,18 @@ export class LocalStorageAdapter implements StorageAdapter {
   async saveArtifact(artifact: Artifact): Promise<void> {
     try {
       // Ensure favorite field exists
-      const artifactWithFavorite = {
+      const normalized = normalizeArtifact({
         ...artifact,
         favorite: artifact.favorite ?? false,
-      };
-      localStorage.setItem(ARTIFACT_PREFIX + artifact.id, JSON.stringify(artifactWithFavorite));
+        pinned: artifact.pinned ?? false,
+        schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
+      });
+      if (!normalized) return;
+      localStorage.setItem(ARTIFACT_PREFIX + normalized.id, JSON.stringify(normalized));
       // Update index
       const index = await this.getArtifactIndex();
-      if (!index.includes(artifact.id)) {
-        index.push(artifact.id);
+      if (!index.includes(normalized.id)) {
+        index.push(normalized.id);
         localStorage.setItem(ARTIFACT_INDEX_KEY, JSON.stringify(index));
       }
     } catch (e) {
@@ -83,7 +87,8 @@ export class LocalStorageAdapter implements StorageAdapter {
         const artifact = await this.getArtifact(id);
         if (artifact) {
           if (!type || artifact.type === type) {
-            artifacts.push(artifact);
+            const normalized = normalizeArtifact(artifact);
+            if (normalized) artifacts.push(normalized);
           }
         }
       }
@@ -105,7 +110,8 @@ export class LocalStorageAdapter implements StorageAdapter {
       for (const id of index) {
         const artifact = await this.getArtifact(id);
         if (artifact && artifact.favorite) {
-          favorites.push(artifact);
+          const normalized = normalizeArtifact(artifact);
+          if (normalized) favorites.push(normalized);
         }
       }
       

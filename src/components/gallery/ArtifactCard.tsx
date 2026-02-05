@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
-import { Trash2, Share2, Star, FileText, GitBranch, Columns3, Palette } from 'lucide-react';
+import { Trash2, Share2, Star, FileText, GitBranch, Columns3, Palette, Pin } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -11,6 +11,7 @@ interface ArtifactCardProps {
   artifact: Artifact;
   onDelete: (id: string) => void;
   onToggleFavorite?: (id: string) => void;
+  onTogglePinned?: (id: string) => void;
 }
 
 // Generate a preview based on artifact type and data
@@ -130,7 +131,7 @@ function getPreviewHeight(artifact: Artifact): string {
   return 'h-40';
 }
 
-export function ArtifactCard({ artifact, onDelete, onToggleFavorite }: ArtifactCardProps) {
+export function ArtifactCard({ artifact, onDelete, onToggleFavorite, onTogglePinned }: ArtifactCardProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const toolConfig = TOOL_CONFIG[artifact.type];
@@ -164,6 +165,11 @@ export function ArtifactCard({ artifact, onDelete, onToggleFavorite }: ArtifactC
     onToggleFavorite?.(artifact.id);
   };
 
+  const handleTogglePinned = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onTogglePinned?.(artifact.id);
+  };
+
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDelete(artifact.id);
@@ -180,6 +186,16 @@ export function ArtifactCard({ artifact, onDelete, onToggleFavorite }: ArtifactC
         
         {/* Hover actions overlay */}
         <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+          {onTogglePinned && (
+            <Button
+              variant="secondary"
+              size="icon"
+              className="h-9 w-9"
+              onClick={handleTogglePinned}
+            >
+              <Pin className={`h-4 w-4 ${artifact.pinned ? 'text-foreground' : 'text-muted-foreground'}`} />
+            </Button>
+          )}
           {onToggleFavorite && (
             <Button
               variant="secondary"
@@ -212,6 +228,11 @@ export function ArtifactCard({ artifact, onDelete, onToggleFavorite }: ArtifactC
         {artifact.favorite && (
           <div className="absolute top-2 right-2">
             <Star className="h-4 w-4 text-primary fill-primary drop-shadow" />
+          </div>
+        )}
+        {artifact.pinned && (
+          <div className="absolute top-2 left-2">
+            <Pin className="h-4 w-4 text-foreground drop-shadow" />
           </div>
         )}
       </div>

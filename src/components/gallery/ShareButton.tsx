@@ -21,9 +21,10 @@ export function ShareButton({ artifactId, type, className }: ShareButtonProps) {
 
   const handleShare = async () => {
     const url = `${window.location.origin}/${type}/${artifactId}`;
+    const message = `Here is the link I want you to reference: ${url}\nPlease check the page source for LLM instructions (look for the "blueprint-llm" JSON block).`;
     
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(message);
       toast({
         title: 'Link copied!',
         description: `Share this link to show your ${TYPE_LABELS[type]}.`,
