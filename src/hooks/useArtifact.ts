@@ -28,6 +28,7 @@ const DEFAULT_NAMES: Record<ToolType, string> = {
   diagram: 'Untitled Diagram',
   board: 'Untitled Board',
   notes: 'Untitled Note',
+   calendar: 'Untitled Calendar',
 };
 
 export function useArtifact(

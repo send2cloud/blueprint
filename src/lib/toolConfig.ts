@@ -1,4 +1,4 @@
-import { Palette, GitBranch, Columns3, FileText, LucideIcon } from 'lucide-react';
+ import { Palette, GitBranch, Columns3, FileText, Calendar, LucideIcon } from 'lucide-react';
 import { ToolType } from './storage/types';
 
 export interface ToolConfig {
@@ -48,6 +48,15 @@ export const TOOL_CONFIG: Record<ToolType, ToolConfig> = {
     shortcut: 'D',
     typeLabel: 'doc',
   },
+   calendar: {
+     type: 'calendar',
+     title: 'Calendar',
+     description: 'Schedules, meetings, deadlines, and time-based planning',
+     icon: Calendar,
+     path: '/calendar',
+     shortcut: 'C',
+     typeLabel: 'calendar',
+   },
 };
 
 export const TOOL_LIST = Object.values(TOOL_CONFIG);
