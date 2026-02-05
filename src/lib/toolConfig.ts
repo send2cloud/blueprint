@@ -58,6 +58,7 @@ export const TOOL_CONFIG: Record<ToolType, ToolConfig> = {
      path: '/calendar',
      shortcut: 'C',
      typeLabel: 'calendar',
+     singular: true,
    },
 };
 

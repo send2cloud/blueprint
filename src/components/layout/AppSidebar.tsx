@@ -99,7 +99,7 @@ export function AppSidebar() {
                         <span className="flex-1 flex items-center justify-between">
                           <span className="flex items-center gap-2">
                             <span>{item.title}</span>
-                            {counts[item.type] > 0 && (
+                            {!TOOL_CONFIG[item.type].singular && counts[item.type] > 0 && (
                               <span className="min-w-6 rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground text-center">
                                 {counts[item.type]}
                               </span>
