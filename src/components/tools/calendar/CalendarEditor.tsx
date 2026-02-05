@@ -35,6 +35,33 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
   const [isNewEvent, setIsNewEvent] = useState(false);
   const [currentView, setCurrentView] = useState<ViewType>('month');
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [config, setConfig] = useState<CalendarConfig>(defaultConfig);
+
+  // Load settings from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(SETTINGS_KEY);
+      if (stored) {
+        setConfig(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.error('Failed to load calendar settings:', e);
+    }
+  }, []);
+
+  const handleConfigChange = useCallback((newConfig: CalendarConfig) => {
+    setConfig(newConfig);
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(newConfig));
+  }, []);
+
+  // Create localizer with dynamic week start
+  const localizer = useMemo(() => dateFnsLocalizer({
+    format,
+    parse,
+    startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: config.weekStartsOn }),
+    getDay,
+    locales,
+  }), [config.weekStartsOn]);
 
   // Combine manual events with linked events from tasks/docs
   const allEvents = useMemo(() => [...events, ...linkedEvents], [events, linkedEvents]);
