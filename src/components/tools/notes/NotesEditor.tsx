@@ -9,15 +9,25 @@ interface NotesEditorProps {
   onSave: (data: unknown) => void;
 }
 
+// Validate that data is a valid BlockNote document structure
+function isValidBlockContent(data: unknown): data is PartialBlock[] {
+  if (!Array.isArray(data)) return false;
+  if (data.length === 0) return true;
+  // Check first item has expected block structure
+  const first = data[0];
+  return typeof first === 'object' && first !== null && 'type' in first;
+}
+
 export function NotesEditor({ initialData, onSave }: NotesEditorProps) {
   const onSaveRef = useRef(onSave);
   onSaveRef.current = onSave;
   const { resolvedTheme } = useTheme();
 
-  // Create editor only once with stable initial content
+  // Create editor only once with validated initial content
   const editor = useMemo(() => {
+    const validContent = isValidBlockContent(initialData) ? initialData : undefined;
     return BlockNoteEditor.create({
-      initialContent: initialData as PartialBlock[] | undefined,
+      initialContent: validContent,
     });
   }, []); // Empty deps - only create once
 
