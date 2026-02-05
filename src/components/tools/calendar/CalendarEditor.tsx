@@ -6,7 +6,7 @@ import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EventModal } from './EventModal';
 import { QuarterlyView } from './QuarterlyView';
-import { CalendarEvent, CalendarData, deserializeEvent, serializeEvent } from './types';
+import { CalendarEvent } from './types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const locales = { 'en-US': enUS };
@@ -22,22 +22,13 @@ const localizer = dateFnsLocalizer({
 type ViewType = 'day' | 'week' | 'month' | 'quarter' | 'agenda';
 
 interface CalendarEditorProps {
-  initialData?: unknown;
-  onSave?: (data: unknown) => void;
+  events: CalendarEvent[];
+  onSaveEvent: (event: CalendarEvent) => void;
+  onDeleteEvent: (id: string) => void;
   linkedEvents?: CalendarEvent[]; // Events from tasks/docs
 }
 
-export function CalendarEditor({ initialData, onSave, linkedEvents = [] }: CalendarEditorProps) {
-  const [events, setEvents] = useState<CalendarEvent[]>(() => {
-    if (initialData && typeof initialData === 'object') {
-      const data = initialData as CalendarData;
-      if (data.events && Array.isArray(data.events)) {
-        return data.events.map((e) => deserializeEvent(e as unknown as Record<string, unknown>));
-      }
-    }
-    return [];
-  });
-
+export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvents = [] }: CalendarEditorProps) {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isNewEvent, setIsNewEvent] = useState(false);
@@ -46,12 +37,6 @@ export function CalendarEditor({ initialData, onSave, linkedEvents = [] }: Calen
 
   // Combine manual events with linked events from tasks/docs
   const allEvents = useMemo(() => [...events, ...linkedEvents], [events, linkedEvents]);
-
-  const saveEvents = useCallback((newEvents: CalendarEvent[]) => {
-    if (onSave) {
-      onSave({ events: newEvents.map(serializeEvent) });
-    }
-  }, [onSave]);
 
   const handleSelectEvent = useCallback((event: CalendarEvent) => {
     setSelectedEvent(event);
@@ -76,27 +61,12 @@ export function CalendarEditor({ initialData, onSave, linkedEvents = [] }: Calen
   const handleSaveEvent = useCallback((event: CalendarEvent) => {
     // Don't save linked events, they're read-only
     if (event.sourceType && event.sourceType !== 'manual') return;
-
-    setEvents((prev) => {
-      const existing = prev.findIndex((e) => e.id === event.id);
-      let newEvents: CalendarEvent[];
-      if (existing >= 0) {
-        newEvents = prev.map((e) => (e.id === event.id ? event : e));
-      } else {
-        newEvents = [...prev, event];
-      }
-      saveEvents(newEvents);
-      return newEvents;
-    });
-  }, [saveEvents]);
+    onSaveEvent(event);
+  }, [onSaveEvent]);
 
   const handleDeleteEvent = useCallback((id: string) => {
-    setEvents((prev) => {
-      const newEvents = prev.filter((e) => e.id !== id);
-      saveEvents(newEvents);
-      return newEvents;
-    });
-  }, [saveEvents]);
+    onDeleteEvent(id);
+  }, [onDeleteEvent]);
 
   const handleAddEvent = () => {
     const now = new Date();
@@ -138,7 +108,6 @@ export function CalendarEditor({ initialData, onSave, linkedEvents = [] }: Calen
       if (currentView === 'quarter') {
         setCurrentDate(prev => delta > 0 ? addMonths(prev, 3) : subMonths(prev, 3));
       } else {
-        // Let BigCalendar handle navigation for other views
         setCurrentDate(prev => {
           if (currentView === 'day') return new Date(prev.setDate(prev.getDate() + delta));
           if (currentView === 'week') return new Date(prev.setDate(prev.getDate() + delta * 7));
