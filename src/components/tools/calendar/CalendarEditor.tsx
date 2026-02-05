@@ -173,13 +173,13 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
             <ChevronRight className="h-4 w-4" />
           </Button>
           <span className="font-medium ml-2">
-            {currentView === 'quarter' ? getQuarterLabel() : format(currentDate, 'MMMM yyyy')}
+            {getViewLabel()}
           </span>
         </div>
 
         <div className="flex items-center gap-2">
           <div className="flex border rounded-md overflow-hidden">
-            {(['day', 'week', 'month', 'quarter', 'agenda'] as ViewType[]).map((view) => (
+            {(['day', 'week', 'month', 'year', 'agenda'] as ViewType[]).map((view) => (
               <Button
                 key={view}
                 variant={currentView === view ? 'default' : 'ghost'}
@@ -191,6 +191,7 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
               </Button>
             ))}
           </div>
+          <CalendarSettings config={config} onConfigChange={handleConfigChange} />
           <Button onClick={handleAddEvent} size="sm">
             <Plus className="h-4 w-4 mr-2" />
             Add Event
@@ -199,12 +200,13 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
       </div>
 
       <div className="flex-1 px-4 pb-4 calendar-container">
-        {currentView === 'quarter' ? (
-          <QuarterlyView
+        {currentView === 'year' ? (
+          <YearlyView
             date={currentDate}
             events={allEvents}
             onSelectEvent={handleSelectEvent}
             onNavigate={(date) => handleNavigate(date)}
+            weekStartsOn={config.weekStartsOn}
           />
         ) : (
           <BigCalendar
@@ -222,6 +224,8 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
             eventPropGetter={eventStyleGetter}
             views={[Views.DAY, Views.WEEK, Views.MONTH, Views.AGENDA]}
             toolbar={false}
+            min={new Date(1970, 0, 1, config.dayStartHour, 0, 0)}
+            max={new Date(1970, 0, 1, config.dayEndHour, 0, 0)}
             className="rounded-lg border bg-background"
             style={{ height: '100%' }}
           />
