@@ -1,25 +1,26 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Calendar as BigCalendar, dateFnsLocalizer, Views, SlotInfo } from 'react-big-calendar';
-import { format, parse, startOfWeek, getDay, addHours, addMonths, subMonths } from 'date-fns';
+import { format, parse, startOfWeek, getDay, addHours, addMonths, subMonths, addYears, subYears } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EventModal } from './EventModal';
-import { QuarterlyView } from './QuarterlyView';
+import { YearlyView } from './YearlyView';
+import { CalendarSettings, CalendarConfig } from './CalendarSettings';
 import { CalendarEvent } from './types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const locales = { 'en-US': enUS };
 
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 0 }),
-  getDay,
-  locales,
-});
+const SETTINGS_KEY = 'blueprint:calendar:settings';
 
-type ViewType = 'day' | 'week' | 'month' | 'quarter' | 'agenda';
+const defaultConfig: CalendarConfig = {
+  weekStartsOn: 1, // Monday
+  dayStartHour: 6,
+  dayEndHour: 21,
+};
+
+type ViewType = 'day' | 'week' | 'month' | 'year' | 'agenda';
 
 interface CalendarEditorProps {
   events: CalendarEvent[];
