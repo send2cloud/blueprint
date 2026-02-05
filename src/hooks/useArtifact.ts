@@ -20,6 +20,7 @@ interface UseArtifactReturn {
   rename: (name: string) => Promise<void>;
   toggleFavorite: () => Promise<void>;
   togglePinned: () => Promise<void>;
+  updateTags: (tags: string[]) => Promise<void>;
   isNew: boolean;
 }
 
