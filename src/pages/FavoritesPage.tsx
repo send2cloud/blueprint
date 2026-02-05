@@ -3,6 +3,7 @@ import { Star, Loader2 } from 'lucide-react';
 import { ToolHeader } from '@/components/layout/ToolHeader';
 import { ArtifactCard } from '@/components/gallery/ArtifactCard';
 import { getStorageAdapter, Artifact, CURRENT_SCHEMA_VERSION } from '@/lib/storage';
+import { sortArtifacts } from '@/lib/artifactUtils';
 
 export default function FavoritesPage() {
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
@@ -13,11 +14,7 @@ export default function FavoritesPage() {
     setLoading(true);
     try {
       const favorites = await storage.listFavorites();
-      const sorted = [...favorites].sort((a, b) => {
-        if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
-        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-      });
-      setArtifacts(sorted);
+      setArtifacts(sortArtifacts(favorites));
     } catch (e) {
       console.error('Failed to load favorites:', e);
     } finally {
@@ -59,14 +56,7 @@ export default function FavoritesPage() {
         schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
       };
       await storage.saveArtifact(updated);
-      setArtifacts((prev) => {
-        const next = prev.map((a) => (a.id === id ? updated : a));
-        next.sort((a, b) => {
-          if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
-          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-        });
-        return next;
-      });
+      setArtifacts((prev) => sortArtifacts(prev.map((a) => (a.id === id ? updated : a))));
     }
   }, [artifacts, storage]);
 
