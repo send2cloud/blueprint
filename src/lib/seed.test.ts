@@ -9,7 +9,7 @@ function createMemoryStorage(): StorageAdapter & {
 } {
   return {
     artifacts: [],
-    settings: { enabledTools: ["canvas", "diagram", "board", "notes"] },
+    settings: { enabledTools: ["canvas", "diagram", "board", "notes", "calendar"] },
     async getSettings() {
       return this.settings;
     },
@@ -32,6 +32,9 @@ function createMemoryStorage(): StorageAdapter & {
     },
     async listFavorites() {
       return this.artifacts.filter((a) => a.favorite);
+    },
+    async listByTag(tag) {
+      return this.artifacts.filter((a) => a.tags?.includes(tag));
     },
   };
 }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getStorageAdapter, Artifact } from '@/lib/storage';
+import { getStorageAdapter, Artifact, CURRENT_SCHEMA_VERSION } from '@/lib/storage';
 import { sortArtifacts } from '@/lib/artifactUtils';
 
 /**
@@ -28,5 +28,55 @@ export function useAllArtifacts() {
     refresh();
   }, [refresh]);
 
-  return { artifacts, loading, error, refresh };
+  const deleteArtifact = useCallback(async (id: string) => {
+    await storage.deleteArtifact(id);
+    setArtifacts((prev) => prev.filter((a) => a.id !== id));
+  }, [storage]);
+
+  const toggleFavorite = useCallback(async (id: string) => {
+    const artifact = artifacts.find((a) => a.id === id);
+    if (!artifact) return;
+    
+    const updated: Artifact = {
+      ...artifact,
+      favorite: !artifact.favorite,
+      updatedAt: new Date().toISOString(),
+      schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
+    };
+    
+    await storage.saveArtifact(updated);
+    setArtifacts((prev) => prev.map((a) => (a.id === id ? updated : a)));
+  }, [artifacts, storage]);
+
+  const togglePinned = useCallback(async (id: string) => {
+    const artifact = artifacts.find((a) => a.id === id);
+    if (!artifact) return;
+    
+    const updated: Artifact = {
+      ...artifact,
+      pinned: !artifact.pinned,
+      updatedAt: new Date().toISOString(),
+      schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
+    };
+    
+    await storage.saveArtifact(updated);
+    setArtifacts((prev) => sortArtifacts(prev.map((a) => (a.id === id ? updated : a))));
+  }, [artifacts, storage]);
+
+  const updateTags = useCallback(async (id: string, tags: string[]) => {
+    const artifact = artifacts.find((a) => a.id === id);
+    if (!artifact) return;
+    
+    const updated: Artifact = {
+      ...artifact,
+      tags: tags.length > 0 ? tags : undefined,
+      updatedAt: new Date().toISOString(),
+      schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
+    };
+    
+    await storage.saveArtifact(updated);
+    setArtifacts((prev) => prev.map((a) => (a.id === id ? updated : a)));
+  }, [artifacts, storage]);
+
+  return { artifacts, loading, error, refresh, deleteArtifact, toggleFavorite, togglePinned, updateTags };
 }
