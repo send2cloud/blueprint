@@ -13,7 +13,6 @@ import DiagramGallery from "./pages/DiagramGallery";
 import DiagramPage from "./pages/DiagramPage";
 import BoardGallery from "./pages/BoardGallery";
 import BoardPage from "./pages/BoardPage";
-import CalendarGallery from "./pages/CalendarGallery";
 import CalendarPage from "./pages/CalendarPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import SettingsPage from "./pages/SettingsPage";
