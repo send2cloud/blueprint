@@ -13,7 +13,6 @@ import DiagramGallery from "./pages/DiagramGallery";
 import DiagramPage from "./pages/DiagramPage";
 import BoardGallery from "./pages/BoardGallery";
 import BoardPage from "./pages/BoardPage";
-import CalendarGallery from "./pages/CalendarGallery";
 import CalendarPage from "./pages/CalendarPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -61,10 +60,8 @@ const App = () => (
                 <Route path="/board/new" element={<BoardPage />} />
                 <Route path="/board/:id" element={<BoardPage />} />
 
-                {/* Calendar */}
-                <Route path="/calendar" element={<CalendarGallery />} />
-                <Route path="/calendar/new" element={<CalendarPage />} />
-                <Route path="/calendar/:id" element={<CalendarPage />} />
+                {/* Calendar (singular view, no gallery) */}
+                <Route path="/calendar" element={<CalendarPage />} />
 
                 {/* Notes */}
                 <Route path="/notes" element={<NotesGallery />} />

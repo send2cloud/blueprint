@@ -1,6 +1,10 @@
- export type ToolType = 'canvas' | 'diagram' | 'board' | 'notes' | 'calendar';
+export type ToolType = 'canvas' | 'diagram' | 'board' | 'notes' | 'calendar';
 
- export const ALL_TOOLS: ToolType[] = ['canvas', 'diagram', 'board', 'notes', 'calendar'];
+// Tools that use the artifact/gallery pattern
+export type ArtifactToolType = 'canvas' | 'diagram' | 'board' | 'notes';
+
+export const ALL_TOOLS: ToolType[] = ['canvas', 'diagram', 'board', 'notes', 'calendar'];
+export const ARTIFACT_TOOLS: ArtifactToolType[] = ['canvas', 'diagram', 'board', 'notes'];
 
 export interface BlueprintSettings {
   enabledTools: ToolType[];
