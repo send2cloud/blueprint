@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { getStorageAdapter, Artifact, ToolType, CURRENT_SCHEMA_VERSION } from '@/lib/storage';
 
+/**
+ * Hook for managing a single artifact (create, load, save, rename, toggle flags)
+ */
 interface UseArtifactOptions {
   autoSave?: boolean;
   autoSaveDelay?: number;
@@ -193,82 +196,4 @@ export function useArtifact(
     togglePinned,
     isNew,
   };
-}
-
-// Hook for listing artifacts
-export function useArtifactList(type: ToolType) {
-  const [artifacts, setArtifacts] = useState<Artifact[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const storage = getStorageAdapter();
-
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    try {
-      const list = await storage.listArtifacts(type);
-      // Pinned first, then most recent
-      list.sort((a, b) => {
-        if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
-        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-      });
-      setArtifacts(list);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load');
-    } finally {
-      setLoading(false);
-    }
-  }, [storage, type]);
-
-  const deleteArtifact = useCallback(async (id: string) => {
-    await storage.deleteArtifact(id);
-    setArtifacts((prev) => prev.filter((a) => a.id !== id));
-  }, [storage]);
-
-  const toggleFavorite = useCallback(async (id: string) => {
-    const artifact = artifacts.find((a) => a.id === id);
-    if (artifact) {
-      const updated = {
-        ...artifact,
-        favorite: !artifact.favorite,
-        updatedAt: new Date().toISOString(),
-        schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
-      };
-      await storage.saveArtifact(updated);
-      setArtifacts((prev) => {
-        const next = prev.map((a) => (a.id === id ? updated : a));
-        next.sort((a, b) => {
-          if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
-          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-        });
-        return next;
-      });
-    }
-  }, [artifacts, storage]);
-
-  const togglePinned = useCallback(async (id: string) => {
-    const artifact = artifacts.find((a) => a.id === id);
-    if (artifact) {
-      const updated = {
-        ...artifact,
-        pinned: !artifact.pinned,
-        updatedAt: new Date().toISOString(),
-        schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
-      };
-      await storage.saveArtifact(updated);
-      setArtifacts((prev) => {
-        const next = prev.map((a) => (a.id === id ? updated : a));
-        next.sort((a, b) => {
-          if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
-          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-        });
-        return next;
-      });
-    }
-  }, [artifacts, storage]);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  return { artifacts, loading, error, refresh, deleteArtifact, toggleFavorite, togglePinned };
 }

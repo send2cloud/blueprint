@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import { useArtifactList } from "@/hooks/useArtifact";
+import { useArtifactList } from "@/hooks/useArtifactList";
 import { setStorageAdapter } from "@/lib/storage";
 import type { StorageAdapter, Artifact } from "@/lib/storage/types";
 

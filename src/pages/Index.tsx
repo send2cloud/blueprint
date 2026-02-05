@@ -10,6 +10,8 @@ import { TOOL_CONFIG } from '@/lib/toolConfig';
 import { useAllArtifacts } from '@/hooks/useArtifacts';
 import type { Artifact } from '@/lib/storage';
 import { toast } from '@/hooks/use-toast';
+import { formatRelative } from '@/lib/formatters';
+import { getArtifactSearchText } from '@/lib/artifactUtils';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -33,7 +35,7 @@ const Index = () => {
   const searchResults = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return [];
-    return artifacts.filter((artifact) => artifactSearchText(artifact).includes(query));
+    return artifacts.filter((artifact) => getArtifactSearchText(artifact).includes(query));
   }, [artifacts, search]);
 
   return (
@@ -173,30 +175,5 @@ const Index = () => {
     </div>
   );
 };
-
-function artifactSearchText(artifact: Artifact) {
-  const parts = [artifact.name, artifact.type, artifact.updatedAt];
-  if (artifact.data) {
-    try {
-      parts.push(JSON.stringify(artifact.data));
-    } catch {
-      // ignore
-    }
-  }
-  return parts.join(' ').toLowerCase();
-}
-
-function formatRelative(iso: string) {
-  const timestamp = Date.parse(iso);
-  if (Number.isNaN(timestamp)) return 'just now';
-  const diffMs = Date.now() - timestamp;
-  const diffMins = Math.floor(diffMs / 60000);
-  if (diffMins < 1) return 'just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  const diffHours = Math.floor(diffMins / 60);
-  if (diffHours < 24) return `${diffHours}h ago`;
-  const diffDays = Math.floor(diffHours / 24);
-  return `${diffDays}d ago`;
-}
 
 export default Index;
