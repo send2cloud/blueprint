@@ -145,7 +145,7 @@
            onSelectSlot={handleSelectSlot}
            selectable
            eventPropGetter={eventStyleGetter}
-           views={[Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA]}
+           views={[Views.DAY, Views.WEEK, Views.MONTH, Views.AGENDA]}
            className="rounded-lg border bg-background"
            style={{ height: '100%' }}
          />

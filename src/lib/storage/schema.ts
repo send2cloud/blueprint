@@ -34,6 +34,7 @@ export function normalizeArtifact(raw: Partial<Artifact> | null | undefined): Ar
       typeof raw.schemaVersion === 'number' && raw.schemaVersion > 0
         ? raw.schemaVersion
         : CURRENT_SCHEMA_VERSION,
+    tags: Array.isArray(raw.tags) ? raw.tags.filter((t): t is string => typeof t === 'string') : undefined,
   };
 
   return migrateArtifact(normalized);

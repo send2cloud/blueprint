@@ -31,4 +31,5 @@ export interface StorageAdapter {
   deleteArtifact(id: string): Promise<void>;
   listArtifacts(type?: ToolType): Promise<Artifact[]>;
   listFavorites(): Promise<Artifact[]>;
+  listByTag(tag: string): Promise<Artifact[]>;
 }
