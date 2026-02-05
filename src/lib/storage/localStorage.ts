@@ -124,6 +124,28 @@ export class LocalStorageAdapter implements StorageAdapter {
     }
   }
 
+  async listByTag(tag: string): Promise<Artifact[]> {
+    try {
+      const index = await this.getArtifactIndex();
+      const tagged: Artifact[] = [];
+      
+      for (const id of index) {
+        const artifact = await this.getArtifact(id);
+        if (artifact && artifact.tags?.includes(tag)) {
+          const normalized = normalizeArtifact(artifact);
+          if (normalized) tagged.push(normalized);
+        }
+      }
+      
+      return tagged.sort((a, b) => 
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+    } catch (e) {
+      console.error('Failed to list by tag:', e);
+      return [];
+    }
+  }
+
   private async getArtifactIndex(): Promise<string[]> {
     try {
       const stored = localStorage.getItem(ARTIFACT_INDEX_KEY);

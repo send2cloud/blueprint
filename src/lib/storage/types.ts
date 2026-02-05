@@ -17,6 +17,7 @@ export interface Artifact {
   favorite: boolean;
   schemaVersion: number;
   pinned: boolean;
+  tags?: string[];
 }
 
 export interface StorageAdapter {
@@ -30,4 +31,5 @@ export interface StorageAdapter {
   deleteArtifact(id: string): Promise<void>;
   listArtifacts(type?: ToolType): Promise<Artifact[]>;
   listFavorites(): Promise<Artifact[]>;
+  listByTag(tag: string): Promise<Artifact[]>;
 }

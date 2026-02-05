@@ -8,7 +8,7 @@ const tool = TOOL_CONFIG.canvas;
 
 export default function CanvasPage() {
   const { id } = useParams<{ id: string }>();
-  const { artifact, loading, error, saving, save, rename, toggleFavorite } = useArtifact('canvas', id || 'new');
+  const { artifact, loading, error, saving, save, rename, toggleFavorite, updateTags } = useArtifact('canvas', id || 'new');
 
   return (
     <EditorPageWrapper
@@ -20,6 +20,7 @@ export default function CanvasPage() {
       saving={saving}
       onRename={rename}
       onToggleFavorite={toggleFavorite}
+      onUpdateTags={updateTags}
     >
       <CanvasEditor initialData={artifact?.data} onSave={save} />
     </EditorPageWrapper>

@@ -20,6 +20,7 @@ interface UseArtifactReturn {
   rename: (name: string) => Promise<void>;
   toggleFavorite: () => Promise<void>;
   togglePinned: () => Promise<void>;
+  updateTags: (tags: string[]) => Promise<void>;
   isNew: boolean;
 }
 
@@ -186,6 +187,20 @@ export function useArtifact(
     setArtifact(updatedArtifact);
   }, [artifact, storage]);
 
+  const updateTags = useCallback(async (tags: string[]) => {
+    if (!artifact) return;
+
+    const updatedArtifact: Artifact = {
+      ...artifact,
+      tags: tags.length > 0 ? tags : undefined,
+      updatedAt: new Date().toISOString(),
+      schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
+    };
+
+    await storage.saveArtifact(updatedArtifact);
+    setArtifact(updatedArtifact);
+  }, [artifact, storage]);
+
   return {
     artifact,
     loading,
@@ -195,6 +210,7 @@ export function useArtifact(
     rename,
     toggleFavorite,
     togglePinned,
+    updateTags,
     isNew,
   };
 }

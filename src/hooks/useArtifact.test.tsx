@@ -7,7 +7,7 @@ import type { StorageAdapter, Artifact } from "@/lib/storage/types";
 function createStorage(artifacts: Artifact[]): StorageAdapter {
   return {
     async getSettings() {
-      return { enabledTools: ["canvas", "diagram", "board", "notes"] };
+      return { enabledTools: ["canvas", "diagram", "board", "notes", "calendar"] };
     },
     async saveSettings() {},
     async getArtifact(id) {
@@ -20,6 +20,9 @@ function createStorage(artifacts: Artifact[]): StorageAdapter {
     },
     async listFavorites() {
       return artifacts.filter((a) => a.favorite);
+    },
+    async listByTag(tag) {
+      return artifacts.filter((a) => a.tags?.includes(tag));
     },
   };
 }

@@ -8,7 +8,7 @@ const tool = TOOL_CONFIG.board;
 
 export default function BoardPage() {
   const { id } = useParams<{ id: string }>();
-  const { artifact, loading, error, saving, save, rename, toggleFavorite } = useArtifact('board', id || 'new');
+  const { artifact, loading, error, saving, save, rename, toggleFavorite, updateTags } = useArtifact('board', id || 'new');
 
   return (
     <EditorPageWrapper
@@ -20,6 +20,7 @@ export default function BoardPage() {
       saving={saving}
       onRename={rename}
       onToggleFavorite={toggleFavorite}
+      onUpdateTags={updateTags}
     >
       <BoardEditor initialData={artifact?.data} onSave={save} />
     </EditorPageWrapper>

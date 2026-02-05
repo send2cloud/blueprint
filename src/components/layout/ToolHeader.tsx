@@ -1,12 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LucideIcon, Check, Loader2, Star, X, ChevronLeft } from 'lucide-react';
+import { LucideIcon, Check, Loader2, Star, X, ChevronLeft, Tag } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ShareButton } from '@/components/gallery/ShareButton';
+import { TagInput } from '@/components/tags/TagInput';
 import { ToolType } from '@/lib/storage';
 import { TOOL_CONFIG } from '@/lib/toolConfig';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 interface ToolHeaderProps {
   title: string;
@@ -15,9 +21,11 @@ interface ToolHeaderProps {
   artifactName?: string;
   artifactType?: ToolType;
   artifactFavorite?: boolean;
+  artifactTags?: string[];
   saving?: boolean;
   onRename?: (name: string) => void;
   onToggleFavorite?: () => void;
+  onUpdateTags?: (tags: string[]) => void;
 }
 
 export function ToolHeader({ 
@@ -27,13 +35,16 @@ export function ToolHeader({
   artifactName, 
   artifactType,
   artifactFavorite,
+  artifactTags = [],
   saving,
   onRename,
   onToggleFavorite,
+  onUpdateTags,
 }: ToolHeaderProps) {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(artifactName || '');
+  const [tagsOpen, setTagsOpen] = useState(false);
 
   useEffect(() => {
     setEditValue(artifactName || '');
@@ -124,6 +135,32 @@ export function ToolHeader({
       </div>
       
       <div className="flex items-center gap-2">
+        {showArtifactInfo && onUpdateTags && (
+          <Popover open={tagsOpen} onOpenChange={setTagsOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 gap-1.5"
+              >
+                <Tag className="h-4 w-4" />
+                {artifactTags.length > 0 && (
+                  <span className="text-xs">{artifactTags.length}</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="end">
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm">Tags</h4>
+                <TagInput
+                  tags={artifactTags}
+                  onTagsChange={onUpdateTags}
+                  placeholder="Add tag..."
+                />
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
         {showArtifactInfo && onToggleFavorite && (
           <Button
             variant="ghost"

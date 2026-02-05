@@ -216,4 +216,14 @@ export class InstantDbAdapter implements StorageAdapter {
         .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
     }
   }
+
+  async listByTag(tag: string): Promise<Artifact[]> {
+    try {
+      const all = await this.listArtifacts();
+      return all.filter((artifact) => artifact.tags?.includes(tag));
+    } catch (e) {
+      console.error('Failed to list by tag from InstantDB:', e);
+      return [];
+    }
+  }
 }
