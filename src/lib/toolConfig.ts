@@ -9,6 +9,8 @@ export interface ToolConfig {
   path: string;
   shortcut: string;
   typeLabel: string;
+  /** If true, this tool is a singular view (no gallery/artifacts) */
+  singular?: boolean;
 }
 
 export const TOOL_CONFIG: Record<ToolType, ToolConfig> = {
