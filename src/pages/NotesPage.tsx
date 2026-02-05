@@ -8,7 +8,7 @@ const tool = TOOL_CONFIG.notes;
 
 export default function NotesPage() {
   const { id } = useParams();
-  const { artifact, loading, error, save, rename, toggleFavorite, saving } = useArtifact('notes', id);
+  const { artifact, loading, error, save, rename, toggleFavorite, saving, updateTags } = useArtifact('notes', id);
 
   return (
     <EditorPageWrapper
@@ -20,6 +20,7 @@ export default function NotesPage() {
       saving={saving}
       onRename={rename}
       onToggleFavorite={toggleFavorite}
+      onUpdateTags={updateTags}
     >
       <NotesEditor initialData={artifact?.data} onSave={save} />
     </EditorPageWrapper>

@@ -8,7 +8,7 @@ const tool = TOOL_CONFIG.diagram;
 
 export default function DiagramPage() {
   const { id } = useParams<{ id: string }>();
-  const { artifact, loading, error, saving, save, rename, toggleFavorite } = useArtifact('diagram', id || 'new');
+  const { artifact, loading, error, saving, save, rename, toggleFavorite, updateTags } = useArtifact('diagram', id || 'new');
 
   return (
     <EditorPageWrapper
@@ -20,6 +20,7 @@ export default function DiagramPage() {
       saving={saving}
       onRename={rename}
       onToggleFavorite={toggleFavorite}
+      onUpdateTags={updateTags}
     >
       <DiagramEditor initialData={artifact?.data} onSave={save} />
     </EditorPageWrapper>
