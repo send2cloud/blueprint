@@ -1,10 +1,11 @@
-import { Home, Star, Settings, Moon, Sun, PanelLeftClose, PanelLeft, HelpCircle } from 'lucide-react';
+import { Home, Star, Settings, Moon, Sun, PanelLeftClose, PanelLeft, HelpCircle, Tag } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { NavLink } from '@/components/NavLink';
 import { useBlueprint } from '@/contexts/BlueprintContext';
 import { TOOL_LIST } from '@/lib/toolConfig';
 import { useAllArtifacts } from '@/hooks/useArtifacts';
 import { ToolType } from '@/lib/storage';
+import { TagCloud } from '@/components/sidebar/TagCloud';
 import {
   Sidebar,
   SidebarContent,
@@ -18,6 +19,11 @@ import {
   SidebarFooter,
   useSidebar,
 } from '@/components/ui/sidebar';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 
 export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
@@ -40,6 +46,9 @@ export function AppSidebar() {
   const toggleTheme = () => {
     setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
   };
+
+  // Check if any artifacts have tags
+  const hasAnyTags = artifacts.some(a => a.tags && a.tags.length > 0);
 
   return (
     <Sidebar collapsible="icon">
@@ -72,6 +81,7 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
+        {/* Tools */}
         <SidebarGroup>
           <SidebarGroupLabel>Tools</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -106,6 +116,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Library */}
         <SidebarGroup>
           <SidebarGroupLabel>Library</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -149,6 +160,25 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Tags */}
+        {hasAnyTags && (
+          <SidebarGroup>
+            <Collapsible defaultOpen>
+              <CollapsibleTrigger asChild>
+                <SidebarGroupLabel className="cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 -mx-2 flex items-center gap-2">
+                  <Tag className="h-3 w-3" />
+                  Tags
+                </SidebarGroupLabel>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarGroupContent className="pt-2">
+                  <TagCloud artifacts={artifacts} collapsed={collapsed} />
+                </SidebarGroupContent>
+              </CollapsibleContent>
+            </Collapsible>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter>

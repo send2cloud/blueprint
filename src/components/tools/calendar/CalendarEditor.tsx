@@ -215,7 +215,7 @@ export function CalendarEditor({ initialData, onSave, linkedEvents = [] }: Calen
             events={allEvents}
             startAccessor="start"
             endAccessor="end"
-            view={currentView === 'quarter' ? Views.MONTH : currentView as typeof Views[keyof typeof Views]}
+            view={currentView as typeof Views[keyof typeof Views]}
             onView={(view) => setCurrentView(view as ViewType)}
             date={currentDate}
             onNavigate={setCurrentDate}

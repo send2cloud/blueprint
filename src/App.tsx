@@ -13,11 +13,12 @@ import DiagramGallery from "./pages/DiagramGallery";
 import DiagramPage from "./pages/DiagramPage";
 import BoardGallery from "./pages/BoardGallery";
 import BoardPage from "./pages/BoardPage";
- import CalendarGallery from "./pages/CalendarGallery";
- import CalendarPage from "./pages/CalendarPage";
+import CalendarGallery from "./pages/CalendarGallery";
+import CalendarPage from "./pages/CalendarPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import SettingsPage from "./pages/SettingsPage";
 import HelpPage from "./pages/HelpPage";
+import TagPage from "./pages/TagPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,15 +61,18 @@ const App = () => (
                 <Route path="/board/new" element={<BoardPage />} />
                 <Route path="/board/:id" element={<BoardPage />} />
 
-             {/* Calendar */}
-             <Route path="/calendar" element={<CalendarGallery />} />
-             <Route path="/calendar/new" element={<CalendarPage />} />
-             <Route path="/calendar/:id" element={<CalendarPage />} />
- 
+                {/* Calendar */}
+                <Route path="/calendar" element={<CalendarGallery />} />
+                <Route path="/calendar/new" element={<CalendarPage />} />
+                <Route path="/calendar/:id" element={<CalendarPage />} />
+
                 {/* Notes */}
                 <Route path="/notes" element={<NotesGallery />} />
                 <Route path="/notes/new" element={<NotesPage />} />
                 <Route path="/notes/:id" element={<NotesPage />} />
+
+                {/* Tags */}
+                <Route path="/tag/:tag" element={<TagPage />} />
 
                 {/* Favorites */}
                 <Route path="/favorites" element={<FavoritesPage />} />
