@@ -4,6 +4,7 @@ import { ToolHeader } from '@/components/layout/ToolHeader';
 import { BoardEditor } from '@/components/tools/board/BoardEditor';
 import { useArtifact } from '@/hooks/useArtifact';
 import { TOOL_CONFIG } from '@/lib/toolConfig';
+import { HiddenLlmPayload } from '@/components/llm/HiddenLlmPayload';
 
 const tool = TOOL_CONFIG.board;
 
@@ -46,6 +47,7 @@ export default function BoardPage() {
         onRename={rename}
         onToggleFavorite={toggleFavorite}
       />
+      <HiddenLlmPayload artifact={artifact} />
       <div className="flex-1">
         <BoardEditor
           initialData={artifact?.data}

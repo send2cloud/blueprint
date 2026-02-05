@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Star, Loader2 } from 'lucide-react';
 import { ToolHeader } from '@/components/layout/ToolHeader';
 import { ArtifactCard } from '@/components/gallery/ArtifactCard';
-import { getStorageAdapter, Artifact } from '@/lib/storage';
+import { getStorageAdapter, Artifact, CURRENT_SCHEMA_VERSION } from '@/lib/storage';
 
 export default function FavoritesPage() {
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
@@ -13,7 +13,11 @@ export default function FavoritesPage() {
     setLoading(true);
     try {
       const favorites = await storage.listFavorites();
-      setArtifacts(favorites);
+      const sorted = [...favorites].sort((a, b) => {
+        if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      });
+      setArtifacts(sorted);
     } catch (e) {
       console.error('Failed to load favorites:', e);
     } finally {
@@ -33,10 +37,36 @@ export default function FavoritesPage() {
   const handleToggleFavorite = useCallback(async (id: string) => {
     const artifact = artifacts.find((a) => a.id === id);
     if (artifact) {
-      const updated = { ...artifact, favorite: !artifact.favorite, updatedAt: new Date().toISOString() };
+      const updated = {
+        ...artifact,
+        favorite: !artifact.favorite,
+        updatedAt: new Date().toISOString(),
+        schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
+      };
       await storage.saveArtifact(updated);
       // Remove from list since it's no longer a favorite
       setArtifacts((prev) => prev.filter((a) => a.id !== id));
+    }
+  }, [artifacts, storage]);
+
+  const handleTogglePinned = useCallback(async (id: string) => {
+    const artifact = artifacts.find((a) => a.id === id);
+    if (artifact) {
+      const updated = {
+        ...artifact,
+        pinned: !artifact.pinned,
+        updatedAt: new Date().toISOString(),
+        schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
+      };
+      await storage.saveArtifact(updated);
+      setArtifacts((prev) => {
+        const next = prev.map((a) => (a.id === id ? updated : a));
+        next.sort((a, b) => {
+          if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+        });
+        return next;
+      });
     }
   }, [artifacts, storage]);
 
@@ -71,6 +101,7 @@ export default function FavoritesPage() {
                 artifact={artifact}
                 onDelete={handleDelete}
                 onToggleFavorite={handleToggleFavorite}
+                onTogglePinned={handleTogglePinned}
               />
             ))}
           </div>

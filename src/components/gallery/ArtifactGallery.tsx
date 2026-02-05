@@ -21,7 +21,7 @@ export function ArtifactGallery({
   newButtonLabel,
 }: ArtifactGalleryProps) {
   const navigate = useNavigate();
-  const { artifacts, loading, deleteArtifact, toggleFavorite } = useArtifactList(type);
+  const { artifacts, loading, deleteArtifact, toggleFavorite, togglePinned } = useArtifactList(type);
 
   if (loading) {
     return (
@@ -64,6 +64,7 @@ export function ArtifactGallery({
                 artifact={artifact}
                 onDelete={deleteArtifact}
                 onToggleFavorite={toggleFavorite}
+                onTogglePinned={togglePinned}
               />
             </div>
           ))}

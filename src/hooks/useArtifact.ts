@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import { getStorageAdapter, Artifact, ToolType } from '@/lib/storage';
+import { getStorageAdapter, Artifact, ToolType, CURRENT_SCHEMA_VERSION } from '@/lib/storage';
 
 interface UseArtifactOptions {
   autoSave?: boolean;
@@ -16,6 +16,7 @@ interface UseArtifactReturn {
   save: (data: unknown) => Promise<void>;
   rename: (name: string) => Promise<void>;
   toggleFavorite: () => Promise<void>;
+  togglePinned: () => Promise<void>;
   isNew: boolean;
 }
 
@@ -61,6 +62,8 @@ export function useArtifact(
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             favorite: false,
+            schemaVersion: CURRENT_SCHEMA_VERSION,
+            pinned: false,
           };
           setArtifact(newArtifact);
         } else if (id) {
@@ -99,6 +102,7 @@ export function useArtifact(
         ...artifact,
         data,
         updatedAt: new Date().toISOString(),
+        schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
       };
 
       await storage.saveArtifact(updatedArtifact);
@@ -143,6 +147,7 @@ export function useArtifact(
       ...artifact,
       name,
       updatedAt: new Date().toISOString(),
+      schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
     };
 
     await storage.saveArtifact(updatedArtifact);
@@ -156,6 +161,21 @@ export function useArtifact(
       ...artifact,
       favorite: !artifact.favorite,
       updatedAt: new Date().toISOString(),
+      schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
+    };
+
+    await storage.saveArtifact(updatedArtifact);
+    setArtifact(updatedArtifact);
+  }, [artifact, storage]);
+
+  const togglePinned = useCallback(async () => {
+    if (!artifact) return;
+
+    const updatedArtifact: Artifact = {
+      ...artifact,
+      pinned: !artifact.pinned,
+      updatedAt: new Date().toISOString(),
+      schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
     };
 
     await storage.saveArtifact(updatedArtifact);
@@ -170,6 +190,7 @@ export function useArtifact(
     save,
     rename,
     toggleFavorite,
+    togglePinned,
     isNew,
   };
 }
@@ -185,8 +206,11 @@ export function useArtifactList(type: ToolType) {
     setLoading(true);
     try {
       const list = await storage.listArtifacts(type);
-      // Sort by updatedAt, most recent first
-      list.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+      // Pinned first, then most recent
+      list.sort((a, b) => {
+        if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      });
       setArtifacts(list);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load');
@@ -203,9 +227,42 @@ export function useArtifactList(type: ToolType) {
   const toggleFavorite = useCallback(async (id: string) => {
     const artifact = artifacts.find((a) => a.id === id);
     if (artifact) {
-      const updated = { ...artifact, favorite: !artifact.favorite, updatedAt: new Date().toISOString() };
+      const updated = {
+        ...artifact,
+        favorite: !artifact.favorite,
+        updatedAt: new Date().toISOString(),
+        schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
+      };
       await storage.saveArtifact(updated);
-      setArtifacts((prev) => prev.map((a) => (a.id === id ? updated : a)));
+      setArtifacts((prev) => {
+        const next = prev.map((a) => (a.id === id ? updated : a));
+        next.sort((a, b) => {
+          if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+        });
+        return next;
+      });
+    }
+  }, [artifacts, storage]);
+
+  const togglePinned = useCallback(async (id: string) => {
+    const artifact = artifacts.find((a) => a.id === id);
+    if (artifact) {
+      const updated = {
+        ...artifact,
+        pinned: !artifact.pinned,
+        updatedAt: new Date().toISOString(),
+        schemaVersion: artifact.schemaVersion ?? CURRENT_SCHEMA_VERSION,
+      };
+      await storage.saveArtifact(updated);
+      setArtifacts((prev) => {
+        const next = prev.map((a) => (a.id === id ? updated : a));
+        next.sort((a, b) => {
+          if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+        });
+        return next;
+      });
     }
   }, [artifacts, storage]);
 
@@ -213,5 +270,5 @@ export function useArtifactList(type: ToolType) {
     refresh();
   }, [refresh]);
 
-  return { artifacts, loading, error, refresh, deleteArtifact, toggleFavorite };
+  return { artifacts, loading, error, refresh, deleteArtifact, toggleFavorite, togglePinned };
 }

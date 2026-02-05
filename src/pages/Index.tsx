@@ -1,15 +1,40 @@
-import { useNavigate } from 'react-router-dom';
-import { Settings } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Copy, Settings } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useBlueprint } from '@/contexts/BlueprintContext';
 import { TOOL_LIST } from '@/lib/toolConfig';
+import { TOOL_CONFIG } from '@/lib/toolConfig';
+import { useAllArtifacts } from '@/hooks/useArtifacts';
+import type { Artifact } from '@/lib/storage';
+import { toast } from '@/hooks/use-toast';
 
 const Index = () => {
   const navigate = useNavigate();
   const { isToolEnabled, loading } = useBlueprint();
+  const { artifacts } = useAllArtifacts();
+  const [search, setSearch] = useState('');
 
   const visibleTools = loading ? TOOL_LIST : TOOL_LIST.filter((t) => isToolEnabled(t.type));
+  const recentArtifacts = useMemo(() => artifacts.slice(0, 5), [artifacts]);
+
+  const handleCopyLink = async (artifact: Artifact) => {
+    const link = `${window.location.origin}${TOOL_CONFIG[artifact.type].path}/${artifact.id}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      toast({ title: 'Link copied' });
+    } catch {
+      toast({ title: 'Copy failed', description: 'Unable to access clipboard.', variant: 'destructive' });
+    }
+  };
+
+  const searchResults = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return [];
+    return artifacts.filter((artifact) => artifactSearchText(artifact).includes(query));
+  }, [artifacts, search]);
 
   return (
     <div className="flex-1 p-6 overflow-auto">
@@ -22,6 +47,43 @@ const Index = () => {
           <p className="text-muted-foreground max-w-lg mx-auto">
             Your project's creative memory. Capture the spark, map the vision, track the journey.
           </p>
+        </div>
+
+        {/* Search */}
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold text-foreground">Search</h2>
+          <Input
+            placeholder="Search notes, flows, boards, and sketches..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          {search.trim().length > 0 && (
+            <div className="mt-3 space-y-2">
+              {searchResults.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No matches yet.</p>
+              ) : (
+                <div className="space-y-2">
+                  {searchResults.slice(0, 10).map((artifact) => (
+                    <Link
+                      key={artifact.id}
+                      to={`${TOOL_CONFIG[artifact.type].path}/${artifact.id}`}
+                      className="block rounded-lg border border-border bg-card p-3 transition hover:border-ring"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{artifact.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {TOOL_CONFIG[artifact.type].title} • Updated {formatRelative(artifact.updatedAt)}
+                          </p>
+                        </div>
+                        <span className="text-xs text-muted-foreground">{artifact.type}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Tool Grid */}
@@ -55,6 +117,43 @@ const Index = () => {
           })}
         </div>
 
+        {/* Recent Activity */}
+        <div className="space-y-3">
+          <h2 className="text-lg font-semibold text-foreground">Recent Activity</h2>
+          <div className="space-y-2">
+            {recentArtifacts.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No artifacts yet. Create your first one.</p>
+            ) : (
+              recentArtifacts.map((artifact) => (
+                <div
+                  key={artifact.id}
+                  className="flex items-center justify-between rounded-lg border border-border bg-card p-3 transition hover:border-ring"
+                >
+                  <Link
+                    to={`${TOOL_CONFIG[artifact.type].path}/${artifact.id}`}
+                    className="flex-1"
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{artifact.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {TOOL_CONFIG[artifact.type].title} • Updated {formatRelative(artifact.updatedAt)}
+                      </p>
+                    </div>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleCopyLink(artifact)}
+                    aria-label="Copy artifact link"
+                  >
+                    <Copy className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
         {/* Keyboard shortcuts hint */}
         <div className="text-center text-sm text-muted-foreground space-y-1">
           <p>
@@ -74,5 +173,30 @@ const Index = () => {
     </div>
   );
 };
+
+function artifactSearchText(artifact: Artifact) {
+  const parts = [artifact.name, artifact.type, artifact.updatedAt];
+  if (artifact.data) {
+    try {
+      parts.push(JSON.stringify(artifact.data));
+    } catch {
+      // ignore
+    }
+  }
+  return parts.join(' ').toLowerCase();
+}
+
+function formatRelative(iso: string) {
+  const timestamp = Date.parse(iso);
+  if (Number.isNaN(timestamp)) return 'just now';
+  const diffMs = Date.now() - timestamp;
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays}d ago`;
+}
 
 export default Index;

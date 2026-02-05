@@ -15,6 +15,7 @@ import BoardGallery from "./pages/BoardGallery";
 import BoardPage from "./pages/BoardPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import SettingsPage from "./pages/SettingsPage";
+import HelpPage from "./pages/HelpPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -64,6 +65,9 @@ const App = () => (
 
                 {/* Favorites */}
                 <Route path="/favorites" element={<FavoritesPage />} />
+
+                {/* Help */}
+                <Route path="/help" element={<HelpPage />} />
 
                 <Route path="/settings" element={<SettingsPage />} />
               </Route>

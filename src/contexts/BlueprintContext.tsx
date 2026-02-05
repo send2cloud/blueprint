@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { ToolType, ALL_TOOLS, StorageAdapter, getStorageAdapter } from '@/lib/storage';
+import { ToolType, ALL_TOOLS, StorageAdapter, getStorageAdapter, BlueprintSettings } from '@/lib/storage';
 
 interface BlueprintContextValue {
   enabledTools: ToolType[];
@@ -7,12 +7,14 @@ interface BlueprintContextValue {
   isToolEnabled: (tool: ToolType) => boolean;
   storage: StorageAdapter;
   loading: boolean;
+  settings: BlueprintSettings;
 }
 
 const BlueprintContext = createContext<BlueprintContextValue | null>(null);
 
 export function BlueprintProvider({ children }: { children: React.ReactNode }) {
   const [enabledTools, setEnabledTools] = useState<ToolType[]>([...ALL_TOOLS]);
+  const [settings, setSettings] = useState<BlueprintSettings>({ enabledTools: [...ALL_TOOLS] });
   const [loading, setLoading] = useState(true);
   const storage = useMemo(() => getStorageAdapter(), []);
 
@@ -20,11 +22,15 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const settings = await storage.getSettings();
+        const loadedSettings = await storage.getSettings();
         // Filter out old tool types that no longer exist
-        const validTools = settings.enabledTools.filter(t => ALL_TOOLS.includes(t));
+        const validTools = loadedSettings.enabledTools.filter(t => ALL_TOOLS.includes(t));
         // If no valid tools, default to all tools
         setEnabledTools(validTools.length > 0 ? validTools : [...ALL_TOOLS]);
+        setSettings({
+          ...loadedSettings,
+          enabledTools: validTools.length > 0 ? validTools : [...ALL_TOOLS],
+        });
       } catch (e) {
         console.error('Failed to load blueprint settings:', e);
       } finally {
@@ -41,8 +47,12 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
         : [...prev, tool];
       
       // Persist to storage
-      storage.saveSettings({ enabledTools: newTools }).catch(e => {
-        console.error('Failed to save settings:', e);
+      setSettings(prevSettings => {
+        const nextSettings: BlueprintSettings = { ...prevSettings, enabledTools: newTools };
+        storage.saveSettings(nextSettings).catch(e => {
+          console.error('Failed to save settings:', e);
+        });
+        return nextSettings;
       });
       
       return newTools;
@@ -59,7 +69,8 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
     isToolEnabled,
     storage,
     loading,
-  }), [enabledTools, toggleTool, isToolEnabled, storage, loading]);
+    settings,
+  }), [enabledTools, toggleTool, isToolEnabled, storage, loading, settings]);
 
   return (
     <BlueprintContext.Provider value={value}>

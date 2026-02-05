@@ -1,73 +1,60 @@
-# Welcome to your Lovable project
+# Blueprint — Creative Idea Room
 
-## Project info
+Blueprint is a personal, project‑local toolbox for capturing the spark behind a project and everything that follows: notes, sketches, flows, tasks, and artifacts. It is meant to travel with each repo as a detachable “idea room” you can return to months later and immediately understand why the project exists and where it stands.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Genesis & Intent
 
-## How can I edit this code?
+This project was created to keep the creator’s mind clear by externalizing ideas into a structured space that lives alongside the code. It is not part of the product itself. It is a companion: a private workspace for planning, reflection, and reference.
 
-There are several ways of editing your application.
+## Scope
 
-**Use Lovable**
+Blueprint provides:
+- Whiteboard / canvas sketches
+- Flow diagrams
+- Task boards
+- Notes / documents
+- Artifact galleries with shareable deep links
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Blueprint does **not** need to integrate with the host app’s business logic. It only needs to live next to it, store its own data, and remain portable with the repo.
 
-Changes made via Lovable will be committed automatically to this repo.
+## How It Works
 
-**Use your preferred IDE**
+Blueprint stores artifacts in one of two modes:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **Local Storage (default)**
+   - Fastest to start.
+   - Data stays in this browser only.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. **InstantDB (recommended for real projects)**
+   - Data is stored in the host project’s InstantDB app.
+   - Uses dedicated namespaces like `blueprint_artifacts` so your personal data stays separate.
+   - Travels with the project because it lives in that project’s DB.
 
-Follow these steps:
+## Connect to InstantDB
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. Open Blueprint.
+2. Go to **Settings → Database Connection**.
+3. Select **InstantDB**.
+4. Paste the host project’s **Instant App ID**.
+5. Click **Save**.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+When connected, the “Using local storage” banner disappears and your artifacts sync to InstantDB.
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Install Blueprint Into a New Project (Lovable flow)
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+After creating the project in Lovable and syncing to GitHub, ask the LLM:
 
-**Edit a file directly in GitHub**
+"Hey Lovable, go to this GitHub link (https://github.com/send2cloud/blueprint) and install that app into a folder called `/blueprint`. You can read the instructions in the README."
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Then:
+1. Open Blueprint.
+2. Connect it to the project’s InstantDB App ID in **Settings → Database Connection**.
 
-**Use GitHub Codespaces**
+That’s it. Blueprint now travels with the project and stores its data in the project’s database.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
+## Tech Stack
 
 - Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- React + TypeScript
+- shadcn-ui + Tailwind
+- React Flow, tldraw, BlockNote

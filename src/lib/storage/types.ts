@@ -4,6 +4,7 @@ export const ALL_TOOLS: ToolType[] = ['canvas', 'diagram', 'board', 'notes'];
 
 export interface BlueprintSettings {
   enabledTools: ToolType[];
+  seededNoteCreated?: boolean;
 }
 
 export interface Artifact {
@@ -14,6 +15,8 @@ export interface Artifact {
   createdAt: string;
   updatedAt: string;
   favorite: boolean;
+  schemaVersion: number;
+  pinned: boolean;
 }
 
 export interface StorageAdapter {
