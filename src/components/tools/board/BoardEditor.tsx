@@ -1,49 +1,47 @@
-import { useState, useCallback, useMemo } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { Plus, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-interface KanbanCard {
-  id: string;
-  content: string;
-}
-
-interface KanbanColumn {
-  id: string;
-  title: string;
-  cards: KanbanCard[];
-}
-
-interface BoardData {
-  columns: KanbanColumn[];
-}
+ import { useState, useCallback, useMemo } from 'react';
+ import { DragDropContext, DropResult } from '@hello-pangea/dnd';
+ import { KanbanColumn } from './KanbanColumn';
+ import { CardDetailModal } from './CardDetailModal';
+ import {
+   KanbanCard,
+   KanbanColumn as KanbanColumnType,
+   BoardData,
+   migrateCard,
+ } from './types';
 
 interface BoardEditorProps {
   initialData?: unknown;
   onSave?: (data: unknown) => void;
 }
 
-const defaultColumns: KanbanColumn[] = [
+ const defaultColumns: KanbanColumnType[] = [
   { id: 'todo', title: 'To Do', cards: [] },
   { id: 'in-progress', title: 'In Progress', cards: [] },
   { id: 'done', title: 'Done', cards: [] },
 ];
 
 export function BoardEditor({ initialData, onSave }: BoardEditorProps) {
-  const parsedData = useMemo(() => {
+   const parsedData = useMemo((): KanbanColumnType[] => {
     if (initialData && typeof initialData === 'object') {
       const data = initialData as BoardData;
-      return data.columns || defaultColumns;
+       if (data.columns) {
+         // Migrate old card format to new
+         return data.columns.map((col) => ({
+           ...col,
+           cards: col.cards.map((card) => migrateCard(card as any)),
+         }));
+       }
+       return defaultColumns;
     }
     return defaultColumns;
   }, [initialData]);
 
-  const [columns, setColumns] = useState<KanbanColumn[]>(parsedData);
-  const [newCardContent, setNewCardContent] = useState<Record<string, string>>({});
+   const [columns, setColumns] = useState<KanbanColumnType[]>(parsedData);
+   const [selectedCard, setSelectedCard] = useState<KanbanCard | null>(null);
+   const [selectedColumnId, setSelectedColumnId] = useState<string | null>(null);
+   const [modalOpen, setModalOpen] = useState(false);
 
-  const saveData = useCallback((newColumns: KanbanColumn[]) => {
+   const saveData = useCallback((newColumns: KanbanColumnType[]) => {
     if (onSave) {
       onSave({ columns: newColumns });
     }
@@ -78,111 +76,94 @@ export function BoardEditor({ initialData, onSave }: BoardEditorProps) {
     });
   }, [saveData]);
 
-  const addCard = useCallback((columnId: string) => {
-    const content = newCardContent[columnId]?.trim();
-    if (!content) return;
-
+   const addCard = useCallback((columnId: string, title: string) => {
+     const now = new Date().toISOString();
+     const newCard: KanbanCard = {
+       id: `card-${Date.now()}`,
+       title,
+       todos: [],
+       comments: [],
+       labels: [],
+       createdAt: now,
+       updatedAt: now,
+     };
     setColumns((prevColumns) => {
       const newColumns = prevColumns.map((col) => {
         if (col.id === columnId) {
-          return {
-            ...col,
-            cards: [...col.cards, { id: `card-${Date.now()}`, content }],
-          };
+           return { ...col, cards: [...col.cards, newCard] };
         }
         return col;
       });
       saveData(newColumns);
       return newColumns;
     });
-
-    setNewCardContent((prev) => ({ ...prev, [columnId]: '' }));
-  }, [newCardContent, saveData]);
+   }, [saveData]);
 
   const deleteCard = useCallback((columnId: string, cardId: string) => {
     setColumns((prevColumns) => {
       const newColumns = prevColumns.map((col) => {
         if (col.id === columnId) {
-          return {
-            ...col,
-            cards: col.cards.filter((c) => c.id !== cardId),
-          };
+           return { ...col, cards: col.cards.filter((c) => c.id !== cardId) };
         }
         return col;
       });
       saveData(newColumns);
       return newColumns;
     });
+     setModalOpen(false);
+     setSelectedCard(null);
+     setSelectedColumnId(null);
   }, [saveData]);
 
+   const handleCardClick = useCallback((card: KanbanCard, columnId: string) => {
+     setSelectedCard(card);
+     setSelectedColumnId(columnId);
+     setModalOpen(true);
+   }, []);
+ 
+   const handleCardSave = useCallback((updatedCard: KanbanCard) => {
+     setColumns((prevColumns) => {
+       const newColumns = prevColumns.map((col) => ({
+         ...col,
+         cards: col.cards.map((c) =>
+           c.id === updatedCard.id ? updatedCard : c
+         ),
+       }));
+       saveData(newColumns);
+       return newColumns;
+     });
+     setSelectedCard(updatedCard);
+   }, [saveData]);
+ 
   return (
-    <div className="w-full h-full p-4 overflow-x-auto">
-      <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex gap-4 h-full min-w-max">
-          {columns.map((column) => (
-            <div key={column.id} className="w-72 flex-shrink-0">
-              <Card className="h-full flex flex-col">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">{column.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex-1 flex flex-col gap-2">
-                  <Droppable droppableId={column.id}>
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className="flex-1 min-h-[100px]"
-                      >
-                        {column.cards.map((card, index) => (
-                          <Draggable key={card.id} draggableId={card.id} index={index}>
-                            {(provided) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className="mb-2 p-3 bg-muted rounded-md group flex items-start justify-between gap-2"
-                              >
-                                <span className="text-sm">{card.content}</span>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                                  onClick={() => deleteCard(column.id, card.id)}
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Add a card..."
-                      value={newCardContent[column.id] || ''}
-                      onChange={(e) =>
-                        setNewCardContent((prev) => ({ ...prev, [column.id]: e.target.value }))
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          addCard(column.id);
-                        }
-                      }}
-                      className="text-sm"
-                    />
-                    <Button size="icon" variant="outline" onClick={() => addCard(column.id)}>
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          ))}
-        </div>
-      </DragDropContext>
-    </div>
+     <>
+       <div className="w-full h-full p-4 overflow-x-auto">
+         <DragDropContext onDragEnd={onDragEnd}>
+           <div className="flex gap-4 h-full min-w-max">
+             {columns.map((column) => (
+               <KanbanColumn
+                 key={column.id}
+                 column={column}
+                 onAddCard={addCard}
+                 onCardClick={(card) => handleCardClick(card, column.id)}
+                 onDeleteCard={deleteCard}
+               />
+             ))}
+           </div>
+         </DragDropContext>
+       </div>
+ 
+       <CardDetailModal
+         card={selectedCard}
+         open={modalOpen}
+         onOpenChange={setModalOpen}
+         onSave={handleCardSave}
+         onDelete={() => {
+           if (selectedColumnId && selectedCard) {
+             deleteCard(selectedColumnId, selectedCard.id);
+           }
+         }}
+       />
+     </>
   );
 }
