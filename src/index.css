@@ -103,93 +103,157 @@
   }
 }
  
- /* React Big Calendar Theming */
- .calendar-container .rbc-calendar {
-   @apply bg-background text-foreground;
- }
- 
- .calendar-container .rbc-toolbar {
-   @apply mb-4 flex-wrap gap-2;
- }
- 
- .calendar-container .rbc-toolbar button {
-   @apply px-3 py-1.5 text-sm rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors;
- }
- 
- .calendar-container .rbc-toolbar button.rbc-active {
-   @apply bg-primary text-primary-foreground;
- }
- 
- .calendar-container .rbc-header {
-   @apply py-2 text-sm font-medium text-muted-foreground border-b border-border;
- }
- 
- .calendar-container .rbc-month-view,
- .calendar-container .rbc-time-view {
-   @apply border border-border rounded-lg overflow-hidden;
- }
- 
- .calendar-container .rbc-day-bg {
-   @apply border-l border-border;
- }
- 
- .calendar-container .rbc-day-bg:first-child {
-   @apply border-l-0;
- }
- 
- .calendar-container .rbc-off-range-bg {
-   @apply bg-muted/30;
- }
- 
- .calendar-container .rbc-today {
-   @apply bg-accent/50;
- }
- 
- .calendar-container .rbc-date-cell {
-   @apply text-right px-2 py-1 text-sm;
- }
- 
- .calendar-container .rbc-date-cell.rbc-now {
-   @apply font-bold text-primary;
- }
- 
- .calendar-container .rbc-event {
-   @apply px-2 py-0.5;
- }
- 
- .calendar-container .rbc-show-more {
-   @apply text-xs text-muted-foreground hover:text-foreground cursor-pointer;
- }
- 
- .calendar-container .rbc-time-header-content {
-   @apply border-l border-border;
- }
- 
- .calendar-container .rbc-timeslot-group {
-   @apply border-b border-border;
- }
- 
- .calendar-container .rbc-time-slot {
-   @apply text-xs text-muted-foreground;
- }
- 
- .calendar-container .rbc-current-time-indicator {
-   @apply bg-destructive h-0.5;
- }
- 
- .calendar-container .rbc-agenda-view table {
-   @apply w-full;
- }
- 
- .calendar-container .rbc-agenda-table {
-   @apply border border-border rounded-lg overflow-hidden;
- }
- 
- .calendar-container .rbc-agenda-date-cell,
- .calendar-container .rbc-agenda-time-cell {
-   @apply px-3 py-2 text-sm whitespace-nowrap;
- }
- 
- .calendar-container .rbc-agenda-event-cell {
-   @apply px-3 py-2;
- }
+/* React Big Calendar Theming */
+.calendar-container .rbc-calendar {
+  @apply bg-background text-foreground;
+}
+
+.calendar-container .rbc-toolbar {
+  @apply mb-4 flex-wrap gap-2;
+}
+
+.calendar-container .rbc-toolbar button {
+  @apply px-3 py-1.5 text-sm rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors;
+}
+
+.calendar-container .rbc-toolbar button.rbc-active {
+  @apply bg-primary text-primary-foreground;
+}
+
+.calendar-container .rbc-header {
+  @apply py-2 text-sm font-medium text-muted-foreground border-b border-border;
+}
+
+.calendar-container .rbc-month-view,
+.calendar-container .rbc-time-view {
+  @apply border border-border rounded-lg overflow-hidden;
+}
+
+/* Month view: weekend shading */
+.calendar-container .rbc-month-view .rbc-day-bg:nth-child(6),
+.calendar-container .rbc-month-view .rbc-day-bg:nth-child(7) {
+  @apply bg-muted/40;
+}
+
+/* Week starts on Monday - adjust weekend columns */
+.calendar-container .rbc-month-row .rbc-day-bg:nth-last-child(-n+2) {
+  @apply bg-muted/40;
+}
+
+.calendar-container .rbc-day-bg {
+  @apply border-l border-border/50;
+}
+
+.calendar-container .rbc-day-bg:first-child {
+  @apply border-l-0;
+}
+
+.calendar-container .rbc-off-range-bg {
+  @apply bg-muted/30;
+}
+
+/* Today cell - more prominent */
+.calendar-container .rbc-today {
+  @apply bg-primary/15;
+}
+
+.calendar-container .rbc-date-cell {
+  @apply text-right px-2 py-1 text-sm;
+}
+
+.calendar-container .rbc-date-cell.rbc-now {
+  @apply font-bold;
+}
+
+.calendar-container .rbc-date-cell.rbc-now a {
+  @apply bg-primary text-primary-foreground rounded-full w-7 h-7 inline-flex items-center justify-center;
+}
+
+.calendar-container .rbc-event {
+  @apply px-2 py-0.5;
+}
+
+.calendar-container .rbc-show-more {
+  @apply text-xs text-muted-foreground hover:text-foreground cursor-pointer;
+}
+
+.calendar-container .rbc-time-header-content {
+  @apply border-l border-border/40;
+}
+
+/* Time grid - dimmed grid lines */
+.calendar-container .rbc-timeslot-group {
+  @apply border-b border-border/30;
+  min-height: 60px;
+}
+
+/* Hourly slots - slightly more visible */
+.calendar-container .rbc-time-slot {
+  @apply text-xs text-muted-foreground border-t border-border/15;
+}
+
+/* Every hour mark - more visible */
+.calendar-container .rbc-timeslot-group:first-child .rbc-time-slot:first-child,
+.calendar-container .rbc-time-slot:nth-child(2) {
+  @apply border-t-0;
+}
+
+.calendar-container .rbc-time-gutter .rbc-timeslot-group {
+  @apply border-b border-border/40;
+}
+
+.calendar-container .rbc-time-content {
+  @apply border-t border-border/40;
+}
+
+.calendar-container .rbc-time-content > * + * > * {
+  @apply border-l border-border/30;
+}
+
+/* Day/week columns grid */
+.calendar-container .rbc-day-slot .rbc-time-slot {
+  @apply border-t border-border/10;
+}
+
+/* Hour boundaries - more visible */
+.calendar-container .rbc-day-slot .rbc-timeslot-group {
+  @apply border-b border-border/25;
+}
+
+/* Current time indicator - RED line */
+.calendar-container .rbc-current-time-indicator {
+  @apply h-0.5 z-10;
+  background-color: hsl(0, 84%, 60%);
+  box-shadow: 0 0 4px hsl(0, 84%, 60%);
+}
+
+/* Weekend columns in week/day view */
+.calendar-container .rbc-time-header .rbc-header:nth-last-child(-n+2) {
+  @apply bg-muted/30;
+}
+
+.calendar-container .rbc-time-content .rbc-day-slot:nth-last-child(-n+2) {
+  @apply bg-muted/20;
+}
+
+.calendar-container .rbc-agenda-view table {
+  @apply w-full;
+}
+
+.calendar-container .rbc-agenda-table {
+  @apply border border-border rounded-lg overflow-hidden;
+}
+
+.calendar-container .rbc-agenda-date-cell,
+.calendar-container .rbc-agenda-time-cell {
+  @apply px-3 py-2 text-sm whitespace-nowrap;
+}
+
+.calendar-container .rbc-agenda-event-cell {
+  @apply px-3 py-2;
+}
+
+/* Month view - start week on Monday header adjustment */
+.calendar-container .rbc-row.rbc-month-header .rbc-header:nth-last-child(-n+2) {
+  @apply text-muted-foreground/70;
+}

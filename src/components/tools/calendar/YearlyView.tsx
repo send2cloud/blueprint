@@ -1,54 +1,61 @@
 import { useMemo } from 'react';
-import { format, startOfQuarter, endOfQuarter, eachMonthOfInterval, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday } from 'date-fns';
+import { format, startOfYear, endOfYear, eachMonthOfInterval, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isSaturday, isSunday, startOfWeek } from 'date-fns';
 import { CalendarEvent } from './types';
 import { cn } from '@/lib/utils';
 
-interface QuarterlyViewProps {
+interface YearlyViewProps {
   date: Date;
   events: CalendarEvent[];
   onSelectEvent: (event: CalendarEvent) => void;
   onNavigate: (date: Date) => void;
+  weekStartsOn: 0 | 1;
 }
 
-export function QuarterlyView({ date, events, onSelectEvent, onNavigate }: QuarterlyViewProps) {
-  const quarterStart = startOfQuarter(date);
-  const quarterEnd = endOfQuarter(date);
-  const months = eachMonthOfInterval({ start: quarterStart, end: quarterEnd });
+export function YearlyView({ date, events, onSelectEvent, onNavigate, weekStartsOn }: YearlyViewProps) {
+  const yearStart = startOfYear(date);
+  const yearEnd = endOfYear(date);
+  const months = eachMonthOfInterval({ start: yearStart, end: yearEnd });
+
+  const dayHeaders = weekStartsOn === 1 
+    ? ['M', 'T', 'W', 'T', 'F', 'S', 'S'] 
+    : ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
   const getEventsForDay = (day: Date) => {
     return events.filter(event => isSameDay(event.start, day));
   };
 
-  const quarterLabel = useMemo(() => {
-    const q = Math.floor(date.getMonth() / 3) + 1;
-    return `Q${q} ${format(date, 'yyyy')}`;
-  }, [date]);
+  const getPaddingDays = (monthStart: Date) => {
+    const dayOfWeek = monthStart.getDay();
+    if (weekStartsOn === 1) {
+      // Monday start: Sunday is 6, Monday is 0
+      return dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    }
+    return dayOfWeek;
+  };
 
   return (
     <div className="h-full flex flex-col">
       <div className="text-center py-3 border-b border-border">
-        <h2 className="text-lg font-semibold">{quarterLabel}</h2>
+        <h2 className="text-lg font-semibold">{format(date, 'yyyy')}</h2>
       </div>
       
-      <div className="flex-1 grid grid-cols-3 gap-4 p-4 overflow-auto">
+      <div className="flex-1 grid grid-cols-3 lg:grid-cols-4 gap-4 p-4 overflow-auto">
         {months.map((month) => {
           const monthStart = startOfMonth(month);
           const monthEnd = endOfMonth(month);
           const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
-          
-          // Get first day of week for padding
-          const firstDayOfWeek = monthStart.getDay();
-          const paddingDays = Array(firstDayOfWeek).fill(null);
+          const paddingCount = getPaddingDays(monthStart);
+          const paddingDays = Array(paddingCount).fill(null);
 
           return (
             <div key={month.toISOString()} className="border border-border rounded-lg overflow-hidden">
               <div className="bg-muted px-3 py-2 text-center font-medium text-sm">
-                {format(month, 'MMMM yyyy')}
+                {format(month, 'MMMM')}
               </div>
               
               {/* Day headers */}
               <div className="grid grid-cols-7 text-center text-[10px] text-muted-foreground border-b border-border">
-                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+                {dayHeaders.map((d, i) => (
                   <div key={i} className="py-1">{d}</div>
                 ))}
               </div>
@@ -61,19 +68,19 @@ export function QuarterlyView({ date, events, onSelectEvent, onNavigate }: Quart
                 {days.map((day) => {
                   const dayEvents = getEventsForDay(day);
                   const hasEvents = dayEvents.length > 0;
+                  const isWeekend = isSaturday(day) || isSunday(day);
                   
                   return (
                     <div
                       key={day.toISOString()}
                       className={cn(
                         "aspect-square flex flex-col items-center justify-center text-xs cursor-pointer hover:bg-accent transition-colors relative",
-                        isToday(day) && "bg-primary/10 font-bold"
+                        isToday(day) && "bg-primary text-primary-foreground font-bold",
+                        isWeekend && !isToday(day) && "bg-muted/50"
                       )}
                       onClick={() => onNavigate(day)}
                     >
-                      <span className={cn(
-                        isToday(day) && "text-primary"
-                      )}>
+                      <span>
                         {format(day, 'd')}
                       </span>
                       {hasEvents && (
