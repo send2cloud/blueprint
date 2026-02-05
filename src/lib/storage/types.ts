@@ -17,6 +17,7 @@ export interface Artifact {
   favorite: boolean;
   schemaVersion: number;
   pinned: boolean;
+  tags?: string[];
 }
 
 export interface StorageAdapter {
