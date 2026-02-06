@@ -3,11 +3,14 @@ import { Calendar as BigCalendar, dateFnsLocalizer, Views, SlotInfo } from 'reac
 import { format, parse, startOfWeek, getDay, addHours } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { EventModal } from './EventModal';
+import { TaskPreviewModal } from './TaskPreviewModal';
 import { YearlyView } from './YearlyView';
 import { CalendarToolbar } from './CalendarToolbar';
 import { useCalendarNavigation } from './useCalendarNavigation';
 import { useCalendarConfig } from './useCalendarConfig';
 import { CalendarEvent } from './types';
+import type { TaskCalendarEvent } from '@/hooks/useTaskEvents';
+import type { KanbanCard } from '@/components/tools/board/types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const locales = { 'en-US': enUS };
@@ -16,13 +19,21 @@ interface CalendarEditorProps {
   events: CalendarEvent[];
   onSaveEvent: (event: CalendarEvent) => void;
   onDeleteEvent: (id: string) => void;
-  linkedEvents?: CalendarEvent[]; // Events from tasks/docs
+  linkedEvents?: TaskCalendarEvent[]; // Events from tasks
 }
 
 export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvents = [] }: CalendarEditorProps) {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isNewEvent, setIsNewEvent] = useState(false);
+
+  // Task preview modal state
+  const [selectedTask, setSelectedTask] = useState<{
+    card: KanbanCard;
+    boardId: string;
+    boardName: string;
+  } | null>(null);
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
 
   const { config, updateConfig } = useCalendarConfig();
   const { currentView, setCurrentView, currentDate, setCurrentDate, navigate } = useCalendarNavigation();
@@ -36,13 +47,23 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
     locales,
   }), [config.weekStartsOn]);
 
-  // Combine manual events with linked events from tasks/docs
+  // Combine manual events with linked events from tasks
   const allEvents = useMemo(() => [...events, ...linkedEvents], [events, linkedEvents]);
 
-  const handleSelectEvent = useCallback((event: CalendarEvent) => {
-    setSelectedEvent(event);
-    setIsNewEvent(false);
-    setModalOpen(true);
+  const handleSelectEvent = useCallback((event: CalendarEvent | TaskCalendarEvent) => {
+    // Check if this is a task event (has cardData)
+    if ('cardData' in event && event.sourceType === 'task') {
+      setSelectedTask({
+        card: event.cardData,
+        boardId: event.sourceId,
+        boardName: event.boardName,
+      });
+      setTaskModalOpen(true);
+    } else {
+      setSelectedEvent(event as CalendarEvent);
+      setIsNewEvent(false);
+      setModalOpen(true);
+    }
   }, []);
 
   const handleSelectSlot = useCallback((slotInfo: SlotInfo) => {
@@ -148,6 +169,14 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
         onSave={handleSaveEvent}
         onDelete={onDeleteEvent}
         isNew={isNewEvent}
+      />
+
+      <TaskPreviewModal
+        card={selectedTask?.card ?? null}
+        boardId={selectedTask?.boardId ?? null}
+        boardName={selectedTask?.boardName ?? null}
+        open={taskModalOpen}
+        onOpenChange={setTaskModalOpen}
       />
     </div>
   );

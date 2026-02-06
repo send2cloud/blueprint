@@ -1,17 +1,34 @@
 import { useMemo } from 'react';
 import { useAllArtifacts } from './useArtifacts';
-import { CalendarEvent } from '@/components/tools/calendar/types';
 import type { BoardData, KanbanCard } from '@/components/tools/board/types';
+
+/**
+ * Extended calendar event that includes the full task card data
+ */
+export interface TaskCalendarEvent {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  allDay: boolean;
+  description?: string;
+  color: string;
+  sourceType: 'task';
+  sourceId: string; // board ID
+  cardData: KanbanCard;
+  boardName: string;
+  tags?: string[];
+}
 
 /**
  * Hook that extracts calendar events from task due dates across all board artifacts.
  * This enables the Task→Calendar integration.
  */
-export function useTaskEvents(): CalendarEvent[] {
+export function useTaskEvents(): TaskCalendarEvent[] {
   const { artifacts } = useAllArtifacts();
 
   return useMemo(() => {
-    const events: CalendarEvent[] = [];
+    const events: TaskCalendarEvent[] = [];
 
     // Filter to only board artifacts
     const boards = artifacts.filter((a) => a.type === 'board');
@@ -24,7 +41,7 @@ export function useTaskEvents(): CalendarEvent[] {
         for (const card of column.cards) {
           if (card.dueDate) {
             const dueDate = new Date(card.dueDate);
-            // Create an all-day event for the due date
+            // Create an all-day event for the due date with full card data
             events.push({
               id: `task-${card.id}`,
               title: `📋 ${card.title}`,
@@ -35,6 +52,8 @@ export function useTaskEvents(): CalendarEvent[] {
               color: 'hsl(25, 95%, 53%)', // Orange for tasks
               sourceType: 'task',
               sourceId: board.id,
+              cardData: card,
+              boardName: board.name,
               tags: [`board:${board.name}`],
             });
           }
