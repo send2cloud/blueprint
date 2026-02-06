@@ -170,6 +170,14 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
         onDelete={onDeleteEvent}
         isNew={isNewEvent}
       />
+
+      <TaskPreviewModal
+        card={selectedTask?.card ?? null}
+        boardId={selectedTask?.boardId ?? null}
+        boardName={selectedTask?.boardName ?? null}
+        open={taskModalOpen}
+        onOpenChange={setTaskModalOpen}
+      />
     </div>
   );
 }
