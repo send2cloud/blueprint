@@ -56,13 +56,9 @@ export function CalendarEditor({
   const allEvents = useMemo(() => [...events, ...linkedEvents], [events, linkedEvents]);
 
   const handleSelectEvent = useCallback((event: CalendarEvent | TaskCalendarEvent) => {
-    // Check if this is a task event (has cardData)
+    // Check if this is a task event
     if ('cardData' in event && event.sourceType === 'task') {
-      setSelectedTask({
-        card: event.cardData,
-        boardId: event.sourceId,
-        boardName: event.boardName,
-      });
+      setSelectedTaskEvent(event);
       setTaskModalOpen(true);
     } else {
       setSelectedEvent(event as CalendarEvent);
@@ -70,6 +66,19 @@ export function CalendarEditor({
       setModalOpen(true);
     }
   }, []);
+
+  const handleSaveCard = useCallback((card: KanbanCard) => {
+    if (selectedTaskEvent && onSaveCard) {
+      onSaveCard(selectedTaskEvent.sourceId, card);
+    }
+  }, [selectedTaskEvent, onSaveCard]);
+
+  const handleDeleteCard = useCallback(() => {
+    if (selectedTaskEvent && onDeleteCard) {
+      onDeleteCard(selectedTaskEvent.sourceId, selectedTaskEvent.cardId);
+      setTaskModalOpen(false);
+    }
+  }, [selectedTaskEvent, onDeleteCard]);
 
   const handleSelectSlot = useCallback((slotInfo: SlotInfo) => {
     const start = slotInfo.start;
