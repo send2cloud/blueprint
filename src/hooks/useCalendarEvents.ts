@@ -76,7 +76,9 @@ export function useCalendarEvents() {
   const saveEvent = useCallback(async (event: CalendarEvent) => {
     try {
       const adapter = getStorageAdapter();
+      console.log('[Calendar] Saving event, adapter:', adapter.constructor.name, 'event:', event.id);
       await adapter.saveCalendarEvent(toRecord(event));
+      console.log('[Calendar] Event saved successfully');
       setEvents((prev) => {
         const exists = prev.some((e) => e.id === event.id);
         if (exists) {
