@@ -91,12 +91,10 @@ export function CanvasEditor({ initialData, onSave, currentArtifactId }: CanvasE
   const { resolvedTheme } = useTheme();
   const editorRef = useRef<Editor | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
 
   // Expose actions to the toolbar component
   toolbarActions = {
     openPicker: () => setPickerOpen(true),
-    openHelp: () => setHelpOpen(true),
   };
 
   const handleMount = useCallback((editor: Editor) => {
