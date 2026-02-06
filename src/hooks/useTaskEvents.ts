@@ -76,7 +76,8 @@ export function useTaskEvents() {
     }));
 
     const storage = getStorageAdapter();
-    await storage.updateArtifact(boardId, {
+    await storage.saveArtifact({
+      ...board,
       data: { columns: updatedColumns },
       updatedAt: new Date().toISOString(),
     });
@@ -94,7 +95,8 @@ export function useTaskEvents() {
     }));
 
     const storage = getStorageAdapter();
-    await storage.updateArtifact(boardId, {
+    await storage.saveArtifact({
+      ...board,
       data: { columns: updatedColumns },
       updatedAt: new Date().toISOString(),
     });
