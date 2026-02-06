@@ -1,10 +1,11 @@
-import { Home, Star, Settings, Moon, Sun, PanelLeftClose, PanelLeft, HelpCircle, Tag } from 'lucide-react';
+import { Home, Star, Settings, Moon, Sun, PanelLeftClose, PanelLeft, HelpCircle, Tag, Cloud } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { NavLink } from '@/components/NavLink';
 import { useBlueprint } from '@/contexts/BlueprintContext';
 import { TOOL_LIST, TOOL_CONFIG } from '@/lib/toolConfig';
 import { useAllArtifacts } from '@/hooks/useArtifacts';
 import { TagCloud } from '@/components/sidebar/TagCloud';
+import { getStorageAdapterType } from '@/lib/storage/adapter';
 import {
   Sidebar,
   SidebarContent,
@@ -30,6 +31,7 @@ export function AppSidebar() {
   const { resolvedTheme, setTheme } = useTheme();
   const collapsed = state === 'collapsed';
   const { artifacts } = useAllArtifacts();
+  const storageType = getStorageAdapterType();
 
   const visibleTools = loading 
     ? TOOL_LIST 
@@ -66,12 +68,22 @@ export function AppSidebar() {
                 {!collapsed && (
                   <span className="flex flex-col leading-tight">
                     <span className="font-semibold">Blueprints</span>
-                    <span
-                      className="inline-flex w-fit rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-medium text-amber-300"
-                      title="Data is stored in this browser only. Connect InstantDB in Settings to sync with a project."
-                    >
-                      Using local storage
-                    </span>
+                    {storageType === 'instantdb' ? (
+                      <span
+                        className="inline-flex w-fit items-center gap-1 rounded-full bg-status-synced/20 px-2 py-0.5 text-[10px] font-medium text-status-synced-foreground"
+                        title="Data syncs across devices via InstantDB"
+                      >
+                        <Cloud className="h-2.5 w-2.5" />
+                        Synced
+                      </span>
+                    ) : (
+                      <span
+                        className="inline-flex w-fit rounded-full bg-status-local/20 px-2 py-0.5 text-[10px] font-medium text-status-local-foreground"
+                        title="Data is stored in this browser only. Connect InstantDB in Settings to sync with a project."
+                      >
+                        Using local storage
+                      </span>
+                    )}
                   </span>
                 )}
               </NavLink>

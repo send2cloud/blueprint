@@ -4,13 +4,22 @@ import { loadDbConfig } from './dbConfig';
 import { InstantDbAdapter } from './instantDb';
 
 let currentAdapter: StorageAdapter = new LocalStorageAdapter();
+let currentAdapterType: 'localStorage' | 'instantdb' = 'localStorage';
 
-export function setStorageAdapter(adapter: StorageAdapter): void {
+export function setStorageAdapter(adapter: StorageAdapter, type: 'localStorage' | 'instantdb'): void {
   currentAdapter = adapter;
+  currentAdapterType = type;
 }
 
 export function getStorageAdapter(): StorageAdapter {
   return currentAdapter;
+}
+
+/**
+ * Returns the current storage adapter type for UI display
+ */
+export function getStorageAdapterType(): 'localStorage' | 'instantdb' {
+  return currentAdapterType;
 }
 
 /**
@@ -41,9 +50,9 @@ export function initializeStorageAdapter(): StorageAdapter {
   const instantAppId = getInstantAppId();
   
   if (instantAppId) {
-    setStorageAdapter(new InstantDbAdapter(instantAppId));
+    setStorageAdapter(new InstantDbAdapter(instantAppId), 'instantdb');
   } else {
-    setStorageAdapter(new LocalStorageAdapter());
+    setStorageAdapter(new LocalStorageAdapter(), 'localStorage');
   }
   return currentAdapter;
 }
