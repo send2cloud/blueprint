@@ -7,6 +7,13 @@ const TABLE_SETTINGS = 'blueprint_settings';
 const TABLE_ARTIFACTS = 'blueprint_artifacts';
 const TABLE_CALENDAR_EVENTS = 'blueprint_calendar_events';
 
+type InstantOutbox = {
+  artifacts: Record<string, Artifact>;
+  settings?: BlueprintSettings;
+  calendarEvents: Record<string, CalendarEventRecord>;
+  calendarDeletes: string[];
+};
+
 export class InstantDbAdapter implements StorageAdapter {
   private db: ReturnType<typeof init>;
   private appId: string;
