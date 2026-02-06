@@ -1,10 +1,11 @@
 import { init } from '@instantdb/react';
-import { StorageAdapter, BlueprintSettings, Artifact, ToolType, ALL_TOOLS } from './types';
+import { StorageAdapter, BlueprintSettings, Artifact, ToolType, ALL_TOOLS, CalendarEventRecord } from './types';
 import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from './schema';
 
 const SETTINGS_ID = 'settings';
 const TABLE_SETTINGS = 'blueprint_settings';
 const TABLE_ARTIFACTS = 'blueprint_artifacts';
+const TABLE_CALENDAR_EVENTS = 'blueprint_calendar_events';
 
 export class InstantDbAdapter implements StorageAdapter {
   private db: ReturnType<typeof init>;
