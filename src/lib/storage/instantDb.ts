@@ -7,6 +7,13 @@ const TABLE_SETTINGS = 'blueprint_settings';
 const TABLE_ARTIFACTS = 'blueprint_artifacts';
 const TABLE_CALENDAR_EVENTS = 'blueprint_calendar_events';
 
+type InstantOutbox = {
+  artifacts: Record<string, Artifact>;
+  settings?: BlueprintSettings;
+  calendarEvents: Record<string, CalendarEventRecord>;
+  calendarDeletes: string[];
+};
+
 export class InstantDbAdapter implements StorageAdapter {
   private db: ReturnType<typeof init>;
   private appId: string;
@@ -41,20 +48,37 @@ export class InstantDbAdapter implements StorageAdapter {
     }
   }
 
-  private loadOutbox(): { artifacts: Record<string, Artifact>; settings?: BlueprintSettings } {
-    return this.loadCache('outbox') ?? { artifacts: {} };
+  private loadOutbox(): InstantOutbox {
+    const raw = this.loadCache<Partial<InstantOutbox>>('outbox');
+    return {
+      artifacts: raw?.artifacts ?? {},
+      settings: raw?.settings,
+      calendarEvents: raw?.calendarEvents ?? {},
+      calendarDeletes: raw?.calendarDeletes ?? [],
+    };
   }
 
-  private saveOutbox(outbox: { artifacts: Record<string, Artifact>; settings?: BlueprintSettings }) {
+  private saveOutbox(outbox: InstantOutbox) {
     this.saveCache('outbox', outbox);
   }
 
   private async flushOutbox() {
     const outbox = this.loadOutbox();
     const artifactEntries = Object.values(outbox.artifacts ?? {});
-    if (artifactEntries.length === 0 && !outbox.settings) return;
+    const calendarUpserts = Object.values(outbox.calendarEvents ?? {});
+    const calendarDeletes = outbox.calendarDeletes ?? [];
 
-    const remaining: typeof outbox = { artifacts: {} };
+    if (
+      artifactEntries.length === 0 &&
+      !outbox.settings &&
+      calendarUpserts.length === 0 &&
+      calendarDeletes.length === 0
+    ) {
+      return;
+    }
+
+    const remaining: InstantOutbox = { artifacts: {}, calendarEvents: {}, calendarDeletes: [] };
+
     for (const artifact of artifactEntries) {
       try {
         const tx = (this.db.tx as any)[TABLE_ARTIFACTS][artifact.id].update(artifact);
@@ -70,6 +94,24 @@ export class InstantDbAdapter implements StorageAdapter {
         await this.db.transact(tx);
       } catch {
         remaining.settings = outbox.settings;
+      }
+    }
+
+    for (const id of calendarDeletes) {
+      try {
+        const tx = (this.db.tx as any)[TABLE_CALENDAR_EVENTS][id].delete();
+        await this.db.transact(tx);
+      } catch {
+        remaining.calendarDeletes.push(id);
+      }
+    }
+
+    for (const event of calendarUpserts) {
+      try {
+        const tx = (this.db.tx as any)[TABLE_CALENDAR_EVENTS][event.id].update(event);
+        await this.db.transact(tx);
+      } catch {
+        remaining.calendarEvents[event.id] = event;
       }
     }
 
@@ -235,35 +277,91 @@ export class InstantDbAdapter implements StorageAdapter {
         [TABLE_CALENDAR_EVENTS]: {},
       });
       const rows = (resp.data?.[TABLE_CALENDAR_EVENTS] ?? []) as CalendarEventRecord[];
-      this.saveCache('calendar_events', rows);
-      return rows;
+
+      // Merge in any pending local outbox ops so refresh doesn't drop unsynced changes.
+      const outbox = this.loadOutbox();
+      const deleteSet = new Set(outbox.calendarDeletes ?? []);
+      const merged = new Map<string, CalendarEventRecord>();
+
+      for (const row of rows) {
+        if (!deleteSet.has(row.id)) merged.set(row.id, row);
+      }
+      for (const pending of Object.values(outbox.calendarEvents ?? {})) {
+        merged.set(pending.id, pending);
+      }
+
+      const result = Array.from(merged.values());
+      this.saveCache('calendar_events', result);
+      return result;
     } catch (e) {
       console.error('Failed to list calendar events from InstantDB:', e);
+      // Fall back to last known good cache (includes outbox merges from prior loads).
       return this.loadCache<CalendarEventRecord[]>('calendar_events') ?? [];
     }
   }
 
   async saveCalendarEvent(event: CalendarEventRecord): Promise<void> {
+    // Optimistically cache so refresh keeps the event even if InstantDB is temporarily unavailable.
+    const cached = this.loadCache<CalendarEventRecord[]>('calendar_events') ?? [];
+    const next = cached.filter((e) => e.id !== event.id);
+    next.push(event);
+    this.saveCache('calendar_events', next);
+
     try {
       const tx = (this.db.tx as any)[TABLE_CALENDAR_EVENTS][event.id].update(event);
       await this.db.transact(tx);
-      const cached = this.loadCache<CalendarEventRecord[]>('calendar_events') ?? [];
-      const next = cached.filter((e) => e.id !== event.id);
-      next.push(event);
-      this.saveCache('calendar_events', next);
+
+      // Remove any pending ops for this event.
+      const outbox = this.loadOutbox();
+      if (outbox.calendarEvents?.[event.id] || outbox.calendarDeletes?.includes(event.id)) {
+        const { [event.id]: _, ...rest } = outbox.calendarEvents ?? {};
+        this.saveOutbox({
+          ...outbox,
+          calendarEvents: rest,
+          calendarDeletes: (outbox.calendarDeletes ?? []).filter((id) => id !== event.id),
+        });
+      }
     } catch (e) {
       console.error('Failed to save calendar event to InstantDB:', e);
+      const outbox = this.loadOutbox();
+      this.saveOutbox({
+        ...outbox,
+        calendarEvents: { ...(outbox.calendarEvents ?? {}), [event.id]: event },
+        calendarDeletes: (outbox.calendarDeletes ?? []).filter((id) => id !== event.id),
+      });
     }
   }
 
   async deleteCalendarEvent(id: string): Promise<void> {
+    // Optimistically remove from cache.
+    const cached = this.loadCache<CalendarEventRecord[]>('calendar_events') ?? [];
+    this.saveCache('calendar_events', cached.filter((e) => e.id !== id));
+
     try {
       const tx = (this.db.tx as any)[TABLE_CALENDAR_EVENTS][id].delete();
       await this.db.transact(tx);
-      const cached = this.loadCache<CalendarEventRecord[]>('calendar_events') ?? [];
-      this.saveCache('calendar_events', cached.filter((e) => e.id !== id));
+
+      // Remove any pending upsert for this id.
+      const outbox = this.loadOutbox();
+      if (outbox.calendarEvents?.[id] || outbox.calendarDeletes?.includes(id)) {
+        const { [id]: _, ...rest } = outbox.calendarEvents ?? {};
+        this.saveOutbox({
+          ...outbox,
+          calendarEvents: rest,
+          calendarDeletes: (outbox.calendarDeletes ?? []).filter((existing) => existing !== id),
+        });
+      }
     } catch (e) {
       console.error('Failed to delete calendar event from InstantDB:', e);
+      const outbox = this.loadOutbox();
+      const deletes = outbox.calendarDeletes ?? [];
+      this.saveOutbox({
+        ...outbox,
+        calendarEvents: Object.fromEntries(
+          Object.entries(outbox.calendarEvents ?? {}).filter(([eventId]) => eventId !== id),
+        ),
+        calendarDeletes: deletes.includes(id) ? deletes : [...deletes, id],
+      });
     }
   }
 }
