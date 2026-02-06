@@ -48,20 +48,37 @@ export class InstantDbAdapter implements StorageAdapter {
     }
   }
 
-  private loadOutbox(): { artifacts: Record<string, Artifact>; settings?: BlueprintSettings } {
-    return this.loadCache('outbox') ?? { artifacts: {} };
+  private loadOutbox(): InstantOutbox {
+    const raw = this.loadCache<Partial<InstantOutbox>>('outbox');
+    return {
+      artifacts: raw?.artifacts ?? {},
+      settings: raw?.settings,
+      calendarEvents: raw?.calendarEvents ?? {},
+      calendarDeletes: raw?.calendarDeletes ?? [],
+    };
   }
 
-  private saveOutbox(outbox: { artifacts: Record<string, Artifact>; settings?: BlueprintSettings }) {
+  private saveOutbox(outbox: InstantOutbox) {
     this.saveCache('outbox', outbox);
   }
 
   private async flushOutbox() {
     const outbox = this.loadOutbox();
     const artifactEntries = Object.values(outbox.artifacts ?? {});
-    if (artifactEntries.length === 0 && !outbox.settings) return;
+    const calendarUpserts = Object.values(outbox.calendarEvents ?? {});
+    const calendarDeletes = outbox.calendarDeletes ?? [];
 
-    const remaining: typeof outbox = { artifacts: {} };
+    if (
+      artifactEntries.length === 0 &&
+      !outbox.settings &&
+      calendarUpserts.length === 0 &&
+      calendarDeletes.length === 0
+    ) {
+      return;
+    }
+
+    const remaining: InstantOutbox = { artifacts: {}, calendarEvents: {}, calendarDeletes: [] };
+
     for (const artifact of artifactEntries) {
       try {
         const tx = (this.db.tx as any)[TABLE_ARTIFACTS][artifact.id].update(artifact);
@@ -77,6 +94,24 @@ export class InstantDbAdapter implements StorageAdapter {
         await this.db.transact(tx);
       } catch {
         remaining.settings = outbox.settings;
+      }
+    }
+
+    for (const id of calendarDeletes) {
+      try {
+        const tx = (this.db.tx as any)[TABLE_CALENDAR_EVENTS][id].delete();
+        await this.db.transact(tx);
+      } catch {
+        remaining.calendarDeletes.push(id);
+      }
+    }
+
+    for (const event of calendarUpserts) {
+      try {
+        const tx = (this.db.tx as any)[TABLE_CALENDAR_EVENTS][event.id].update(event);
+        await this.db.transact(tx);
+      } catch {
+        remaining.calendarEvents[event.id] = event;
       }
     }
 
