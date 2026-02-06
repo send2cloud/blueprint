@@ -257,12 +257,13 @@ export class InstantDbAdapter implements StorageAdapter {
           blueprint_boards: {},
         };
         const resp = await this.db.queryOnce(query as any);
+        const data = resp.data as Record<string, unknown[]> | undefined;
         rows = [
-          ...(resp.data?.blueprint_notes ?? []),
-          ...(resp.data?.blueprint_diagrams ?? []),
-          ...(resp.data?.blueprint_canvases ?? []),
-          ...(resp.data?.blueprint_boards ?? []),
-        ] as Artifact[];
+          ...((data?.blueprint_notes ?? []) as Artifact[]),
+          ...((data?.blueprint_diagrams ?? []) as Artifact[]),
+          ...((data?.blueprint_canvases ?? []) as Artifact[]),
+          ...((data?.blueprint_boards ?? []) as Artifact[]),
+        ];
       }
 
       const normalized = rows
