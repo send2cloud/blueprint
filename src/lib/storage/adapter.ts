@@ -23,26 +23,14 @@ export function getStorageAdapterType(): 'localStorage' | 'instantdb' {
 }
 
 /**
- * Returns the InstantDB App ID to use, checking in order:
- * 1. Environment variable VITE_INSTANT_APP_ID (set via Lovable secrets)
- * 2. User-configured value from Settings (stored in localStorage)
- * 
- * When the app is copied to another project, the env var won't exist,
- * so it falls back to requiring manual configuration in Settings.
+ * Returns the InstantDB App ID from Settings (localStorage config).
+ * This is the single source of truth - configure in Settings page.
  */
 export function getInstantAppId(): string | null {
-  // Check env var first (for standalone published app)
-  const envAppId = import.meta.env.VITE_INSTANT_APP_ID;
-  if (envAppId && typeof envAppId === 'string' && envAppId.trim()) {
-    return envAppId.trim();
-  }
-  
-  // Fall back to localStorage config (for embedded installations)
   const config = loadDbConfig();
   if (config?.provider === 'instantdb' && config.instantAppId) {
     return config.instantAppId;
   }
-  
   return null;
 }
 
