@@ -47,16 +47,12 @@ export function getInstantAppId(): string | null {
 }
 
 export function initializeStorageAdapter(): StorageAdapter {
-  console.log('[Storage] Initializing storage adapter...');
   const instantAppId = getInstantAppId();
   
   if (instantAppId) {
-    console.log('[Storage] Creating InstantDbAdapter');
     setStorageAdapter(new InstantDbAdapter(instantAppId), 'instantdb');
   } else {
-    console.log('[Storage] Creating LocalStorageAdapter');
     setStorageAdapter(new LocalStorageAdapter(), 'localStorage');
   }
-  console.log('[Storage] Adapter initialized:', currentAdapterType);
   return currentAdapter;
 }
