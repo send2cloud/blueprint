@@ -61,68 +61,38 @@ The InstantDB adapter implements a **local outbox and optimistic caching system*
 
 ## Install Blueprint Into Another Project
 
-Blueprint is designed to be embedded into any React/Vite project as a companion workspace.
+Blueprint is designed to be embedded into any React/Vite project. See **[INSTALL.md](./INSTALL.md)** for detailed instructions.
 
-### Step 1: Copy the Files
+### Quick Start
 
-```
-Copy all files from the Blueprint repo into a `/blueprint` folder in your project:
-1. Copy `src/` directory → `/blueprint/src/`
-2. Copy `index.html` → `/blueprint/index.html`
-3. Copy config files: `vite.config.ts`, `tailwind.config.ts`, `postcss.config.js`, `tsconfig*.json`
-4. Copy `public/` folder → `/blueprint/public/`
-```
-
-### Step 2: Install Dependencies
-
+**Option 1: One-liner with degit**
 ```bash
-# Core dependencies
-npm install tldraw @xyflow/react @blocknote/react @blocknote/mantine @blocknote/core
-npm install @hello-pangea/dnd react-big-calendar @instantdb/react
-npm install date-fns lucide-react uuid react-router-dom @tanstack/react-query
-npm install next-themes sonner vaul cmdk
-
-# Also add shadcn/ui components if not already present
+npx degit YOUR_USERNAME/blueprint blueprint && cd blueprint && npm install
 ```
 
-### Step 3: Configure Vite (Important!)
-
-BlockNote uses ProseMirror internally. Add this dedupe config to prevent duplicate module crashes:
-
-```ts
-// vite.config.ts
-resolve: {
-  dedupe: [
-    "@tiptap/pm",
-    "prosemirror-state",
-    "prosemirror-view",
-    "prosemirror-model",
-    "prosemirror-transform",
-    "prosemirror-commands",
-    "prosemirror-history",
-    "prosemirror-keymap",
-    "prosemirror-inputrules",
-    "prosemirror-schema-list",
-    "prosemirror-gapcursor",
-    "prosemirror-dropcursor",
-  ],
-}
+**Option 2: AI Assistant Prompt**
+```
+Install Blueprint from https://github.com/YOUR_USERNAME/blueprint into /blueprint folder.
+Install deps: tldraw @xyflow/react @blocknote/react @blocknote/mantine @blocknote/core @hello-pangea/dnd react-big-calendar @instantdb/react
+Add ProseMirror dedupe to vite.config.ts, mount at /blueprint/* route.
 ```
 
-### Step 4: Mount Blueprint
-
-**Option A: Run as standalone app**
+**Option 3: Copy Script**
 ```bash
-cd /blueprint && npm install && npm run dev
-# Available at http://localhost:8080
+node blueprint/scripts/copy-to-project.js /path/to/your/project
 ```
 
-**Option B: Embed into your app's routes**
+### Mount in Your App
+
 ```tsx
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 const BlueprintApp = lazy(() => import('./blueprint/src/App'));
 
-<Route path="/blueprint/*" element={<BlueprintApp />} />
+<Route path="/blueprint/*" element={
+  <Suspense fallback={<div>Loading...</div>}>
+    <BlueprintApp />
+  </Suspense>
+} />
 ```
 
 ---
