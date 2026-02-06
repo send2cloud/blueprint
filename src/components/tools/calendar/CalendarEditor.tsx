@@ -47,13 +47,23 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
     locales,
   }), [config.weekStartsOn]);
 
-  // Combine manual events with linked events from tasks/docs
+  // Combine manual events with linked events from tasks
   const allEvents = useMemo(() => [...events, ...linkedEvents], [events, linkedEvents]);
 
-  const handleSelectEvent = useCallback((event: CalendarEvent) => {
-    setSelectedEvent(event);
-    setIsNewEvent(false);
-    setModalOpen(true);
+  const handleSelectEvent = useCallback((event: CalendarEvent | TaskCalendarEvent) => {
+    // Check if this is a task event (has cardData)
+    if ('cardData' in event && event.sourceType === 'task') {
+      setSelectedTask({
+        card: event.cardData,
+        boardId: event.sourceId,
+        boardName: event.boardName,
+      });
+      setTaskModalOpen(true);
+    } else {
+      setSelectedEvent(event as CalendarEvent);
+      setIsNewEvent(false);
+      setModalOpen(true);
+    }
   }, []);
 
   const handleSelectSlot = useCallback((slotInfo: SlotInfo) => {
