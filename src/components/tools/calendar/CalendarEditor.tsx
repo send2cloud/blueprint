@@ -3,11 +3,14 @@ import { Calendar as BigCalendar, dateFnsLocalizer, Views, SlotInfo } from 'reac
 import { format, parse, startOfWeek, getDay, addHours } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { EventModal } from './EventModal';
+import { TaskPreviewModal } from './TaskPreviewModal';
 import { YearlyView } from './YearlyView';
 import { CalendarToolbar } from './CalendarToolbar';
 import { useCalendarNavigation } from './useCalendarNavigation';
 import { useCalendarConfig } from './useCalendarConfig';
 import { CalendarEvent } from './types';
+import type { TaskCalendarEvent } from '@/hooks/useTaskEvents';
+import type { KanbanCard } from '@/components/tools/board/types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const locales = { 'en-US': enUS };
@@ -16,13 +19,21 @@ interface CalendarEditorProps {
   events: CalendarEvent[];
   onSaveEvent: (event: CalendarEvent) => void;
   onDeleteEvent: (id: string) => void;
-  linkedEvents?: CalendarEvent[]; // Events from tasks/docs
+  linkedEvents?: TaskCalendarEvent[]; // Events from tasks
 }
 
 export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvents = [] }: CalendarEditorProps) {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isNewEvent, setIsNewEvent] = useState(false);
+
+  // Task preview modal state
+  const [selectedTask, setSelectedTask] = useState<{
+    card: KanbanCard;
+    boardId: string;
+    boardName: string;
+  } | null>(null);
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
 
   const { config, updateConfig } = useCalendarConfig();
   const { currentView, setCurrentView, currentDate, setCurrentDate, navigate } = useCalendarNavigation();
