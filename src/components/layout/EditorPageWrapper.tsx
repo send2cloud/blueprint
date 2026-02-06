@@ -1,9 +1,10 @@
- import { ReactNode } from 'react';
- import { Loader2, LucideIcon } from 'lucide-react';
- import { ToolHeader } from './ToolHeader';
- import { HiddenLlmPayload } from '@/components/llm/HiddenLlmPayload';
- import type { Artifact, ToolType } from '@/lib/storage';
- 
+import { ReactNode } from 'react';
+import { Loader2, LucideIcon } from 'lucide-react';
+import { ToolHeader } from './ToolHeader';
+import { HiddenLlmPayload } from '@/components/llm/HiddenLlmPayload';
+import { BacklinksPanel } from '@/components/BacklinksPanel';
+import type { Artifact, ToolType } from '@/lib/storage';
+
 interface EditorPageWrapperProps {
   /** Tool title for the header */
   title: string;
@@ -84,6 +85,7 @@ export function EditorPageWrapper({
       <div className="flex-1 overflow-hidden">
         {children}
       </div>
+      <BacklinksPanel artifactId={artifact.id} />
     </div>
   );
 }
