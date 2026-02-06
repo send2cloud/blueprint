@@ -57,6 +57,12 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        status: {
+          synced: "hsl(var(--status-synced))",
+          "synced-foreground": "hsl(var(--status-synced-foreground))",
+          local: "hsl(var(--status-local))",
+          "local-foreground": "hsl(var(--status-local-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
