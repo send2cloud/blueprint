@@ -1,6 +1,6 @@
 # Blueprint — Creative Idea Room
 
-Blueprint is a personal, project‑local toolbox for capturing the spark behind a project and everything that follows: notes, sketches, flows, tasks, and artifacts. It is meant to travel with each repo as a detachable "idea room" you can return to months later and immediately understand why the project exists and where it stands.
+Blueprint is a personal, project-local toolbox for capturing the spark behind a project and everything that follows: notes, sketches, flows, tasks, and artifacts. It is meant to travel with each repo as a detachable "idea room" you can return to months later and immediately understand why the project exists and where it stands.
 
 ## Features
 
@@ -10,63 +10,88 @@ Blueprint is a personal, project‑local toolbox for capturing the spark behind 
 | **Flow** | Diagrams, mind maps, system flows | @xyflow/react |
 | **Tasks** | Kanban boards with Trello-style cards | @hello-pangea/dnd |
 | **Docs** | Rich text documents & notes | BlockNote |
-| **Calendar** | Unified scheduling view | react-big-calendar |
+| **Calendar** | Unified scheduling view (global, not per-artifact) | react-big-calendar |
 
 Plus: Tags, Favorites, deep-linking, and a gallery view for each artifact type.
 
 ---
 
+## Storage Configuration
+
+Blueprint supports a **three-tier storage configuration model** to balance standalone deployment with project portability:
+
+### Tier 1: Environment Variable (Recommended for Published Apps)
+Set `VITE_INSTANTDB_APP_ID` in your build environment. This bakes the App ID into all builds, ensuring both Preview and Published domains use the same database automatically.
+
+```bash
+# .env or build environment
+VITE_INSTANTDB_APP_ID=your-app-id-here
+```
+
+### Tier 2: UI Configuration (Settings Page)
+If no environment variable is set, users can manually configure InstantDB via **Settings → Database Connection**. This is stored in localStorage and is domain-specific.
+
+### Tier 3: Local Storage (Default)
+When no InstantDB is configured, Blueprint falls back to browser-only localStorage. Data won't sync across devices or domains.
+
+**Priority Order:** Environment Variable → localStorage Config → Local Storage fallback
+
+---
+
+## InstantDB Schema
+
+Blueprint uses **isolated namespaces** to prevent collisions with your main app's data:
+
+| Table | Purpose |
+|-------|---------|
+| `blueprint_notes` | Rich-text documents |
+| `blueprint_diagrams` | Flow/diagram artifacts |
+| `blueprint_canvases` | Whiteboard artifacts |
+| `blueprint_boards` | Kanban board artifacts |
+| `blueprint_calendar_events` | Calendar events (global, not per-artifact) |
+| `blueprint_settings` | App settings (enabled tools, etc.) |
+
+### Persistence Architecture
+The InstantDB adapter implements a **local outbox and optimistic caching system**:
+- All writes are cached locally first for instant UI feedback
+- Changes queue in an outbox for network resilience
+- Failed transactions retry on next app load
+- Calendar events use this pattern extensively for cross-session persistence
+
+---
+
 ## Install Blueprint Into Another Project
 
-Blueprint is designed to be embedded into any React/Vite project as a companion workspace. Use your preferred AI coding assistant to copy the files.
+Blueprint is designed to be embedded into any React/Vite project as a companion workspace.
 
 ### Step 1: Copy the Files
 
-Give your AI assistant this prompt:
-
 ```
-Go to https://github.com/send2cloud/blueprint and copy the entire codebase 
-into a folder called `/blueprint` in my project. 
-
-Specifically:
-1. Copy all files from the `src/` directory into `/blueprint/src/`
-2. Copy `index.html` to `/blueprint/index.html`
-3. Copy `vite.config.ts`, `tailwind.config.ts`, `postcss.config.js`, `tsconfig.json`, `tsconfig.app.json`, and `tsconfig.node.json` to `/blueprint/`
-4. Copy the `public/` folder to `/blueprint/public/`
-
-Do not merge with my existing app. Keep Blueprint as a standalone folder.
+Copy all files from the Blueprint repo into a `/blueprint` folder in your project:
+1. Copy `src/` directory → `/blueprint/src/`
+2. Copy `index.html` → `/blueprint/index.html`
+3. Copy config files: `vite.config.ts`, `tailwind.config.ts`, `postcss.config.js`, `tsconfig*.json`
+4. Copy `public/` folder → `/blueprint/public/`
 ```
 
 ### Step 2: Install Dependencies
 
-Ask your AI assistant to add these dependencies to your project:
+```bash
+# Core dependencies
+npm install tldraw @xyflow/react @blocknote/react @blocknote/mantine @blocknote/core
+npm install @hello-pangea/dnd react-big-calendar @instantdb/react
+npm install date-fns lucide-react uuid react-router-dom @tanstack/react-query
+npm install next-themes sonner vaul cmdk
 
+# Also add shadcn/ui components if not already present
 ```
-Add these dependencies to my project:
-- tldraw
-- @xyflow/react
-- @blocknote/react @blocknote/mantine @blocknote/core
-- @hello-pangea/dnd
-- react-big-calendar
-- @instantdb/react
-- date-fns
-- lucide-react
-- uuid
-- react-router-dom
-- @tanstack/react-query
-- next-themes
-- sonner
-- vaul
-- cmdk
-```
-
-Also add the shadcn/ui components if not already present.
 
 ### Step 3: Configure Vite (Important!)
 
-BlockNote uses ProseMirror internally. To prevent duplicate module crashes, add this to your `vite.config.ts`:
+BlockNote uses ProseMirror internally. Add this dedupe config to prevent duplicate module crashes:
 
 ```ts
+// vite.config.ts
 resolve: {
   dedupe: [
     "@tiptap/pm",
@@ -85,104 +110,38 @@ resolve: {
 }
 ```
 
-### Step 4: Mount Blueprint Routes
-
-There are two ways to access Blueprint:
+### Step 4: Mount Blueprint
 
 **Option A: Run as standalone app**
-
-Navigate to the `/blueprint` folder and run:
 ```bash
-npm install && npm run dev
+cd /blueprint && npm install && npm run dev
+# Available at http://localhost:8080
 ```
 
-Blueprint will be available at `http://localhost:8080`.
-
 **Option B: Embed into your app's routes**
-
-Add Blueprint routes to your main app's router:
-
 ```tsx
-// In your app's main router
 import { lazy } from 'react';
-
 const BlueprintApp = lazy(() => import('./blueprint/src/App'));
 
-// Add a catch-all route
 <Route path="/blueprint/*" element={<BlueprintApp />} />
 ```
 
-Note: You may need to adjust Blueprint's internal routing to use a base path.
-
 ---
 
-## Storage Configuration
+## Architecture Overview
 
-Blueprint stores artifacts in one of two modes:
+### Component Structure
+Tool-specific editors are wrapped in a generic `EditorPageWrapper` that centralizes:
+- Loading states and error handling
+- Tool headers with consistent navigation
+- LLM payload integration for AI context sharing
 
-### Local Storage (default)
-- Zero config, works immediately
-- Data stays in the browser only
-- ⚠️ Data won't sync across devices or environments
+### Data Management
+- `useArtifact` → Single-item CRUD operations
+- `useArtifactList` → Collection-level queries and filtering
+- `useCalendarEvents` → Global calendar events (TanStack Query + optimistic updates)
 
-### InstantDB (recommended)
-- Data persists in the cloud
-- Travels with the project
-- Uses dedicated namespaces (`blueprint_artifacts`, `blueprint_settings`) to stay separate from your app's data
-
-**To connect InstantDB:**
-1. Open Blueprint
-2. Go to **Settings → Database Connection**
-3. Select **InstantDB**
-4. Paste your project's **Instant App ID**
-5. Click **Save**
-
-When connected, the "Using local storage" banner disappears.
-
----
-
-## File Structure Reference
-
-```
-blueprint/
-├── src/
-│   ├── components/
-│   │   ├── tools/           # Editor components for each tool
-│   │   │   ├── board/       # Kanban board
-│   │   │   ├── calendar/    # Calendar view
-│   │   │   ├── canvas/      # Whiteboard (tldraw)
-│   │   │   ├── diagram/     # Flow diagrams (React Flow)
-│   │   │   └── notes/       # Rich text (BlockNote)
-│   │   ├── gallery/         # Artifact gallery & cards
-│   │   ├── layout/          # App shell, sidebar
-│   │   └── ui/              # shadcn/ui components
-│   ├── lib/
-│   │   ├── storage/         # Storage adapters (localStorage, InstantDB)
-│   │   └── toolConfig.ts    # Tool definitions & metadata
-│   ├── pages/               # Route pages
-│   ├── hooks/               # React hooks for artifacts
-│   └── contexts/            # Blueprint context provider
-├── public/
-├── index.html
-└── vite.config.ts
-```
-
----
-
-## Customization
-
-### Enable/Disable Tools
-
-Go to **Settings → Enabled Tools** to toggle which tools appear in the sidebar.
-
-### Add Custom Storage Adapter
-
-Blueprint uses a `StorageAdapter` interface. To connect to your own database:
-
-1. Create a new adapter in `src/lib/storage/` implementing `StorageAdapter`
-2. Register it in `src/lib/storage/adapter.ts`
-3. Add UI in Settings to select your adapter
-
+### Storage Adapter Pattern
 ```ts
 interface StorageAdapter {
   getSettings(): Promise<BlueprintSettings>;
@@ -193,8 +152,33 @@ interface StorageAdapter {
   listArtifacts(type?: ToolType): Promise<Artifact[]>;
   listFavorites(): Promise<Artifact[]>;
   listByTag(tag: string): Promise<Artifact[]>;
+  listCalendarEvents(): Promise<CalendarEventRecord[]>;
+  saveCalendarEvent(event: CalendarEventRecord): Promise<void>;
+  deleteCalendarEvent(id: string): Promise<void>;
 }
 ```
+
+### Calendar as Cross-Tool Aggregator
+The Calendar tool is architected to aggregate time-based data from the entire project:
+- `sourceType: 'manual'` → User-created events
+- `sourceType: 'task'` → Linked from Kanban due dates (future)
+- `sourceType: 'doc'` → Linked from document mentions (future)
+
+---
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `W` | Whiteboard |
+| `F` | Flow |
+| `T` | Tasks |
+| `D` | Docs |
+| `C` | Calendar |
+| `N` | New Item |
+| `G` | Gallery View |
+| `S` | Favorites |
+| `\` | Toggle Dark Mode |
 
 ---
 
@@ -202,12 +186,13 @@ interface StorageAdapter {
 
 - **Build:** Vite + TypeScript
 - **UI:** React, Tailwind CSS, shadcn/ui
+- **State:** TanStack Query (React Query)
 - **Whiteboard:** tldraw
 - **Diagrams:** @xyflow/react
 - **Rich Text:** BlockNote
 - **Kanban:** @hello-pangea/dnd
 - **Calendar:** react-big-calendar
-- **Database:** InstantDB (optional)
+- **Database:** InstantDB (optional, recommended)
 - **Routing:** react-router-dom
 
 ---
@@ -218,10 +203,13 @@ interface StorageAdapter {
 Add the ProseMirror dedupe config to your `vite.config.ts` (see Step 3).
 
 ### Data not persisting between sessions
-You're using localStorage, which is browser-specific. Connect to InstantDB for persistent storage.
+You're using localStorage, which is browser-specific. Set `VITE_INSTANTDB_APP_ID` for persistent cloud storage.
 
-### Styles conflicting with host app
-Blueprint uses CSS custom properties. If conflicts occur, scope Blueprint's styles by wrapping in a container with its own CSS reset.
+### Preview and Published domains have different data
+This happens when using localStorage or UI-configured InstantDB (domain isolation). Set the App ID via environment variable to sync across all domains.
+
+### Calendar events disappear on refresh
+The outbox system should preserve events. Check console for "Blueprint:" prefixed logs to debug sync issues.
 
 ---
 

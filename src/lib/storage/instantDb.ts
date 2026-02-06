@@ -4,6 +4,7 @@ import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from './schema';
 
 const TABLE_SETTINGS = 'blueprint_settings';
 const TABLE_CALENDAR_EVENTS = 'blueprint_calendar_events';
+const SETTINGS_ID = 'default'; // Singleton row for settings
 
 // Specialized tables for each tool type
 const TABLES: Record<ToolType, string> = {
