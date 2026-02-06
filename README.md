@@ -59,30 +59,63 @@ The InstantDB adapter implements a **local outbox and optimistic caching system*
 
 ---
 
-## Install Blueprint Into Another Project
+## Installation Options
 
-Blueprint is designed to be embedded into any React/Vite project. See **[INSTALL.md](./INSTALL.md)** for detailed instructions.
+Blueprint can be installed three ways depending on your setup:
 
-### Quick Start
+---
 
-**Option 1: One-liner with degit**
+### Option 1: NPM Package (Easiest - Coming Soon)
+
+Once published, installation will be as simple as:
+
 ```bash
-npx degit YOUR_USERNAME/blueprint blueprint && cd blueprint && npm install
+npm install @anthropic/blueprint
 ```
 
-**Option 2: AI Assistant Prompt**
-```
-Install Blueprint from https://github.com/YOUR_USERNAME/blueprint into /blueprint folder.
-Install deps: tldraw @xyflow/react @blocknote/react @blocknote/mantine @blocknote/core @hello-pangea/dnd react-big-calendar @instantdb/react
-Add ProseMirror dedupe to vite.config.ts, mount at /blueprint/* route.
+```tsx
+import { BlueprintApp } from '@anthropic/blueprint';
+
+<Route path="/blueprint/*" element={<BlueprintApp />} />
 ```
 
-**Option 3: Copy Script**
+> **Status:** Blueprint is not yet published to npm. See "Publishing to NPM" below to set this up yourself.
+
+---
+
+### Option 2: LLM Cloud Installation (For Lovable/Cursor/etc)
+
+If you're using an AI coding assistant, give it this prompt:
+
+```
+Install Blueprint from https://github.com/anthropics/blueprint
+
+1. Read LLM_INSTALL.md and blueprint-manifest.json from the repo
+2. Install dependencies: npm install tldraw @xyflow/react @blocknote/react @blocknote/mantine @blocknote/core @hello-pangea/dnd react-big-calendar @instantdb/react date-fns lucide-react uuid next-themes sonner vaul cmdk @tanstack/react-query
+3. Copy files in batches as listed in the manifest (fetch in parallel)
+4. Add ProseMirror dedupe to vite.config.ts
+5. Mount BlueprintApp at /blueprint/* route
+```
+
+The LLM should read `LLM_INSTALL.md` for optimized batch-copying instructions.
+
+---
+
+### Option 3: Local Git Merge (For Developers)
+
+If you have a local development environment:
+
 ```bash
-node blueprint/scripts/copy-to-project.js /path/to/your/project
-```
+# Clone Blueprint into your project
+npx degit YOUR_USERNAME/blueprint blueprint
 
-### Mount in Your App
+# Install Blueprint's dependencies in your project root
+npm install tldraw @xyflow/react @blocknote/react @blocknote/mantine @blocknote/core @hello-pangea/dnd react-big-calendar @instantdb/react date-fns lucide-react uuid @types/uuid next-themes sonner vaul cmdk @tanstack/react-query
+
+# Add ProseMirror dedupe to your vite.config.ts (see INSTALL.md)
+
+# Mount in your router
+```
 
 ```tsx
 import { lazy, Suspense } from 'react';
@@ -94,6 +127,44 @@ const BlueprintApp = lazy(() => import('./blueprint/src/App'));
   </Suspense>
 } />
 ```
+
+---
+
+### Publishing to NPM (Make it installable)
+
+To publish Blueprint as an npm package yourself:
+
+1. **Update package.json** with exports:
+```json
+{
+  "name": "@yourorg/blueprint",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./styles": "./dist/index.css"
+  }
+}
+```
+
+2. **Create src/index.ts** entry point:
+```ts
+export { default as BlueprintApp } from './App';
+export * from './lib/storage';
+export * from './contexts/BlueprintContext';
+```
+
+3. **Build and publish**:
+```bash
+npm run build
+npm publish --access public
+```
+
+Once published, others can `npm install @yourorg/blueprint` just like tldraw.
 
 ---
 
