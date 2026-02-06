@@ -159,8 +159,12 @@ const Index = () => {
         {/* Keyboard shortcuts hint */}
         <div className="text-center text-sm text-muted-foreground space-y-1">
           <p>
-            <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">N</kbd> new • 
-            <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded ml-2">G</kbd> gallery
+            <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">⌘K</kbd> quick capture • 
+            <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded ml-2">N</kbd> new • 
+            <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded ml-2">R</kbd> relationships
+          </p>
+          <p className="text-xs text-muted-foreground/70">
+            Link artifacts with <code className="px-1 bg-muted rounded">[[artifact name]]</code> syntax in Docs & Tasks
           </p>
         </div>
 
