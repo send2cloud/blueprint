@@ -54,9 +54,7 @@ export function useCalendarEvents() {
     async function load() {
       try {
         const adapter = getStorageAdapter();
-        console.log('[Calendar] Loading events, adapter:', adapter.constructor.name);
         const records = await adapter.listCalendarEvents();
-        console.log('[Calendar] Loaded events:', records.length);
         if (!cancelled) {
           setEvents(records.map(fromRecord));
         }
