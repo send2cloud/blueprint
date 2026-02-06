@@ -137,7 +137,7 @@ function ArtifactEmbedComponent({ shape }: { shape: ArtifactEmbedShape }) {
 
 // Helper to navigate to an artifact (used by both double-click and context menu)
 export function navigateToArtifact(artifactId: string) {
-  storage.getArtifact(artifactId).then((artifact) => {
+  getStorageAdapter().getArtifact(artifactId).then((artifact) => {
     if (artifact) {
       window.location.assign(`/${artifact.type}/${artifact.id}`);
     }
