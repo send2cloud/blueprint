@@ -75,12 +75,13 @@ export function useTaskEvents() {
       cards: col.cards.map((c) => (c.id === updatedCard.id ? updatedCard : c)),
     }));
 
+    const storage = getStorageAdapter();
     await storage.updateArtifact(boardId, {
       data: { columns: updatedColumns },
       updatedAt: new Date().toISOString(),
     });
-    refetch();
-  }, [artifacts, refetch]);
+    refresh();
+  }, [artifacts, refresh]);
 
   const deleteCard = useCallback(async (boardId: string, cardId: string) => {
     const board = artifacts.find((a) => a.id === boardId);
@@ -92,12 +93,13 @@ export function useTaskEvents() {
       cards: col.cards.filter((c) => c.id !== cardId),
     }));
 
+    const storage = getStorageAdapter();
     await storage.updateArtifact(boardId, {
       data: { columns: updatedColumns },
       updatedAt: new Date().toISOString(),
     });
-    refetch();
-  }, [artifacts, refetch]);
+    refresh();
+  }, [artifacts, refresh]);
 
   return { events, saveCard, deleteCard };
 }

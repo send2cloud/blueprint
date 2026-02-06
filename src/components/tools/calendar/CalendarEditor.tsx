@@ -185,12 +185,12 @@ export function CalendarEditor({
         isNew={isNewEvent}
       />
 
-      <TaskPreviewModal
-        card={selectedTask?.card ?? null}
-        boardId={selectedTask?.boardId ?? null}
-        boardName={selectedTask?.boardName ?? null}
+      <CardDetailModal
+        card={selectedTaskEvent?.cardData ?? null}
         open={taskModalOpen}
         onOpenChange={setTaskModalOpen}
+        onSave={handleSaveCard}
+        onDelete={handleDeleteCard}
       />
     </div>
   );
