@@ -36,6 +36,11 @@ function createMemoryStorage(): StorageAdapter & {
     async listByTag(tag) {
       return this.artifacts.filter((a) => a.tags?.includes(tag));
     },
+    async listCalendarEvents() {
+      return [];
+    },
+    async saveCalendarEvent() {},
+    async deleteCalendarEvent() {},
   };
 }
 
