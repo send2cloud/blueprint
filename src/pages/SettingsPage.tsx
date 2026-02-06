@@ -30,6 +30,9 @@ export default function SettingsPage() {
   const importInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
+    const envConfigured = isEnvConfig();
+    setIsFromEnv(envConfigured);
+    
     const config = loadDbConfig();
     if (config?.provider === 'instantdb') {
       setProvider('instantdb');
