@@ -1,9 +1,10 @@
-import { StorageAdapter, BlueprintSettings, Artifact, ToolType, ALL_TOOLS } from './types';
+import { StorageAdapter, BlueprintSettings, Artifact, ToolType, ALL_TOOLS, CalendarEventRecord } from './types';
 import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from './schema';
 
 const SETTINGS_KEY = 'blueprint:settings';
 const ARTIFACT_PREFIX = 'blueprint:artifact:';
 const ARTIFACT_INDEX_KEY = 'blueprint:artifacts';
+const CALENDAR_EVENTS_KEY = 'blueprint:calendar:events';
 
 export class LocalStorageAdapter implements StorageAdapter {
   async getSettings(): Promise<BlueprintSettings> {
