@@ -1,4 +1,4 @@
-import { Home, Star, Settings, Moon, Sun, PanelLeftClose, PanelLeft, HelpCircle, Tag } from 'lucide-react';
+import { Home, Star, Settings, Moon, Sun, PanelLeftClose, PanelLeft, HelpCircle, Tag, Network } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { NavLink } from '@/components/NavLink';
 import { useBlueprint } from '@/contexts/BlueprintContext';
@@ -148,6 +148,23 @@ export function AppSidebar() {
                           )}
                         </span>
                         <kbd className="text-[10px] font-mono text-muted-foreground">S</kbd>
+                      </span>
+                    )}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="Relationships (R)">
+                  <NavLink
+                    to="/relationships"
+                    className="flex items-center gap-2"
+                    activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                  >
+                    <Network className="h-4 w-4" />
+                    {!collapsed && (
+                      <span className="flex-1 flex items-center justify-between">
+                        <span>Relationships</span>
+                        <kbd className="text-[10px] font-mono text-muted-foreground">R</kbd>
                       </span>
                     )}
                   </NavLink>

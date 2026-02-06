@@ -5,9 +5,10 @@ import { BlueprintProvider, useBlueprint } from '@/contexts/BlueprintContext';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useEffect } from 'react';
 import { ensureSeedNote } from '@/lib/seed';
+import { CommandPalette } from '@/components/CommandPalette';
 
 function AppLayoutContent() {
-  useKeyboardShortcuts();
+  const { commandPaletteOpen, setCommandPaletteOpen } = useKeyboardShortcuts();
   const { storage } = useBlueprint();
 
   useEffect(() => {
@@ -24,6 +25,7 @@ function AppLayoutContent() {
           <Outlet />
         </main>
       </SidebarInset>
+      <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
     </div>
   );
 }

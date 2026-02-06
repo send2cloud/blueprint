@@ -18,6 +18,7 @@ import FavoritesPage from "./pages/FavoritesPage";
 import SettingsPage from "./pages/SettingsPage";
 import HelpPage from "./pages/HelpPage";
 import TagPage from "./pages/TagPage";
+import RelationshipsPage from "./pages/RelationshipsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -70,6 +71,9 @@ const App = () => (
 
                 {/* Tags */}
                 <Route path="/tag/:tag" element={<TagPage />} />
+
+                {/* Relationships Graph */}
+                <Route path="/relationships" element={<RelationshipsPage />} />
 
                 {/* Favorites */}
                 <Route path="/favorites" element={<FavoritesPage />} />

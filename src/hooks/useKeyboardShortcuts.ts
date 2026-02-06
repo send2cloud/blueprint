@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import { TOOL_CONFIG, TOOL_LIST } from '@/lib/toolConfig';
@@ -8,6 +8,7 @@ export function useKeyboardShortcuts() {
   const navigate = useNavigate();
   const location = useLocation();
   const { resolvedTheme, setTheme } = useTheme();
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   // Determine current tool context from the route
   const getCurrentTool = useCallback((): ToolType | null => {
@@ -21,6 +22,13 @@ export function useKeyboardShortcuts() {
   }, [location.pathname]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    // Cmd+K / Ctrl+K for command palette
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      setCommandPaletteOpen(true);
+      return;
+    }
+
     // Ignore if user is typing in an input, textarea, or contenteditable
     const target = e.target as HTMLElement;
     const tagName = target.tagName?.toUpperCase();
@@ -69,6 +77,13 @@ export function useKeyboardShortcuts() {
       return;
     }
 
+    // R - Relationships graph
+    if (keyUpper === 'R') {
+      e.preventDefault();
+      navigate('/relationships');
+      return;
+    }
+
     // Tool shortcuts: W, F, T, D - navigate to tool gallery
     for (const tool of TOOL_LIST) {
       if (keyUpper === tool.shortcut) {
@@ -104,4 +119,6 @@ export function useKeyboardShortcuts() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
+
+  return { commandPaletteOpen, setCommandPaletteOpen };
 }
