@@ -8,6 +8,9 @@ const TABLE_SETTINGS = 'blueprint_settings';
 const TABLE_CALENDAR_EVENTS = 'blueprint_calendar_events';
 const SETTINGS_ID = 'default'; // Singleton row for settings
 
+// Legacy tables from the split-table architecture (to be cleaned up)
+const LEGACY_TABLES = ['blueprint_notes', 'blueprint_diagrams', 'blueprint_canvases', 'blueprint_boards'];
+
 type InstantOutbox = {
   artifacts: Record<string, Artifact>;
   settings?: BlueprintSettings;
