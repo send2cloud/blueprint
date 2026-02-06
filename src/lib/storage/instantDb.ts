@@ -227,4 +227,43 @@ export class InstantDbAdapter implements StorageAdapter {
       return [];
     }
   }
+
+  // Calendar events
+  async listCalendarEvents(): Promise<CalendarEventRecord[]> {
+    try {
+      const resp = await this.db.queryOnce({
+        [TABLE_CALENDAR_EVENTS]: {},
+      });
+      const rows = (resp.data?.[TABLE_CALENDAR_EVENTS] ?? []) as CalendarEventRecord[];
+      this.saveCache('calendar_events', rows);
+      return rows;
+    } catch (e) {
+      console.error('Failed to list calendar events from InstantDB:', e);
+      return this.loadCache<CalendarEventRecord[]>('calendar_events') ?? [];
+    }
+  }
+
+  async saveCalendarEvent(event: CalendarEventRecord): Promise<void> {
+    try {
+      const tx = (this.db.tx as any)[TABLE_CALENDAR_EVENTS][event.id].update(event);
+      await this.db.transact(tx);
+      const cached = this.loadCache<CalendarEventRecord[]>('calendar_events') ?? [];
+      const next = cached.filter((e) => e.id !== event.id);
+      next.push(event);
+      this.saveCache('calendar_events', next);
+    } catch (e) {
+      console.error('Failed to save calendar event to InstantDB:', e);
+    }
+  }
+
+  async deleteCalendarEvent(id: string): Promise<void> {
+    try {
+      const tx = (this.db.tx as any)[TABLE_CALENDAR_EVENTS][id].delete();
+      await this.db.transact(tx);
+      const cached = this.loadCache<CalendarEventRecord[]>('calendar_events') ?? [];
+      this.saveCache('calendar_events', cached.filter((e) => e.id !== id));
+    } catch (e) {
+      console.error('Failed to delete calendar event from InstantDB:', e);
+    }
+  }
 }
