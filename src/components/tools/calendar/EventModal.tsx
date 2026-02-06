@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { Trash2, Calendar as CalendarIcon } from 'lucide-react';
+import { format, setHours, setMinutes } from 'date-fns';
+import { Trash2, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -44,6 +44,8 @@ export function EventModal({
   const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
+  const [startTime, setStartTime] = useState('09:00');
+  const [endTime, setEndTime] = useState('10:00');
   const [allDay, setAllDay] = useState(true);
   const [color, setColor] = useState(EVENT_COLORS[0].color);
   const [tags, setTags] = useState<string[]>([]);
@@ -54,6 +56,8 @@ export function EventModal({
       setDescription(event.description || '');
       setStartDate(event.start);
       setEndDate(event.end);
+      setStartTime(format(event.start, 'HH:mm'));
+      setEndTime(format(event.end, 'HH:mm'));
       setAllDay(event.allDay ?? true);
       setColor(event.color || EVENT_COLORS[0].color);
       setTags(event.tags || []);
@@ -61,22 +65,35 @@ export function EventModal({
       // Reset for new event
       setTitle('');
       setDescription('');
-      setStartDate(new Date());
-      setEndDate(new Date());
+      const now = new Date();
+      setStartDate(now);
+      setEndDate(now);
+      setStartTime(format(now, 'HH:mm'));
+      const end = new Date(now.getTime() + 60 * 60 * 1000);
+      setEndTime(format(end, 'HH:mm'));
       setAllDay(true);
       setColor(EVENT_COLORS[0].color);
       setTags([]);
     }
   }, [event, open]);
 
+  const combineDateTime = (date: Date, timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return setMinutes(setHours(new Date(date), hours), minutes);
+  };
+
   const handleSave = () => {
     if (!title.trim()) return;
+
+    const finalStart = allDay ? startDate : combineDateTime(startDate, startTime);
+    const finalEnd = allDay ? endDate : combineDateTime(endDate, endTime);
+
     onSave({
       id: event?.id || `event-${Date.now()}`,
       title: title.trim(),
       description: description.trim() || undefined,
-      start: startDate,
-      end: endDate,
+      start: finalStart,
+      end: finalEnd,
       allDay,
       color,
       tags: tags.length > 0 ? tags : undefined,
@@ -145,12 +162,12 @@ export function EventModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Start</Label>
+              <Label>Start Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {format(startDate, 'MMM d, yyyy')}
+                  <Button variant="outline" className="w-full justify-start overflow-hidden">
+                    <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                    <span className="truncate">{format(startDate, 'MMM d, yyyy')}</span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -165,12 +182,12 @@ export function EventModal({
             </div>
 
             <div className="space-y-2">
-              <Label>End</Label>
+              <Label>End Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {format(endDate, 'MMM d, yyyy')}
+                  <Button variant="outline" className="w-full justify-start overflow-hidden">
+                    <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                    <span className="truncate">{format(endDate, 'MMM d, yyyy')}</span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -183,6 +200,36 @@ export function EventModal({
                 </PopoverContent>
               </Popover>
             </div>
+
+            {!allDay && (
+              <>
+                <div className="space-y-2">
+                  <Label>Start Time</Label>
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <Input
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>End Time</Label>
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <Input
+                      type="time"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="space-y-2">
