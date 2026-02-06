@@ -1,0 +1,252 @@
+{
+  "name": "blueprint",
+  "version": "1.0.0",
+  "description": "Portable Idea Room for creative projects",
+  "repository": "https://github.com/YOUR_USERNAME/blueprint",
+  
+  "dependencies": {
+    "core": [
+      "tldraw",
+      "@xyflow/react",
+      "@blocknote/react",
+      "@blocknote/mantine", 
+      "@blocknote/core",
+      "@hello-pangea/dnd",
+      "react-big-calendar",
+      "@instantdb/react"
+    ],
+    "utilities": [
+      "date-fns",
+      "lucide-react",
+      "uuid",
+      "@types/uuid",
+      "next-themes",
+      "sonner",
+      "vaul",
+      "cmdk",
+      "@tanstack/react-query",
+      "react-router-dom",
+      "zod",
+      "@hookform/resolvers",
+      "react-hook-form"
+    ],
+    "install_command": "npm install tldraw @xyflow/react @blocknote/react @blocknote/mantine @blocknote/core @hello-pangea/dnd react-big-calendar @instantdb/react date-fns lucide-react uuid @types/uuid next-themes sonner vaul cmdk @tanstack/react-query react-router-dom zod @hookform/resolvers react-hook-form"
+  },
+
+  "files": {
+    "priority_1_storage": [
+      "src/lib/storage/types.ts",
+      "src/lib/storage/schema.ts",
+      "src/lib/storage/adapter.ts",
+      "src/lib/storage/localStorage.ts",
+      "src/lib/storage/instantDb.ts",
+      "src/lib/storage/dbConfig.ts",
+      "src/lib/storage/index.ts"
+    ],
+    "priority_2_lib": [
+      "src/lib/toolConfig.ts",
+      "src/lib/utils.ts",
+      "src/lib/formatters.ts",
+      "src/lib/artifactUtils.ts",
+      "src/lib/artifactLinks.ts"
+    ],
+    "priority_3_context": [
+      "src/contexts/BlueprintContext.tsx"
+    ],
+    "priority_4_hooks": [
+      "src/hooks/useArtifact.ts",
+      "src/hooks/useArtifacts.ts",
+      "src/hooks/useArtifactList.ts",
+      "src/hooks/useArtifactTags.ts",
+      "src/hooks/useArtifactLinks.ts",
+      "src/hooks/useCalendarEvents.ts",
+      "src/hooks/useTaskEvents.ts",
+      "src/hooks/useKeyboardShortcuts.ts",
+      "src/hooks/use-mobile.tsx",
+      "src/hooks/use-toast.ts"
+    ],
+    "priority_5_ui_components": [
+      "src/components/ui/accordion.tsx",
+      "src/components/ui/alert-dialog.tsx",
+      "src/components/ui/alert.tsx",
+      "src/components/ui/aspect-ratio.tsx",
+      "src/components/ui/avatar.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/breadcrumb.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/calendar.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/carousel.tsx",
+      "src/components/ui/chart.tsx",
+      "src/components/ui/checkbox.tsx",
+      "src/components/ui/collapsible.tsx",
+      "src/components/ui/command.tsx",
+      "src/components/ui/context-menu.tsx",
+      "src/components/ui/dialog.tsx",
+      "src/components/ui/drawer.tsx",
+      "src/components/ui/dropdown-menu.tsx",
+      "src/components/ui/form.tsx",
+      "src/components/ui/hover-card.tsx",
+      "src/components/ui/input-otp.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/label.tsx",
+      "src/components/ui/menubar.tsx",
+      "src/components/ui/navigation-menu.tsx",
+      "src/components/ui/pagination.tsx",
+      "src/components/ui/popover.tsx",
+      "src/components/ui/progress.tsx",
+      "src/components/ui/radio-group.tsx",
+      "src/components/ui/resizable.tsx",
+      "src/components/ui/scroll-area.tsx",
+      "src/components/ui/select.tsx",
+      "src/components/ui/separator.tsx",
+      "src/components/ui/sheet.tsx",
+      "src/components/ui/sidebar.tsx",
+      "src/components/ui/skeleton.tsx",
+      "src/components/ui/slider.tsx",
+      "src/components/ui/sonner.tsx",
+      "src/components/ui/switch.tsx",
+      "src/components/ui/table.tsx",
+      "src/components/ui/tabs.tsx",
+      "src/components/ui/textarea.tsx",
+      "src/components/ui/toast.tsx",
+      "src/components/ui/toaster.tsx",
+      "src/components/ui/toggle-group.tsx",
+      "src/components/ui/toggle.tsx",
+      "src/components/ui/tooltip.tsx",
+      "src/components/ui/use-toast.ts"
+    ],
+    "priority_6_layout": [
+      "src/components/layout/AppLayout.tsx",
+      "src/components/layout/AppSidebar.tsx",
+      "src/components/layout/EditorPageWrapper.tsx",
+      "src/components/layout/ToolHeader.tsx"
+    ],
+    "priority_7_shared": [
+      "src/components/theme/ThemeProvider.tsx",
+      "src/components/theme/ThemeToggle.tsx",
+      "src/components/CommandPalette.tsx",
+      "src/components/NavLink.tsx",
+      "src/components/BacklinksPanel.tsx",
+      "src/components/sidebar/TagCloud.tsx",
+      "src/components/tags/TagInput.tsx",
+      "src/components/gallery/ArtifactCard.tsx",
+      "src/components/gallery/ArtifactGallery.tsx",
+      "src/components/gallery/ArtifactPreview.tsx",
+      "src/components/gallery/ShareButton.tsx",
+      "src/components/llm/HiddenLlmPayload.tsx",
+      "src/components/embeds/ArtifactThumbnail.tsx",
+      "src/components/embeds/useArtifactByName.ts"
+    ],
+    "priority_8_tools": {
+      "canvas": [
+        "src/components/tools/canvas/CanvasEditor.tsx",
+        "src/components/tools/canvas/CanvasHelpDialog.tsx",
+        "src/components/tools/canvas/ArtifactEmbedShape.tsx",
+        "src/components/tools/canvas/ArtifactEmbedTool.tsx",
+        "src/components/tools/canvas/ArtifactPickerDialog.tsx"
+      ],
+      "diagram": [
+        "src/components/tools/diagram/DiagramEditor.tsx",
+        "src/components/tools/diagram/DiagramHelpDialog.tsx"
+      ],
+      "board": [
+        "src/components/tools/board/types.ts",
+        "src/components/tools/board/BoardEditor.tsx",
+        "src/components/tools/board/BoardHelpDialog.tsx",
+        "src/components/tools/board/KanbanColumn.tsx",
+        "src/components/tools/board/KanbanCard.tsx",
+        "src/components/tools/board/CardDetailModal.tsx",
+        "src/components/tools/board/CardDescription.tsx",
+        "src/components/tools/board/CardLabels.tsx",
+        "src/components/tools/board/CardTodoList.tsx",
+        "src/components/tools/board/CardComments.tsx",
+        "src/components/tools/board/CardDueDate.tsx"
+      ],
+      "notes": [
+        "src/components/tools/notes/NotesEditor.tsx"
+      ],
+      "calendar": [
+        "src/components/tools/calendar/types.ts",
+        "src/components/tools/calendar/CalendarEditor.tsx",
+        "src/components/tools/calendar/CalendarToolbar.tsx",
+        "src/components/tools/calendar/CalendarSettings.tsx",
+        "src/components/tools/calendar/EventModal.tsx",
+        "src/components/tools/calendar/YearlyView.tsx",
+        "src/components/tools/calendar/useCalendarConfig.ts",
+        "src/components/tools/calendar/useCalendarNavigation.ts"
+      ]
+    },
+    "priority_9_pages": [
+      "src/pages/Index.tsx",
+      "src/pages/CanvasPage.tsx",
+      "src/pages/CanvasGallery.tsx",
+      "src/pages/DiagramPage.tsx",
+      "src/pages/DiagramGallery.tsx",
+      "src/pages/BoardPage.tsx",
+      "src/pages/BoardGallery.tsx",
+      "src/pages/NotesPage.tsx",
+      "src/pages/NotesGallery.tsx",
+      "src/pages/CalendarPage.tsx",
+      "src/pages/FavoritesPage.tsx",
+      "src/pages/TagPage.tsx",
+      "src/pages/RelationshipsPage.tsx",
+      "src/pages/SettingsPage.tsx",
+      "src/pages/HelpPage.tsx",
+      "src/pages/NotFound.tsx"
+    ],
+    "priority_10_entry": [
+      "src/App.tsx",
+      "src/App.css",
+      "src/main.tsx",
+      "src/index.css",
+      "src/vite-env.d.ts"
+    ],
+    "priority_11_config": [
+      "index.html",
+      "vite.config.ts",
+      "tailwind.config.ts",
+      "tsconfig.json",
+      "tsconfig.app.json",
+      "tsconfig.node.json",
+      "postcss.config.js",
+      "components.json"
+    ],
+    "priority_12_assets": [
+      "public/favicon.ico",
+      "public/placeholder.svg",
+      "public/robots.txt"
+    ],
+    "optional_tests": [
+      "src/test/setup.ts",
+      "vitest.config.ts"
+    ],
+    "optional_docs": [
+      "README.md",
+      "INSTALL.md",
+      "LLM_INSTALL.md",
+      "SPARK.md"
+    ]
+  },
+
+  "vite_config_additions": {
+    "resolve": {
+      "dedupe": [
+        "@tiptap/pm",
+        "prosemirror-state",
+        "prosemirror-view",
+        "prosemirror-model",
+        "prosemirror-transform",
+        "prosemirror-commands",
+        "prosemirror-history",
+        "prosemirror-keymap",
+        "prosemirror-inputrules",
+        "prosemirror-schema-list",
+        "prosemirror-gapcursor",
+        "prosemirror-dropcursor"
+      ]
+    }
+  },
+
+  "mount_code": "import { lazy, Suspense } from 'react';\nconst BlueprintApp = lazy(() => import('./blueprint/src/App'));\n\n<Route path=\"/blueprint/*\" element={\n  <Suspense fallback={<div>Loading Blueprint...</div>}>\n    <BlueprintApp />\n  </Suspense>\n} />"
+}
