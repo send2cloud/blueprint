@@ -22,7 +22,7 @@ export default function CanvasPage() {
       onToggleFavorite={toggleFavorite}
       onUpdateTags={updateTags}
     >
-      <CanvasEditor initialData={artifact?.data} onSave={save} />
+      <CanvasEditor initialData={artifact?.data} onSave={save} currentArtifactId={artifact?.id} />
     </EditorPageWrapper>
   );
 }
