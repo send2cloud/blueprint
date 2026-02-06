@@ -10,9 +10,27 @@ export default function HelpPage() {
           <section className="space-y-2">
             <h2 className="text-xl font-semibold text-foreground">What Blueprint Is</h2>
             <p className="text-sm text-muted-foreground">
-              Blueprint is your private, project‑local idea room. It stores notes, sketches, flows, and tasks that
+              Blueprint is your private, project-local idea room. It stores notes, sketches, flows, and tasks that
               explain the spark behind a project and keep your thinking coherent over time.
             </p>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-xl font-semibold text-foreground">Cross-Tool Integration</h2>
+            <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+              <li>
+                <strong>Task→Calendar Sync:</strong> Add due dates to task cards and they automatically appear on the Calendar.
+              </li>
+              <li>
+                <strong>Artifact Linking:</strong> Use <code className="px-1 bg-muted rounded">[[artifact name]]</code> syntax to create links between artifacts. These links are tracked and shown in the backlinks panel.
+              </li>
+              <li>
+                <strong>Command Palette:</strong> Press <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">⌘K</kbd> (or <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">Ctrl+K</kbd>) to quickly navigate, search, and create new artifacts.
+              </li>
+              <li>
+                <strong>Relationship Graph:</strong> Press <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">R</kbd> or visit the Relationships page to see a visual graph of how your artifacts connect to each other.
+              </li>
+            </ul>
           </section>
 
           <section className="space-y-3">
@@ -33,11 +51,62 @@ export default function HelpPage() {
             <h2 className="text-xl font-semibold text-foreground">Best Practices</h2>
             <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
               <li>Capture the project spark early (why it exists, what problem it solves).</li>
-              <li>Keep one “north star” note updated with current status and open questions.</li>
+              <li>Keep one "north star" note updated with current status and open questions.</li>
               <li>Use diagrams to define flows before implementation.</li>
-              <li>Use tasks for outcomes, not just to‑dos.</li>
-              <li>Share links back to the LLM with brief context and the hidden‑payload instruction.</li>
+              <li>Use tasks for outcomes, not just to-dos. Add due dates to sync with Calendar.</li>
+              <li>Link related artifacts using <code className="px-1 bg-muted rounded">[[artifact name]]</code> to build a knowledge graph.</li>
+              <li>Share links back to the LLM with brief context and the hidden-payload instruction.</li>
             </ul>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-xl font-semibold text-foreground">Keyboard Shortcuts</h2>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 text-xs font-mono bg-muted rounded">⌘K</kbd>
+                <span className="text-muted-foreground">Command palette</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 text-xs font-mono bg-muted rounded">W</kbd>
+                <span className="text-muted-foreground">Whiteboard</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 text-xs font-mono bg-muted rounded">F</kbd>
+                <span className="text-muted-foreground">Flow</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 text-xs font-mono bg-muted rounded">T</kbd>
+                <span className="text-muted-foreground">Tasks</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 text-xs font-mono bg-muted rounded">D</kbd>
+                <span className="text-muted-foreground">Docs</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 text-xs font-mono bg-muted rounded">C</kbd>
+                <span className="text-muted-foreground">Calendar</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 text-xs font-mono bg-muted rounded">R</kbd>
+                <span className="text-muted-foreground">Relationships</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 text-xs font-mono bg-muted rounded">S</kbd>
+                <span className="text-muted-foreground">Favorites</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 text-xs font-mono bg-muted rounded">N</kbd>
+                <span className="text-muted-foreground">New artifact</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 text-xs font-mono bg-muted rounded">G</kbd>
+                <span className="text-muted-foreground">Gallery view</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 text-xs font-mono bg-muted rounded">\</kbd>
+                <span className="text-muted-foreground">Toggle theme</span>
+              </div>
+            </div>
           </section>
 
           <section className="space-y-4">
@@ -50,11 +119,11 @@ export default function HelpPage() {
                 <br />
                 Example cards:
                 <br />
-                - “Prototype main loop”
+                - "Prototype main loop"
                 <br />
-                - “Define onboarding flow”
+                - "Define onboarding flow"
                 <br />
-                - “Ship first playtest build”
+                - "Ship first playtest build"
               </div>
             </div>
 
@@ -70,7 +139,7 @@ export default function HelpPage() {
             <div className="space-y-2">
               <h3 className="text-sm font-semibold text-foreground">Flows (Diagram)</h3>
               <div className="rounded-lg border border-border bg-card p-3 text-sm text-muted-foreground">
-                Example: “Purchase flow”
+                Example: "Purchase flow"
                 <br />
                 Start → Select item → Confirm → Payment → Success / Failure → Receipt
               </div>
@@ -81,7 +150,7 @@ export default function HelpPage() {
               <div className="rounded-lg border border-border bg-card p-3 text-sm text-muted-foreground">
                 Write the project spark, constraints, key decisions, and open questions.
                 <br />
-                Keep a running “Current Status” section.
+                Keep a running "Current Status" section.
               </div>
             </div>
           </section>
@@ -94,7 +163,7 @@ export default function HelpPage() {
             <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
               Here is the link I want you to reference: [artifact link]
               <br />
-              Please check the page source for LLM instructions (look for the &quot;blueprint-llm&quot; JSON block).
+              Please check the page source for LLM instructions (look for the "blueprint-llm" JSON block).
             </div>
           </section>
         </div>
