@@ -44,12 +44,11 @@ Blueprint uses **isolated namespaces** to prevent collisions with your main app'
 
 | Table | Purpose |
 |-------|---------|
-| `blueprint_notes` | Rich-text documents |
-| `blueprint_diagrams` | Flow/diagram artifacts |
-| `blueprint_canvases` | Whiteboard artifacts |
-| `blueprint_boards` | Kanban board artifacts |
+| `blueprint_artifacts` | All artifacts (notes, diagrams, canvases, boards) |
 | `blueprint_calendar_events` | Calendar events (global, not per-artifact) |
 | `blueprint_settings` | App settings (enabled tools, etc.) |
+
+A single `blueprint_artifacts` table stores all artifact types, filtered by the `type` field. This simplifies cross-tool queries (favorites, tags, global gallery) and reduces adapter complexity.
 
 ### Persistence Architecture
 The InstantDB adapter implements a **local outbox and optimistic caching system**:
