@@ -399,4 +399,56 @@ export class InstantDbAdapter implements StorageAdapter {
       console.error('Blueprint: Failed to sync delete to InstantDB:', e);
     }
   }
+
+  /**
+   * Clean up legacy split tables and optionally all data.
+   * Returns count of deleted records.
+   */
+  async cleanupLegacyTables(includeCurrentData = false): Promise<{ deleted: number; tables: string[] }> {
+    let deleted = 0;
+    const cleanedTables: string[] = [];
+
+    // Build query for all legacy tables
+    const query: Record<string, object> = {};
+    for (const table of LEGACY_TABLES) {
+      query[table] = {};
+    }
+    if (includeCurrentData) {
+      query[TABLE_ARTIFACTS] = {};
+      query[TABLE_CALENDAR_EVENTS] = {};
+    }
+
+    try {
+      const resp = await this.db.queryOnce(query as any);
+      const data = resp.data as Record<string, { id: string }[]> | undefined;
+
+      for (const table of Object.keys(query)) {
+        const rows = data?.[table] ?? [];
+        if (rows.length === 0) continue;
+
+        for (const row of rows) {
+          try {
+            const tx = (this.db.tx as any)[table][row.id].delete();
+            await this.db.transact(tx);
+            deleted++;
+          } catch (e) {
+            console.error(`Failed to delete ${row.id} from ${table}:`, e);
+          }
+        }
+        cleanedTables.push(table);
+      }
+
+      // Clear local caches
+      if (includeCurrentData) {
+        this.saveCache('artifacts', []);
+        this.saveCache('calendar_events', []);
+      }
+
+      console.log(`Blueprint: Cleaned ${deleted} records from tables: ${cleanedTables.join(', ')}`);
+    } catch (e) {
+      console.error('Blueprint: Failed to cleanup legacy tables:', e);
+    }
+
+    return { deleted, tables: cleanedTables };
+  }
 }
