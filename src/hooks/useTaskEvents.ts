@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from 'react';
 import { useAllArtifacts } from './useArtifacts';
-import { storage } from '@/lib/storage';
+import { getStorageAdapter } from '@/lib/storage';
 import type { BoardData, KanbanCard } from '@/components/tools/board/types';
 
 /**
@@ -27,7 +27,7 @@ export interface TaskCalendarEvent {
  * Also provides save/delete handlers that update the source board.
  */
 export function useTaskEvents() {
-  const { artifacts, refetch } = useAllArtifacts();
+  const { artifacts, refresh } = useAllArtifacts();
 
   const events = useMemo(() => {
     const result: TaskCalendarEvent[] = [];
