@@ -1,4 +1,4 @@
-import { Home, Star, Settings, Moon, Sun, PanelLeftClose, PanelLeft, HelpCircle, Tag, Cloud } from 'lucide-react';
+import { Home, Star, Settings, Moon, Sun, PanelLeftClose, PanelLeft, HelpCircle, Tag } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { NavLink } from '@/components/NavLink';
 import { useBlueprint } from '@/contexts/BlueprintContext';
