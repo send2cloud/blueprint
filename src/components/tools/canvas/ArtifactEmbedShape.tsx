@@ -12,7 +12,7 @@ import { useArtifactById } from '@/components/embeds/useArtifactByName';
 import type { Artifact, ToolType } from '@/lib/storage/types';
 import type { BoardData } from '@/components/tools/board/types';
 import { FileText, LayoutGrid, GitBranch, Pencil } from 'lucide-react';
-import { storage } from '@/lib/storage';
+import { getStorageAdapter } from '@/lib/storage';
 
 // Shape type definition
 export type ArtifactEmbedShape = TLBaseShape<
