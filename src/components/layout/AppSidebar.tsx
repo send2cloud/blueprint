@@ -68,12 +68,22 @@ export function AppSidebar() {
                 {!collapsed && (
                   <span className="flex flex-col leading-tight">
                     <span className="font-semibold">Blueprints</span>
-                    <span
-                      className="inline-flex w-fit rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-medium text-amber-300"
-                      title="Data is stored in this browser only. Connect InstantDB in Settings to sync with a project."
-                    >
-                      Using local storage
-                    </span>
+                    {storageType === 'instantdb' ? (
+                      <span
+                        className="inline-flex w-fit items-center gap-1 rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] font-medium text-emerald-400"
+                        title="Data syncs across devices via InstantDB"
+                      >
+                        <Cloud className="h-2.5 w-2.5" />
+                        Synced
+                      </span>
+                    ) : (
+                      <span
+                        className="inline-flex w-fit rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-medium text-amber-300"
+                        title="Data is stored in this browser only. Connect InstantDB in Settings to sync with a project."
+                      >
+                        Using local storage
+                      </span>
+                    )}
                   </span>
                 )}
               </NavLink>
