@@ -3,12 +3,12 @@ import { Calendar as BigCalendar, dateFnsLocalizer, Views, SlotInfo } from 'reac
 import { format, parse, startOfWeek, getDay, addHours } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { EventModal } from './EventModal';
-import { TaskPreviewModal } from './TaskPreviewModal';
 import { YearlyView } from './YearlyView';
 import { CalendarToolbar } from './CalendarToolbar';
 import { useCalendarNavigation } from './useCalendarNavigation';
 import { useCalendarConfig } from './useCalendarConfig';
 import { CalendarEvent } from './types';
+import { CardDetailModal } from '@/components/tools/board/CardDetailModal';
 import type { TaskCalendarEvent } from '@/hooks/useTaskEvents';
 import type { KanbanCard } from '@/components/tools/board/types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -19,20 +19,25 @@ interface CalendarEditorProps {
   events: CalendarEvent[];
   onSaveEvent: (event: CalendarEvent) => void;
   onDeleteEvent: (id: string) => void;
-  linkedEvents?: TaskCalendarEvent[]; // Events from tasks
+  linkedEvents?: TaskCalendarEvent[];
+  onSaveCard?: (boardId: string, card: KanbanCard) => void;
+  onDeleteCard?: (boardId: string, cardId: string) => void;
 }
 
-export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvents = [] }: CalendarEditorProps) {
+export function CalendarEditor({ 
+  events, 
+  onSaveEvent, 
+  onDeleteEvent, 
+  linkedEvents = [],
+  onSaveCard,
+  onDeleteCard,
+}: CalendarEditorProps) {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isNewEvent, setIsNewEvent] = useState(false);
 
-  // Task preview modal state
-  const [selectedTask, setSelectedTask] = useState<{
-    card: KanbanCard;
-    boardId: string;
-    boardName: string;
-  } | null>(null);
+  // Task card modal state
+  const [selectedTaskEvent, setSelectedTaskEvent] = useState<TaskCalendarEvent | null>(null);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
 
   const { config, updateConfig } = useCalendarConfig();
@@ -51,13 +56,9 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
   const allEvents = useMemo(() => [...events, ...linkedEvents], [events, linkedEvents]);
 
   const handleSelectEvent = useCallback((event: CalendarEvent | TaskCalendarEvent) => {
-    // Check if this is a task event (has cardData)
+    // Check if this is a task event
     if ('cardData' in event && event.sourceType === 'task') {
-      setSelectedTask({
-        card: event.cardData,
-        boardId: event.sourceId,
-        boardName: event.boardName,
-      });
+      setSelectedTaskEvent(event);
       setTaskModalOpen(true);
     } else {
       setSelectedEvent(event as CalendarEvent);
@@ -65,6 +66,19 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
       setModalOpen(true);
     }
   }, []);
+
+  const handleSaveCard = useCallback((card: KanbanCard) => {
+    if (selectedTaskEvent && onSaveCard) {
+      onSaveCard(selectedTaskEvent.sourceId, card);
+    }
+  }, [selectedTaskEvent, onSaveCard]);
+
+  const handleDeleteCard = useCallback(() => {
+    if (selectedTaskEvent && onDeleteCard) {
+      onDeleteCard(selectedTaskEvent.sourceId, selectedTaskEvent.cardId);
+      setTaskModalOpen(false);
+    }
+  }, [selectedTaskEvent, onDeleteCard]);
 
   const handleSelectSlot = useCallback((slotInfo: SlotInfo) => {
     const start = slotInfo.start;
@@ -171,12 +185,12 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
         isNew={isNewEvent}
       />
 
-      <TaskPreviewModal
-        card={selectedTask?.card ?? null}
-        boardId={selectedTask?.boardId ?? null}
-        boardName={selectedTask?.boardName ?? null}
+      <CardDetailModal
+        card={selectedTaskEvent?.cardData ?? null}
         open={taskModalOpen}
         onOpenChange={setTaskModalOpen}
+        onSave={handleSaveCard}
+        onDelete={handleDeleteCard}
       />
     </div>
   );

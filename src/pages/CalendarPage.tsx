@@ -8,7 +8,7 @@ const tool = TOOL_CONFIG.calendar;
 
 export default function CalendarPage() {
   const { events, loading, saveEvent, deleteEvent } = useCalendarEvents();
-  const taskEvents = useTaskEvents();
+  const { events: taskEvents, saveCard, deleteCard } = useTaskEvents();
 
   if (loading) {
     return (
@@ -35,6 +35,8 @@ export default function CalendarPage() {
           onSaveEvent={saveEvent}
           onDeleteEvent={deleteEvent}
           linkedEvents={taskEvents}
+          onSaveCard={saveCard}
+          onDeleteCard={deleteCard}
         />
       </div>
     </div>

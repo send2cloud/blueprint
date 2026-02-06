@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useAllArtifacts } from './useArtifacts';
+import { getStorageAdapter } from '@/lib/storage';
 import type { BoardData, KanbanCard } from '@/components/tools/board/types';
 
 /**
@@ -15,6 +16,7 @@ export interface TaskCalendarEvent {
   color: string;
   sourceType: 'task';
   sourceId: string; // board ID
+  cardId: string;   // card ID for updates
   cardData: KanbanCard;
   boardName: string;
   tags?: string[];
@@ -22,15 +24,14 @@ export interface TaskCalendarEvent {
 
 /**
  * Hook that extracts calendar events from task due dates across all board artifacts.
- * This enables the Task→Calendar integration.
+ * Also provides save/delete handlers that update the source board.
  */
-export function useTaskEvents(): TaskCalendarEvent[] {
-  const { artifacts } = useAllArtifacts();
+export function useTaskEvents() {
+  const { artifacts, refresh } = useAllArtifacts();
 
-  return useMemo(() => {
-    const events: TaskCalendarEvent[] = [];
+  const events = useMemo(() => {
+    const result: TaskCalendarEvent[] = [];
 
-    // Filter to only board artifacts
     const boards = artifacts.filter((a) => a.type === 'board');
 
     for (const board of boards) {
@@ -41,17 +42,17 @@ export function useTaskEvents(): TaskCalendarEvent[] {
         for (const card of column.cards) {
           if (card.dueDate) {
             const dueDate = new Date(card.dueDate);
-            // Create an all-day event for the due date with full card data
-            events.push({
+            result.push({
               id: `task-${card.id}`,
               title: `📋 ${card.title}`,
               start: dueDate,
               end: dueDate,
               allDay: true,
               description: card.description,
-              color: 'hsl(25, 95%, 53%)', // Orange for tasks
+              color: 'hsl(25, 95%, 53%)',
               sourceType: 'task',
               sourceId: board.id,
+              cardId: card.id,
               cardData: card,
               boardName: board.name,
               tags: [`board:${board.name}`],
@@ -61,8 +62,48 @@ export function useTaskEvents(): TaskCalendarEvent[] {
       }
     }
 
-    return events;
+    return result;
   }, [artifacts]);
+
+  const saveCard = useCallback(async (boardId: string, updatedCard: KanbanCard) => {
+    const board = artifacts.find((a) => a.id === boardId);
+    if (!board) return;
+
+    const data = board.data as BoardData;
+    const updatedColumns = data.columns.map((col) => ({
+      ...col,
+      cards: col.cards.map((c) => (c.id === updatedCard.id ? updatedCard : c)),
+    }));
+
+    const storage = getStorageAdapter();
+    await storage.saveArtifact({
+      ...board,
+      data: { columns: updatedColumns },
+      updatedAt: new Date().toISOString(),
+    });
+    refresh();
+  }, [artifacts, refresh]);
+
+  const deleteCard = useCallback(async (boardId: string, cardId: string) => {
+    const board = artifacts.find((a) => a.id === boardId);
+    if (!board) return;
+
+    const data = board.data as BoardData;
+    const updatedColumns = data.columns.map((col) => ({
+      ...col,
+      cards: col.cards.filter((c) => c.id !== cardId),
+    }));
+
+    const storage = getStorageAdapter();
+    await storage.saveArtifact({
+      ...board,
+      data: { columns: updatedColumns },
+      updatedAt: new Date().toISOString(),
+    });
+    refresh();
+  }, [artifacts, refresh]);
+
+  return { events, saveCard, deleteCard };
 }
 
 /**
