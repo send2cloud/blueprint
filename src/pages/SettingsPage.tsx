@@ -26,6 +26,7 @@ export default function SettingsPage() {
   const [instantAppId, setInstantAppId] = useState('');
   const [showFullId, setShowFullId] = useState(false);
   const [savedId, setSavedId] = useState('');
+  const [isFromEnv, setIsFromEnv] = useState(false);
   const importInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
