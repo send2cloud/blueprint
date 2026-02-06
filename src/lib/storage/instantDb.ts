@@ -2,18 +2,11 @@ import { init } from '@instantdb/react';
 import { StorageAdapter, BlueprintSettings, Artifact, ToolType, ALL_TOOLS, CalendarEventRecord } from './types';
 import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from './schema';
 
+// Single table for all artifacts - simpler queries, no type routing needed
+const TABLE_ARTIFACTS = 'blueprint_artifacts';
 const TABLE_SETTINGS = 'blueprint_settings';
 const TABLE_CALENDAR_EVENTS = 'blueprint_calendar_events';
 const SETTINGS_ID = 'default'; // Singleton row for settings
-
-// Specialized tables for each tool type
-const TABLES: Record<ToolType, string> = {
-  notes: 'blueprint_notes',
-  diagram: 'blueprint_diagrams',
-  canvas: 'blueprint_canvases',
-  board: 'blueprint_boards',
-  calendar: 'blueprint_calendar_events', // Not used via artifact methods
-};
 
 type InstantOutbox = {
   artifacts: Record<string, Artifact>;
@@ -36,10 +29,6 @@ export class InstantDbAdapter implements StorageAdapter {
 
   private cacheKey(suffix: string) {
     return `${this.cacheKeyPrefix}:${suffix}`;
-  }
-
-  private getTableName(type: ToolType): string {
-    return TABLES[type] || 'blueprint_notes'; // Fallback to notes instead of legacy
   }
 
   private loadCache<T>(suffix: string): T | null {
@@ -93,8 +82,7 @@ export class InstantDbAdapter implements StorageAdapter {
 
     for (const artifact of artifactEntries) {
       try {
-        const table = this.getTableName(artifact.type);
-        const tx = (this.db.tx as any)[table][artifact.id].update(artifact);
+        const tx = (this.db.tx as any)[TABLE_ARTIFACTS][artifact.id].update(artifact);
         await this.db.transact(tx);
       } catch {
         remaining.artifacts[artifact.id] = artifact;
@@ -170,27 +158,20 @@ export class InstantDbAdapter implements StorageAdapter {
   }
 
   async getArtifact(id: string): Promise<Artifact | null> {
-    // Optimization: Since we don't know the type, we check the cache first
-    const cache = this.loadCache<Artifact[]>('artifacts') ?? [];
-    const cachedItem = cache.find((item) => item.id === id);
-
-    // If found in cache, we know the type and can query the specific table
-    if (cachedItem) {
-      try {
-        const table = this.getTableName(cachedItem.type);
-        const resp = await this.db.queryOnce({
-          [table]: { $: { where: { id } } },
-        });
-        const row = resp.data?.[table]?.[0] as Artifact | undefined;
-        if (row) return normalizeArtifact(row);
-      } catch (e) {
-        console.error('Failed to load artifact from specialized table:', e);
-      }
-      return normalizeArtifact(cachedItem);
+    try {
+      const resp = await this.db.queryOnce({
+        [TABLE_ARTIFACTS]: { $: { where: { id } } },
+      });
+      const row = resp.data?.[TABLE_ARTIFACTS]?.[0] as Artifact | undefined;
+      if (row) return normalizeArtifact(row);
+    } catch (e) {
+      console.error('Failed to load artifact from InstantDB:', e);
     }
 
-    // If not in cache, we return null because we only support specialized tables now
-    return null;
+    // Fallback to cache
+    const cache = this.loadCache<Artifact[]>('artifacts') ?? [];
+    const cachedItem = cache.find((item) => item.id === id);
+    return cachedItem ? normalizeArtifact(cachedItem) : null;
   }
 
   async saveArtifact(artifact: Artifact): Promise<void> {
@@ -203,8 +184,7 @@ export class InstantDbAdapter implements StorageAdapter {
       });
       if (!artifactToSave) return;
 
-      const table = this.getTableName(artifactToSave.type);
-      const tx = (this.db.tx as any)[table][artifactToSave.id].update(artifactToSave);
+      const tx = (this.db.tx as any)[TABLE_ARTIFACTS][artifactToSave.id].update(artifactToSave);
       await this.db.transact(tx);
 
       const cached = this.loadCache<Artifact[]>('artifacts') ?? [];
@@ -223,48 +203,23 @@ export class InstantDbAdapter implements StorageAdapter {
   }
 
   async deleteArtifact(id: string): Promise<void> {
-    const cached = this.loadCache<Artifact[]>('artifacts') ?? [];
-    const item = cached.find(i => i.id === id);
-
-    if (item) {
-      try {
-        const table = this.getTableName(item.type);
-        const tx = (this.db.tx as any)[table][id].delete();
-        await this.db.transact(tx);
-      } catch (e) {
-        console.error('Failed to delete artifact from InstantDB:', e);
-      }
+    try {
+      const tx = (this.db.tx as any)[TABLE_ARTIFACTS][id].delete();
+      await this.db.transact(tx);
+    } catch (e) {
+      console.error('Failed to delete artifact from InstantDB:', e);
     }
 
+    const cached = this.loadCache<Artifact[]>('artifacts') ?? [];
     this.saveCache('artifacts', cached.filter((item) => item.id !== id));
   }
 
   async listArtifacts(type?: ToolType): Promise<Artifact[]> {
     try {
-      let rows: Artifact[] = [];
-
-      if (type) {
-        // Query specific table
-        const table = this.getTableName(type);
-        const resp = await this.db.queryOnce({ [table]: {} });
-        rows = (resp.data?.[table] ?? []) as Artifact[];
-      } else {
-        // Global gallery: Query all relevant tables
-        const query = {
-          blueprint_notes: {},
-          blueprint_diagrams: {},
-          blueprint_canvases: {},
-          blueprint_boards: {},
-        };
-        const resp = await this.db.queryOnce(query as any);
-        const data = resp.data as Record<string, unknown[]> | undefined;
-        rows = [
-          ...((data?.blueprint_notes ?? []) as Artifact[]),
-          ...((data?.blueprint_diagrams ?? []) as Artifact[]),
-          ...((data?.blueprint_canvases ?? []) as Artifact[]),
-          ...((data?.blueprint_boards ?? []) as Artifact[]),
-        ];
-      }
+      const resp = await this.db.queryOnce({
+        [TABLE_ARTIFACTS]: type ? { $: { where: { type } } } : {},
+      });
+      const rows = (resp.data?.[TABLE_ARTIFACTS] ?? []) as Artifact[];
 
       const normalized = rows
         .map((row) => normalizeArtifact(row))
@@ -274,7 +229,7 @@ export class InstantDbAdapter implements StorageAdapter {
         (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
       );
 
-      // Update global cache for favorites/tags lookups
+      // Update cache
       if (!type) {
         this.saveCache('artifacts', sorted);
       } else {
@@ -300,8 +255,14 @@ export class InstantDbAdapter implements StorageAdapter {
 
   async listFavorites(): Promise<Artifact[]> {
     try {
-      const all = await this.listArtifacts();
-      return all.filter(a => a.favorite);
+      const resp = await this.db.queryOnce({
+        [TABLE_ARTIFACTS]: { $: { where: { favorite: true } } },
+      });
+      const rows = (resp.data?.[TABLE_ARTIFACTS] ?? []) as Artifact[];
+      return rows
+        .map((row) => normalizeArtifact(row))
+        .filter((row): row is Artifact => Boolean(row))
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
     } catch (e) {
       console.error('Failed to list favorites from InstantDB:', e);
       const cache = (this.loadCache<Artifact[]>('artifacts') ?? []).filter((row) => row.favorite);
@@ -314,6 +275,7 @@ export class InstantDbAdapter implements StorageAdapter {
 
   async listByTag(tag: string): Promise<Artifact[]> {
     try {
+      // InstantDB doesn't support array-contains queries well, so fetch all and filter
       const all = await this.listArtifacts();
       return all.filter((artifact) => artifact.tags?.includes(tag));
     } catch (e) {
@@ -351,9 +313,7 @@ export class InstantDbAdapter implements StorageAdapter {
 
       const result = Array.from(merged.values());
 
-      // SAFETY: If the DB is empty but we have local cache, and we suspect 
-      // the DB might be in a restricted state (no rows ever received), 
-      // preserve the cache.
+      // SAFETY: If the DB is empty but we have local cache, preserve it
       if (result.length === 0 && rows.length === 0 && cached.length > 0) {
         console.warn('Blueprint: Database returned 0 events, but local cache has data. Preserving local cache as fail-safe.');
         return cached;
