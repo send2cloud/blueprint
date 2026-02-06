@@ -157,8 +157,6 @@ export function CanvasEditor({ initialData, onSave, currentArtifactId }: CanvasE
         onSelect={handleInsertArtifact}
         excludeId={currentArtifactId}
       />
-
-      <CanvasHelpDialog open={helpOpen} onOpenChange={setHelpOpen} />
     </div>
   );
 }
