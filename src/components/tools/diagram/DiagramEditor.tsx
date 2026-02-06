@@ -11,10 +11,12 @@ import {
   Node,
   Edge,
   BackgroundVariant,
+  ColorMode,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 interface DiagramData {
   nodes: Node[];
@@ -38,6 +40,9 @@ const defaultNodes: Node[] = [
 const defaultEdges: Edge[] = [];
 
 export function DiagramEditor({ initialData, onSave }: DiagramEditorProps) {
+  const { resolvedTheme } = useTheme();
+  const theme = (resolvedTheme === 'dark' ? 'dark' : 'light') as ColorMode;
+
   const parsedData = useMemo(() => {
     if (initialData && typeof initialData === 'object') {
       const data = initialData as DiagramData;
@@ -87,9 +92,9 @@ export function DiagramEditor({ initialData, onSave }: DiagramEditorProps) {
       id: `node-${Date.now()}`,
       type: 'default',
       data: { label: 'New Node' },
-      position: { 
-        x: Math.random() * 300 + 100, 
-        y: Math.random() * 300 + 100 
+      position: {
+        x: Math.random() * 300 + 100,
+        y: Math.random() * 300 + 100
       },
     };
     setNodes((nds) => [...nds, newNode]);
@@ -110,6 +115,7 @@ export function DiagramEditor({ initialData, onSave }: DiagramEditorProps) {
         onNodesChange={handleNodesChange}
         onEdgesChange={handleEdgesChange}
         onConnect={onConnect}
+        colorMode={theme}
         fitView
       >
         <Controls />
