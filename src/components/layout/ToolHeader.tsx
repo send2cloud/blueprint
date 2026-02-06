@@ -137,6 +137,7 @@ export function ToolHeader({
       </div>
       
       <div className="flex items-center gap-2">
+        {headerActions}
         {showArtifactInfo && onUpdateTags && (
           <Popover open={tagsOpen} onOpenChange={setTagsOpen}>
             <PopoverTrigger asChild>
