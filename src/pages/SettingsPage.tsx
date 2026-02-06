@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useBlueprint } from '@/contexts/BlueprintContext';
-import { ALL_TOOLS, initializeStorageAdapter, loadDbConfig, saveDbConfig, getStorageAdapter } from '@/lib/storage';
+import { ALL_TOOLS, initializeStorageAdapter, loadDbConfig, saveDbConfig, getStorageAdapter, isEnvConfig } from '@/lib/storage';
 import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from '@/lib/storage/schema';
 import { TOOL_CONFIG } from '@/lib/toolConfig';
 import { useEffect, useMemo, useRef, useState } from 'react';
