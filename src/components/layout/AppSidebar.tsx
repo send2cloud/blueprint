@@ -1,10 +1,11 @@
-import { Home, Star, Settings, Moon, Sun, PanelLeftClose, PanelLeft, HelpCircle, Tag } from 'lucide-react';
+import { Home, Star, Settings, Moon, Sun, PanelLeftClose, PanelLeft, HelpCircle, Tag, Cloud } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { NavLink } from '@/components/NavLink';
 import { useBlueprint } from '@/contexts/BlueprintContext';
 import { TOOL_LIST, TOOL_CONFIG } from '@/lib/toolConfig';
 import { useAllArtifacts } from '@/hooks/useArtifacts';
 import { TagCloud } from '@/components/sidebar/TagCloud';
+import { getStorageAdapterType } from '@/lib/storage/adapter';
 import {
   Sidebar,
   SidebarContent,
