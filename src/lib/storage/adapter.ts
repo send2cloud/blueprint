@@ -33,16 +33,21 @@ export function getStorageAdapterType(): 'localStorage' | 'instantdb' {
 export function getInstantAppId(): string | null {
   // Check env var first (for standalone published app)
   const envAppId = import.meta.env.VITE_INSTANT_APP_ID;
+  console.log('[Storage] Checking VITE_INSTANT_APP_ID:', envAppId ? 'present' : 'missing');
   if (envAppId && typeof envAppId === 'string' && envAppId.trim()) {
+    console.log('[Storage] Using env var InstantDB App ID');
     return envAppId.trim();
   }
   
   // Fall back to localStorage config (for embedded installations)
   const config = loadDbConfig();
+  console.log('[Storage] Checking localStorage config:', config);
   if (config?.provider === 'instantdb' && config.instantAppId) {
+    console.log('[Storage] Using localStorage InstantDB App ID');
     return config.instantAppId;
   }
   
+  console.log('[Storage] No InstantDB App ID found, using localStorage');
   return null;
 }
 
