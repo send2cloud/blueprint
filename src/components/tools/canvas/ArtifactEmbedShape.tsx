@@ -12,6 +12,7 @@ import { useArtifactById } from '@/components/embeds/useArtifactByName';
 import type { Artifact, ToolType } from '@/lib/storage/types';
 import type { BoardData } from '@/components/tools/board/types';
 import { FileText, LayoutGrid, GitBranch, Pencil } from 'lucide-react';
+import { getStorageAdapter } from '@/lib/storage';
 
 // Shape type definition
 export type ArtifactEmbedShape = TLBaseShape<
@@ -86,14 +87,6 @@ function getPreview(artifact: Artifact): string | null {
 function ArtifactEmbedComponent({ shape }: { shape: ArtifactEmbedShape }) {
   const artifact = useArtifactById(shape.props.artifactId);
 
-  const handleDoubleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (artifact) {
-      // Navigate to the artifact
-      window.location.href = `/${artifact.type}/${artifact.id}`;
-    }
-  };
-
   if (!artifact) {
     return (
       <div
@@ -112,14 +105,13 @@ function ArtifactEmbedComponent({ shape }: { shape: ArtifactEmbedShape }) {
 
   return (
     <div
-      onDoubleClick={handleDoubleClick}
       className="flex items-start gap-2.5 rounded-lg border bg-card p-2.5 h-full cursor-pointer hover:bg-accent/30 transition-colors"
-      style={{ 
-        width: shape.props.w, 
-        borderLeftColor: color, 
+      style={{
+        width: shape.props.w,
+        borderLeftColor: color,
         borderLeftWidth: 3,
       }}
-      title="Double-click to open"
+      title="Double-click to open, or right-click → Open"
     >
       <div
         className="rounded p-1.5 flex-shrink-0"
@@ -141,6 +133,15 @@ function ArtifactEmbedComponent({ shape }: { shape: ArtifactEmbedShape }) {
       </div>
     </div>
   );
+}
+
+// Helper to navigate to an artifact (used by both double-click and context menu)
+export function navigateToArtifact(artifactId: string) {
+  getStorageAdapter().getArtifact(artifactId).then((artifact) => {
+    if (artifact) {
+      window.location.assign(`/${artifact.type}/${artifact.id}`);
+    }
+  });
 }
 
 // ShapeUtil class for tldraw
@@ -178,8 +179,9 @@ export class ArtifactEmbedShapeUtil extends ShapeUtil<ArtifactEmbedShape> {
     return resizeBox(shape, info);
   }
 
+  // Handle double-click at the ShapeUtil level to navigate
   override onDoubleClick = (shape: ArtifactEmbedShape) => {
-    // The component handles this, but we could also handle it here
+    navigateToArtifact(shape.props.artifactId);
     return;
   };
 

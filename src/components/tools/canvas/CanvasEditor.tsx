@@ -9,9 +9,12 @@ import {
   TLComponents,
   TldrawUiMenuItem,
   useEditor,
+  DefaultContextMenu,
+  DefaultContextMenuContent,
+  TldrawUiMenuGroup,
 } from 'tldraw';
 import { useTheme } from 'next-themes';
-import { ArtifactEmbedShapeUtil } from './ArtifactEmbedShape';
+import { ArtifactEmbedShapeUtil, navigateToArtifact } from './ArtifactEmbedShape';
 import { ArtifactPickerDialog } from './ArtifactPickerDialog';
 import { CanvasHelpDialog } from './CanvasHelpDialog';
 import type { Artifact } from '@/lib/storage/types';
@@ -58,8 +61,38 @@ function CustomToolbar() {
   );
 }
 
+// Custom context menu with "Open" option for artifact embeds
+function CustomContextMenu() {
+  const editor = useEditor();
+
+  // Check if the selection includes an artifact embed
+  const selectedShapes = editor.getSelectedShapes();
+  const artifactEmbed = selectedShapes.find(
+    (s) => s.type === 'artifact-embed'
+  ) as { props: { artifactId: string } } | undefined;
+
+  return (
+    <DefaultContextMenu>
+      {artifactEmbed && (
+        <TldrawUiMenuGroup id="artifact-actions">
+          <TldrawUiMenuItem
+            id="open-artifact"
+            label="Open Artifact"
+            icon="external-link"
+            onSelect={() => {
+              navigateToArtifact(artifactEmbed.props.artifactId);
+            }}
+          />
+        </TldrawUiMenuGroup>
+      )}
+      <DefaultContextMenuContent />
+    </DefaultContextMenu>
+  );
+}
+
 const components: TLComponents = {
   Toolbar: CustomToolbar,
+  ContextMenu: CustomContextMenu,
 };
 
 export function CanvasEditor({ initialData, onSave, currentArtifactId }: CanvasEditorProps) {
