@@ -54,9 +54,7 @@ export function useCalendarEvents() {
     async function load() {
       try {
         const adapter = getStorageAdapter();
-        console.log('[Calendar] Loading events, adapter:', adapter.constructor.name);
         const records = await adapter.listCalendarEvents();
-        console.log('[Calendar] Loaded events:', records.length);
         if (!cancelled) {
           setEvents(records.map(fromRecord));
         }
@@ -76,9 +74,7 @@ export function useCalendarEvents() {
   const saveEvent = useCallback(async (event: CalendarEvent) => {
     try {
       const adapter = getStorageAdapter();
-      console.log('[Calendar] Saving event, adapter:', adapter.constructor.name, 'event:', event.id);
       await adapter.saveCalendarEvent(toRecord(event));
-      console.log('[Calendar] Event saved successfully');
       setEvents((prev) => {
         const exists = prev.some((e) => e.id === event.id);
         if (exists) {
