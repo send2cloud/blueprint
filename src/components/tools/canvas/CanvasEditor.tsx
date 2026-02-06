@@ -1,8 +1,16 @@
 import 'tldraw/tldraw.css';
 import { useCallback, useRef, useState } from 'react';
-import { Tldraw, Editor, TLStoreSnapshot } from 'tldraw';
+import {
+  Tldraw,
+  Editor,
+  TLStoreSnapshot,
+  DefaultToolbar,
+  DefaultToolbarContent,
+  TLComponents,
+  TldrawUiMenuItem,
+  useEditor,
+} from 'tldraw';
 import { useTheme } from 'next-themes';
-import { Link2, HelpCircle } from 'lucide-react';
 import { ArtifactEmbedShapeUtil } from './ArtifactEmbedShape';
 import { ArtifactPickerDialog } from './ArtifactPickerDialog';
 import { CanvasHelpDialog } from './CanvasHelpDialog';
@@ -17,11 +25,54 @@ interface CanvasEditorProps {
   currentArtifactId?: string;
 }
 
+// We need to lift state for the picker/help dialogs through a context
+// since tldraw's toolbar component doesn't have direct access to our state
+interface ToolbarActionsContext {
+  openPicker: () => void;
+  openHelp: () => void;
+}
+
+let toolbarActions: ToolbarActionsContext = {
+  openPicker: () => {},
+  openHelp: () => {},
+};
+
+// Custom toolbar that includes our embed + help buttons
+function CustomToolbar() {
+  return (
+    <DefaultToolbar>
+      <TldrawUiMenuItem
+        id="embed-artifact"
+        icon="link"
+        label="Embed Artifact"
+        onSelect={() => toolbarActions.openPicker()}
+      />
+      <TldrawUiMenuItem
+        id="help"
+        icon="question-mark"
+        label="Help"
+        onSelect={() => toolbarActions.openHelp()}
+      />
+      <DefaultToolbarContent />
+    </DefaultToolbar>
+  );
+}
+
+const components: TLComponents = {
+  Toolbar: CustomToolbar,
+};
+
 export function CanvasEditor({ initialData, onSave, currentArtifactId }: CanvasEditorProps) {
   const { resolvedTheme } = useTheme();
   const editorRef = useRef<Editor | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+
+  // Expose actions to the toolbar component
+  toolbarActions = {
+    openPicker: () => setPickerOpen(true),
+    openHelp: () => setHelpOpen(true),
+  };
 
   const handleMount = useCallback((editor: Editor) => {
     editorRef.current = editor;
@@ -74,25 +125,8 @@ export function CanvasEditor({ initialData, onSave, currentArtifactId }: CanvasE
         onMount={handleMount}
         inferDarkMode={resolvedTheme === 'dark'}
         shapeUtils={customShapeUtils}
+        components={components}
       />
-
-      {/* Top-right toolbar */}
-      <div className="absolute top-3 right-14 z-50 flex items-center gap-1">
-        <button
-          onClick={() => setHelpOpen(true)}
-          className="p-2 bg-background/90 backdrop-blur border border-border rounded-lg shadow-sm hover:bg-accent transition-colors"
-          title="Help & Tips"
-        >
-          <HelpCircle className="h-4 w-4 text-muted-foreground" />
-        </button>
-        <button
-          onClick={() => setPickerOpen(true)}
-          className="p-2 bg-background/90 backdrop-blur border border-border rounded-lg shadow-sm hover:bg-accent transition-colors"
-          title="Embed Artifact"
-        >
-          <Link2 className="h-4 w-4 text-muted-foreground" />
-        </button>
-      </div>
 
       <ArtifactPickerDialog
         open={pickerOpen}
