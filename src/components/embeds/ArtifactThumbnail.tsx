@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { FileText, LayoutGrid, GitBranch, Pencil, Calendar, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Artifact, ToolType } from '@/lib/storage/types';
@@ -26,6 +26,7 @@ interface ArtifactThumbnailProps {
   className?: string;
   showLink?: boolean;
   compact?: boolean;
+  onClick?: () => void; // Custom click handler (e.g., for modals)
 }
 
 /**
@@ -37,7 +38,9 @@ export function ArtifactThumbnail({
   className,
   showLink = true,
   compact = false,
+  onClick,
 }: ArtifactThumbnailProps) {
+  const navigate = useNavigate();
   const Icon = TOOL_ICONS[artifact.type];
   const color = TOOL_COLORS[artifact.type];
 
@@ -47,7 +50,6 @@ export function ArtifactThumbnail({
       case 'notes': {
         const blocks = artifact.data as Array<{ type: string; content?: unknown }>;
         if (!Array.isArray(blocks)) return null;
-        // Extract text from first few blocks
         const textContent = blocks
           .slice(0, 3)
           .map((block) => {
@@ -78,7 +80,6 @@ export function ArtifactThumbnail({
       }
 
       case 'canvas': {
-        // tldraw snapshots have shape records
         const snapshot = artifact.data as { store?: Record<string, unknown> } | undefined;
         if (snapshot?.store) {
           const shapeCount = Object.keys(snapshot.store).filter((k) =>
@@ -94,13 +95,20 @@ export function ArtifactThumbnail({
     }
   }, [artifact]);
 
-  const path = `/${artifact.type}/${artifact.id}`;
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else if (showLink) {
+      navigate(`/${artifact.type}/${artifact.id}`);
+    }
+  };
 
-  const content = (
+  return (
     <div
+      onClick={handleClick}
       className={cn(
         'flex items-start gap-3 rounded-lg border bg-card p-3 transition-colors',
-        showLink && 'hover:bg-accent/50 cursor-pointer',
+        (showLink || onClick) && 'hover:bg-accent/50 cursor-pointer',
         compact && 'p-2 gap-2',
         className
       )}
@@ -117,7 +125,7 @@ export function ArtifactThumbnail({
           <span className={cn('font-medium truncate text-sm', compact && 'text-xs')}>
             {artifact.name}
           </span>
-          {showLink && (
+          {(showLink || onClick) && (
             <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0" />
           )}
         </div>
@@ -132,14 +140,4 @@ export function ArtifactThumbnail({
       </div>
     </div>
   );
-
-  if (showLink) {
-    return (
-      <Link to={path} className="block no-underline">
-        {content}
-      </Link>
-    );
-  }
-
-  return content;
 }

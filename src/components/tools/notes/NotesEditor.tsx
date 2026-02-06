@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { BlockNoteEditor, PartialBlock } from '@blocknote/core';
 import { BlockNoteView } from '@blocknote/mantine';
 import { useTheme } from 'next-themes';
@@ -13,7 +13,6 @@ interface NotesEditorProps {
 function isValidBlockContent(data: unknown): data is PartialBlock[] {
   if (!Array.isArray(data)) return false;
   if (data.length === 0) return true;
-  // Check first item has expected block structure
   const first = data[0];
   return typeof first === 'object' && first !== null && 'type' in first;
 }
@@ -23,15 +22,13 @@ export function NotesEditor({ initialData, onSave }: NotesEditorProps) {
   onSaveRef.current = onSave;
   const { resolvedTheme } = useTheme();
 
-  // Create editor only once with validated initial content
   const editor = useMemo(() => {
     const validContent = isValidBlockContent(initialData) ? initialData : undefined;
     return BlockNoteEditor.create({
       initialContent: validContent,
     });
-  }, []); // Empty deps - only create once
+  }, []);
 
-  // Handle content changes
   useEffect(() => {
     const handleChange = () => {
       const content = editor.document;
@@ -53,10 +50,6 @@ export function NotesEditor({ initialData, onSave }: NotesEditorProps) {
           theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
           className="min-h-[500px]"
         />
-        <div className="mt-4 p-3 bg-muted/50 rounded-lg text-xs text-muted-foreground">
-          <p className="font-medium mb-1">💡 Tip: Link to other artifacts</p>
-          <p>Use <code className="bg-background px-1 rounded">[[Artifact Name]]</code> syntax to create links to other docs, boards, diagrams, or whiteboards.</p>
-        </div>
       </div>
     </div>
   );
