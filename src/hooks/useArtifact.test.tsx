@@ -59,7 +59,7 @@ describe("useArtifactList", () => {
       },
     ];
 
-    setStorageAdapter(createStorage(artifacts));
+    setStorageAdapter(createStorage(artifacts), 'localStorage');
     const { result } = renderHook(() => useArtifactList("notes"));
 
     await waitFor(() => {
