@@ -28,19 +28,17 @@ interface CanvasEditorProps {
   currentArtifactId?: string;
 }
 
-// We need to lift state for the picker/help dialogs through a context
+// We need to lift state for the picker dialog through a context
 // since tldraw's toolbar component doesn't have direct access to our state
 interface ToolbarActionsContext {
   openPicker: () => void;
-  openHelp: () => void;
 }
 
 let toolbarActions: ToolbarActionsContext = {
   openPicker: () => {},
-  openHelp: () => {},
 };
 
-// Custom toolbar that includes our embed + help buttons
+// Custom toolbar with embed button only (help is in the page header now)
 function CustomToolbar() {
   return (
     <DefaultToolbar>
@@ -49,12 +47,6 @@ function CustomToolbar() {
         icon="link"
         label="Embed Artifact"
         onSelect={() => toolbarActions.openPicker()}
-      />
-      <TldrawUiMenuItem
-        id="help"
-        icon="question-mark"
-        label="Help"
-        onSelect={() => toolbarActions.openHelp()}
       />
       <DefaultToolbarContent />
     </DefaultToolbar>
