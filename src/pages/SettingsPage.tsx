@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useBlueprint } from '@/contexts/BlueprintContext';
-import { ALL_TOOLS, initializeStorageAdapter, loadDbConfig, saveDbConfig, getStorageAdapter } from '@/lib/storage';
+import { ALL_TOOLS, initializeStorageAdapter, loadDbConfig, saveDbConfig, getStorageAdapter, isEnvConfig } from '@/lib/storage';
 import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from '@/lib/storage/schema';
 import { TOOL_CONFIG } from '@/lib/toolConfig';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -26,9 +26,13 @@ export default function SettingsPage() {
   const [instantAppId, setInstantAppId] = useState('');
   const [showFullId, setShowFullId] = useState(false);
   const [savedId, setSavedId] = useState('');
+  const [isFromEnv, setIsFromEnv] = useState(false);
   const importInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
+    const envConfigured = isEnvConfig();
+    setIsFromEnv(envConfigured);
+    
     const config = loadDbConfig();
     if (config?.provider === 'instantdb') {
       setProvider('instantdb');
@@ -256,7 +260,11 @@ export default function SettingsPage() {
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 border-t border-border/50">
               <p className="text-[11px] leading-relaxed text-muted-foreground max-w-[70%] italic">
-                {provider === 'instantdb' ? (
+                {isFromEnv ? (
+                  <>
+                    <span className="font-semibold text-primary">Environment config active.</span> App ID is set via <span className="font-mono">VITE_INSTANTDB_APP_ID</span> and applies to all published builds.
+                  </>
+                ) : provider === 'instantdb' ? (
                   <>
                     Blueprint uses isolated namespaces (<span className="font-mono text-primary">blueprint_artifacts</span>) to prevent collisions with your main app schema.
                   </>
@@ -264,8 +272,12 @@ export default function SettingsPage() {
                   <>Artifacts are scoped to your browser session and won't sync across machines.</>
                 )}
               </p>
-              <Button onClick={handleSave} disabled={isSaveDisabled} className="w-full sm:w-auto shadow-md hover:shadow-lg transition-all px-8">
-                Save & Connect
+              <Button 
+                onClick={handleSave} 
+                disabled={isSaveDisabled || isFromEnv} 
+                className="w-full sm:w-auto shadow-md hover:shadow-lg transition-all px-8"
+              >
+                {isFromEnv ? 'Configured via Env' : 'Save & Connect'}
               </Button>
             </div>
           </div>
