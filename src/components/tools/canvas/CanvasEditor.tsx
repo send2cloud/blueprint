@@ -16,7 +16,7 @@ import {
 import { useTheme } from 'next-themes';
 import { ArtifactEmbedShapeUtil, navigateToArtifact } from './ArtifactEmbedShape';
 import { ArtifactPickerDialog } from './ArtifactPickerDialog';
-import { CanvasHelpDialog } from './CanvasHelpDialog';
+import type { Artifact } from '@/lib/storage/types';
 import type { Artifact } from '@/lib/storage/types';
 
 // Custom shape utils array (must be stable reference)
