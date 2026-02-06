@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { ReactNode, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LucideIcon, Check, Loader2, Star, X, ChevronLeft, Tag } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,7 @@ interface ToolHeaderProps {
   onRename?: (name: string) => void;
   onToggleFavorite?: () => void;
   onUpdateTags?: (tags: string[]) => void;
+  headerActions?: ReactNode;
 }
 
 export function ToolHeader({ 
@@ -40,6 +41,7 @@ export function ToolHeader({
   onRename,
   onToggleFavorite,
   onUpdateTags,
+  headerActions,
 }: ToolHeaderProps) {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
@@ -135,6 +137,7 @@ export function ToolHeader({
       </div>
       
       <div className="flex items-center gap-2">
+        {headerActions}
         {showArtifactInfo && onUpdateTags && (
           <Popover open={tagsOpen} onOpenChange={setTagsOpen}>
             <PopoverTrigger asChild>

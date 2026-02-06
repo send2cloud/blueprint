@@ -16,7 +16,6 @@ import {
 import { useTheme } from 'next-themes';
 import { ArtifactEmbedShapeUtil, navigateToArtifact } from './ArtifactEmbedShape';
 import { ArtifactPickerDialog } from './ArtifactPickerDialog';
-import { CanvasHelpDialog } from './CanvasHelpDialog';
 import type { Artifact } from '@/lib/storage/types';
 
 // Custom shape utils array (must be stable reference)
@@ -28,19 +27,17 @@ interface CanvasEditorProps {
   currentArtifactId?: string;
 }
 
-// We need to lift state for the picker/help dialogs through a context
+// We need to lift state for the picker dialog through a context
 // since tldraw's toolbar component doesn't have direct access to our state
 interface ToolbarActionsContext {
   openPicker: () => void;
-  openHelp: () => void;
 }
 
 let toolbarActions: ToolbarActionsContext = {
   openPicker: () => {},
-  openHelp: () => {},
 };
 
-// Custom toolbar that includes our embed + help buttons
+// Custom toolbar with embed button only (help is in the page header now)
 function CustomToolbar() {
   return (
     <DefaultToolbar>
@@ -49,12 +46,6 @@ function CustomToolbar() {
         icon="link"
         label="Embed Artifact"
         onSelect={() => toolbarActions.openPicker()}
-      />
-      <TldrawUiMenuItem
-        id="help"
-        icon="question-mark"
-        label="Help"
-        onSelect={() => toolbarActions.openHelp()}
       />
       <DefaultToolbarContent />
     </DefaultToolbar>
@@ -99,12 +90,10 @@ export function CanvasEditor({ initialData, onSave, currentArtifactId }: CanvasE
   const { resolvedTheme } = useTheme();
   const editorRef = useRef<Editor | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
 
   // Expose actions to the toolbar component
   toolbarActions = {
     openPicker: () => setPickerOpen(true),
-    openHelp: () => setHelpOpen(true),
   };
 
   const handleMount = useCallback((editor: Editor) => {
@@ -167,8 +156,6 @@ export function CanvasEditor({ initialData, onSave, currentArtifactId }: CanvasE
         onSelect={handleInsertArtifact}
         excludeId={currentArtifactId}
       />
-
-      <CanvasHelpDialog open={helpOpen} onOpenChange={setHelpOpen} />
     </div>
   );
 }

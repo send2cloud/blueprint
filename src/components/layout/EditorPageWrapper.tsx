@@ -24,6 +24,8 @@ interface EditorPageWrapperProps {
   onToggleFavorite?: () => void;
   /** Callback to update tags */
   onUpdateTags?: (tags: string[]) => void;
+  /** Optional actions rendered on the right side of the header */
+  headerActions?: ReactNode;
   /** The editor component to render when artifact is loaded */
   children: ReactNode;
 }
@@ -42,6 +44,7 @@ export function EditorPageWrapper({
   onRename,
   onToggleFavorite,
   onUpdateTags,
+  headerActions,
   children,
 }: EditorPageWrapperProps) {
   if (loading) {
@@ -80,6 +83,7 @@ export function EditorPageWrapper({
         onRename={onRename}
         onToggleFavorite={onToggleFavorite}
         onUpdateTags={onUpdateTags}
+        headerActions={headerActions}
       />
       <HiddenLlmPayload artifact={artifact} />
       <div className="flex-1 overflow-hidden">
