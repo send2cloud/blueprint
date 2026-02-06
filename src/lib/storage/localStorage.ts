@@ -158,4 +158,42 @@ export class LocalStorageAdapter implements StorageAdapter {
     }
     return [];
   }
+
+  // Calendar events
+  async listCalendarEvents(): Promise<CalendarEventRecord[]> {
+    try {
+      const stored = localStorage.getItem(CALENDAR_EVENTS_KEY);
+      if (stored) {
+        return JSON.parse(stored) as CalendarEventRecord[];
+      }
+    } catch (e) {
+      console.error('Failed to load calendar events:', e);
+    }
+    return [];
+  }
+
+  async saveCalendarEvent(event: CalendarEventRecord): Promise<void> {
+    try {
+      const events = await this.listCalendarEvents();
+      const index = events.findIndex((e) => e.id === event.id);
+      if (index >= 0) {
+        events[index] = event;
+      } else {
+        events.push(event);
+      }
+      localStorage.setItem(CALENDAR_EVENTS_KEY, JSON.stringify(events));
+    } catch (e) {
+      console.error('Failed to save calendar event:', e);
+    }
+  }
+
+  async deleteCalendarEvent(id: string): Promise<void> {
+    try {
+      const events = await this.listCalendarEvents();
+      const filtered = events.filter((e) => e.id !== id);
+      localStorage.setItem(CALENDAR_EVENTS_KEY, JSON.stringify(filtered));
+    } catch (e) {
+      console.error('Failed to delete calendar event:', e);
+    }
+  }
 }

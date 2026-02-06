@@ -24,6 +24,20 @@ export interface Artifact {
   tags?: string[];
 }
 
+/** Calendar event stored in the database */
+export interface CalendarEventRecord {
+  id: string;
+  title: string;
+  start: string; // ISO string
+  end: string;   // ISO string
+  allDay?: boolean;
+  description?: string;
+  color?: string;
+  tags?: string[];
+  sourceType?: 'manual' | 'task' | 'doc';
+  sourceId?: string;
+}
+
 export interface StorageAdapter {
   // Settings
   getSettings(): Promise<BlueprintSettings>;
@@ -36,4 +50,9 @@ export interface StorageAdapter {
   listArtifacts(type?: ToolType): Promise<Artifact[]>;
   listFavorites(): Promise<Artifact[]>;
   listByTag(tag: string): Promise<Artifact[]>;
+  
+  // Calendar events
+  listCalendarEvents(): Promise<CalendarEventRecord[]>;
+  saveCalendarEvent(event: CalendarEventRecord): Promise<void>;
+  deleteCalendarEvent(id: string): Promise<void>;
 }
