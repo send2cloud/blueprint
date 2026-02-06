@@ -70,7 +70,7 @@ export function AppSidebar() {
                     <span className="font-semibold">Blueprints</span>
                     {storageType === 'instantdb' ? (
                       <span
-                        className="inline-flex w-fit items-center gap-1 rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] font-medium text-emerald-400"
+                        className="inline-flex w-fit items-center gap-1 rounded-full bg-status-synced/20 px-2 py-0.5 text-[10px] font-medium text-status-synced-foreground"
                         title="Data syncs across devices via InstantDB"
                       >
                         <Cloud className="h-2.5 w-2.5" />
@@ -78,7 +78,7 @@ export function AppSidebar() {
                       </span>
                     ) : (
                       <span
-                        className="inline-flex w-fit rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-medium text-amber-300"
+                        className="inline-flex w-fit rounded-full bg-status-local/20 px-2 py-0.5 text-[10px] font-medium text-status-local-foreground"
                         title="Data is stored in this browser only. Connect InstantDB in Settings to sync with a project."
                       >
                         Using local storage
