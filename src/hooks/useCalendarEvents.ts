@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { CalendarEvent } from '@/components/tools/calendar/types';
 import { getStorageAdapter } from '@/lib/storage/adapter';
 import type { CalendarEventRecord } from '@/lib/storage/types';
@@ -42,19 +42,22 @@ function fromRecord(record: CalendarEventRecord): CalendarEvent {
 /**
  * Hook for managing global calendar events using the storage adapter
  * (syncs to InstantDB when configured, otherwise localStorage)
+ *
+ * Uses the same adapter pattern as BlueprintContext – useMemo captures the
+ * singleton once per mount to avoid stale references.
  */
 export function useCalendarEvents() {
+  const storage = useMemo(() => getStorageAdapter(), []);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Load events on mount
   useEffect(() => {
     let cancelled = false;
-    
+
     async function load() {
       try {
-        const adapter = getStorageAdapter();
-        const records = await adapter.listCalendarEvents();
+        const records = await storage.listCalendarEvents();
         if (!cancelled) {
           setEvents(records.map(fromRecord));
         }
@@ -66,36 +69,42 @@ export function useCalendarEvents() {
         }
       }
     }
-    
+
     load();
-    return () => { cancelled = true; };
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [storage]);
 
-  const saveEvent = useCallback(async (event: CalendarEvent) => {
-    try {
-      const adapter = getStorageAdapter();
-      await adapter.saveCalendarEvent(toRecord(event));
-      setEvents((prev) => {
-        const exists = prev.some((e) => e.id === event.id);
-        if (exists) {
-          return prev.map((e) => (e.id === event.id ? event : e));
-        }
-        return [...prev, event];
-      });
-    } catch (e) {
-      console.error('Failed to save calendar event:', e);
-    }
-  }, []);
+  const saveEvent = useCallback(
+    async (event: CalendarEvent) => {
+      try {
+        await storage.saveCalendarEvent(toRecord(event));
+        setEvents((prev) => {
+          const exists = prev.some((e) => e.id === event.id);
+          if (exists) {
+            return prev.map((e) => (e.id === event.id ? event : e));
+          }
+          return [...prev, event];
+        });
+      } catch (e) {
+        console.error('Failed to save calendar event:', e);
+      }
+    },
+    [storage],
+  );
 
-  const deleteEvent = useCallback(async (id: string) => {
-    try {
-      const adapter = getStorageAdapter();
-      await adapter.deleteCalendarEvent(id);
-      setEvents((prev) => prev.filter((e) => e.id !== id));
-    } catch (e) {
-      console.error('Failed to delete calendar event:', e);
-    }
-  }, []);
+  const deleteEvent = useCallback(
+    async (id: string) => {
+      try {
+        await storage.deleteCalendarEvent(id);
+        setEvents((prev) => prev.filter((e) => e.id !== id));
+      } catch (e) {
+        console.error('Failed to delete calendar event:', e);
+      }
+    },
+    [storage],
+  );
 
   return {
     events,
