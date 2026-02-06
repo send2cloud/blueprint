@@ -24,6 +24,11 @@ function createStorage(artifacts: Artifact[]): StorageAdapter {
     async listByTag(tag) {
       return artifacts.filter((a) => a.tags?.includes(tag));
     },
+    async listCalendarEvents() {
+      return [];
+    },
+    async saveCalendarEvent() {},
+    async deleteCalendarEvent() {},
   };
 }
 
