@@ -331,6 +331,78 @@ export default function SettingsPage() {
             </div>
           </div>
 
+          {provider === 'instantdb' && (
+            <div className="space-y-4 rounded-lg border border-destructive/30 bg-destructive/5 p-4 sm:p-6 shadow-sm">
+              <div>
+                <h3 className="text-sm font-semibold text-destructive">Danger Zone</h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Clean up legacy data from old split-table architecture.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-destructive/50 text-destructive hover:bg-destructive/10"
+                  onClick={async () => {
+                    if (!confirm('Delete all data from legacy tables (blueprint_notes, blueprint_diagrams, etc.)? This cannot be undone.')) return;
+                    try {
+                      const { InstantDbAdapter } = await import('@/lib/storage/instantDb');
+                      const config = loadDbConfig();
+                      if (config?.instantAppId) {
+                        const adapter = new InstantDbAdapter(config.instantAppId);
+                        const result = await adapter.cleanupLegacyTables(false);
+                        toast({
+                          title: 'Cleanup Complete',
+                          description: `Deleted ${result.deleted} records from ${result.tables.length} legacy tables.`,
+                        });
+                      }
+                    } catch (e) {
+                      toast({
+                        title: 'Cleanup Failed',
+                        description: e instanceof Error ? e.message : 'Unknown error',
+                        variant: 'destructive',
+                      });
+                    }
+                  }}
+                >
+                  Clean Legacy Tables
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={async () => {
+                    if (!confirm('DELETE ALL BLUEPRINT DATA? This will wipe all artifacts and calendar events. Cannot be undone!')) return;
+                    if (!confirm('Are you absolutely sure? Type "delete" in the next prompt to confirm.')) return;
+                    const typed = prompt('Type "delete" to confirm:');
+                    if (typed !== 'delete') return;
+                    try {
+                      const { InstantDbAdapter } = await import('@/lib/storage/instantDb');
+                      const config = loadDbConfig();
+                      if (config?.instantAppId) {
+                        const adapter = new InstantDbAdapter(config.instantAppId);
+                        const result = await adapter.cleanupLegacyTables(true);
+                        toast({
+                          title: 'All Data Deleted',
+                          description: `Deleted ${result.deleted} records. Refreshing...`,
+                        });
+                        setTimeout(() => window.location.reload(), 1000);
+                      }
+                    } catch (e) {
+                      toast({
+                        title: 'Cleanup Failed',
+                        description: e instanceof Error ? e.message : 'Unknown error',
+                        variant: 'destructive',
+                      });
+                    }
+                  }}
+                >
+                  Delete All Data
+                </Button>
+              </div>
+            </div>
+          )}
+
           <div className="pt-2">
             <h2 className="text-lg font-semibold text-foreground mb-1">Active Modules</h2>
             <p className="text-sm text-muted-foreground">
