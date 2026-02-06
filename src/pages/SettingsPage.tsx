@@ -11,48 +11,70 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useBlueprint } from '@/contexts/BlueprintContext';
-import { ALL_TOOLS, initializeStorageAdapter, loadDbConfig, saveDbConfig, getStorageAdapter, isEnvConfig } from '@/lib/storage';
+import { useBlueprintState, useBlueprintActions } from '@/contexts/BlueprintContext';
+import { ALL_TOOLS, initializeStorageAdapter, loadDbConfig, saveDbConfig, isEnvConfig } from '@/lib/storage';
 import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from '@/lib/storage/schema';
 import { TOOL_CONFIG } from '@/lib/toolConfig';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { toast } from '@/hooks/use-toast';
+import { useForm, Controller } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const dbConfigSchema = z.object({
+  provider: z.enum(['local', 'instantdb']),
+  instantAppId: z.string().optional(),
+}).refine((data) => {
+  if (data.provider === 'instantdb') {
+    return !!data.instantAppId && data.instantAppId.trim().length > 0;
+  }
+  return true;
+}, {
+  message: "Instant App ID is required for InstantDB provider",
+  path: ["instantAppId"],
+});
+
+type DbConfigForm = z.infer<typeof dbConfigSchema>;
 
 export default function SettingsPage() {
-  const { enabledTools, toggleTool, loading } = useBlueprint();
-  const storage = useMemo(() => getStorageAdapter(), []);
-  const [provider, setProvider] = useState<'local' | 'instantdb'>('local');
-  const [instantAppId, setInstantAppId] = useState('');
+  const { enabledTools, loading, storage } = useBlueprintState();
+  const { toggleTool } = useBlueprintActions();
+
   const [showFullId, setShowFullId] = useState(false);
   const [savedId, setSavedId] = useState('');
   const [isFromEnv, setIsFromEnv] = useState(false);
   const importInputRef = useRef<HTMLInputElement | null>(null);
 
+  const { control, handleSubmit, watch, setValue, reset, formState: { isDirty, isValid } } = useForm<DbConfigForm>({
+    resolver: zodResolver(dbConfigSchema),
+    defaultValues: {
+      provider: 'local',
+      instantAppId: '',
+    }
+  });
+
+  const provider = watch('provider');
+  const instantAppId = watch('instantAppId') || '';
+
   useEffect(() => {
     const envConfigured = isEnvConfig();
     setIsFromEnv(envConfigured);
-    
+
     const config = loadDbConfig();
-    if (config?.provider === 'instantdb') {
-      setProvider('instantdb');
-      const id = config.instantAppId ?? '';
-      setInstantAppId(id);
-      setSavedId(id);
-    } else if (config?.provider === 'local') {
-      setProvider('local');
+    if (config) {
+      reset({
+        provider: config.provider,
+        instantAppId: config.instantAppId ?? '',
+      });
+      setSavedId(config.instantAppId ?? '');
     }
-  }, []);
+  }, [reset]);
 
-  const isSaveDisabled = useMemo(() => {
-    if (provider === 'local') return false;
-    return instantAppId.trim().length === 0;
-  }, [provider, instantAppId]);
+  const handleSave = (data: DbConfigForm) => {
+    const isNewId = data.provider === 'instantdb' && data.instantAppId?.trim() !== savedId;
 
-  const handleSave = () => {
-    const isNewId = provider === 'instantdb' && instantAppId.trim() !== savedId;
-
-    if (provider === 'local') {
+    if (data.provider === 'local') {
       saveDbConfig({ provider: 'local' });
       initializeStorageAdapter();
       toast({
@@ -60,15 +82,7 @@ export default function SettingsPage() {
         description: 'Blueprint will store artifacts in this browser only.',
       });
     } else {
-      const trimmed = instantAppId.trim();
-      if (!trimmed) {
-        toast({
-          title: 'Instant App ID required',
-          description: 'Paste the Instant App ID from your host project.',
-          variant: 'destructive',
-        });
-        return;
-      }
+      const trimmed = data.instantAppId?.trim() || '';
 
       // If ID changed, clear old caches to prevent data leaking
       if (isNewId && savedId) {
@@ -100,10 +114,9 @@ export default function SettingsPage() {
       window.location.reload();
     }, 600);
   };
-
   const handleExport = async () => {
     try {
-      const [artifacts, settings] = await Promise.all([
+      const [artifacts, settingsData] = await Promise.all([
         storage.listArtifacts(),
         storage.getSettings(),
       ]);
@@ -111,7 +124,7 @@ export default function SettingsPage() {
         schemaVersion: CURRENT_SCHEMA_VERSION,
         exportedAt: new Date().toISOString(),
         artifacts,
-        settings,
+        settings: settingsData,
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -208,8 +221,8 @@ export default function SettingsPage() {
               <div className="flex items-center gap-2 text-xs font-medium self-start sm:self-center bg-muted/50 px-2 py-1 rounded-full">
                 <span
                   className={`inline-block h-2 w-2 rounded-full ${provider === 'instantdb' && instantAppId.trim().length > 0
-                      ? 'bg-emerald-500 animate-pulse'
-                      : 'bg-muted-foreground/40'
+                    ? 'bg-emerald-500 animate-pulse'
+                    : 'bg-muted-foreground/40'
                     }`}
                 />
                 <span className="text-muted-foreground uppercase tracking-wider">
@@ -221,29 +234,41 @@ export default function SettingsPage() {
             <div className="grid gap-4 md:grid-cols-[200px_1fr] mt-2">
               <div className="space-y-1.5">
                 <Label htmlFor="db-provider" className="text-xs font-bold uppercase text-muted-foreground">Store Mode</Label>
-                <Select value={provider} onValueChange={(value) => setProvider(value as 'local' | 'instantdb')}>
-                  <SelectTrigger id="db-provider" className="h-10">
-                    <SelectValue placeholder="Select provider" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="local">Local Storage</SelectItem>
-                    <SelectItem value="instantdb">InstantDB (Sync)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="provider"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger id="db-provider" className="h-10">
+                        <SelectValue placeholder="Select provider" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="local">Local Storage</SelectItem>
+                        <SelectItem value="instantdb">InstantDB (Sync)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
 
               <div className={`space-y-1.5 transition-opacity ${provider === 'local' ? 'opacity-40 grayscale' : ''}`}>
                 <Label htmlFor="instant-app-id" className="text-xs font-bold uppercase text-muted-foreground">Instant App ID</Label>
                 <div className="relative group">
-                  <Input
-                    id="instant-app-id"
-                    placeholder="app_..."
-                    value={showFullId ? instantAppId : displayId}
-                    onChange={(e) => setInstantAppId(e.target.value)}
-                    onFocus={() => setShowFullId(true)}
-                    onBlur={() => setShowFullId(false)}
-                    disabled={provider === 'local'}
-                    className="h-10 pr-10 font-mono text-sm tracking-tight"
+                  <Controller
+                    name="instantAppId"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        id="instant-app-id"
+                        placeholder="app_..."
+                        {...field}
+                        value={showFullId ? field.value : displayId}
+                        onFocus={() => setShowFullId(true)}
+                        onBlur={() => setShowFullId(false)}
+                        disabled={provider === 'local'}
+                        className="h-10 pr-10 font-mono text-sm tracking-tight"
+                      />
+                    )}
                   />
                   {provider === 'instantdb' && (
                     <button
@@ -266,15 +291,15 @@ export default function SettingsPage() {
                   </>
                 ) : provider === 'instantdb' ? (
                   <>
-                    Blueprint uses isolated namespaces (<span className="font-mono text-primary">blueprint_artifacts</span>) to prevent collisions with your main app schema.
+                    Blueprint uses isolated namespaces (<span className="font-mono text-primary">blueprint_notes</span>) to prevent collisions with your main app schema.
                   </>
                 ) : (
                   <>Artifacts are scoped to your browser session and won't sync across machines.</>
                 )}
               </p>
-              <Button 
-                onClick={handleSave} 
-                disabled={isSaveDisabled || isFromEnv} 
+              <Button
+                onClick={handleSubmit(handleSave)}
+                disabled={!isValid || isFromEnv || !isDirty}
                 className="w-full sm:w-auto shadow-md hover:shadow-lg transition-all px-8"
               >
                 {isFromEnv ? 'Configured via Env' : 'Save & Connect'}
@@ -323,8 +348,8 @@ export default function SettingsPage() {
                 <div
                   key={tool}
                   className={`flex items-center justify-between p-4 rounded-lg border transition-all duration-200 ${isEnabled
-                      ? 'border-primary/20 bg-primary/[0.02] shadow-sm'
-                      : 'border-border bg-card opacity-70'
+                    ? 'border-primary/20 bg-primary/[0.02] shadow-sm'
+                    : 'border-border bg-card opacity-70'
                     }`}
                 >
                   <div className="flex items-center gap-3">

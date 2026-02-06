@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { CalendarEvent } from '@/components/tools/calendar/types';
 import { getStorageAdapter } from '@/lib/storage/adapter';
 import type { CalendarEventRecord } from '@/lib/storage/types';
@@ -39,71 +40,90 @@ function fromRecord(record: CalendarEventRecord): CalendarEvent {
   };
 }
 
+const QUERY_KEY = ['calendar-events'];
+
 /**
- * Hook for managing global calendar events using the storage adapter
+ * Hook for managing global calendar events using TanStack Query
  * (syncs to InstantDB when configured, otherwise localStorage)
- *
- * Uses the same adapter pattern as BlueprintContext – useMemo captures the
- * singleton once per mount to avoid stale references.
  */
 export function useCalendarEvents() {
+  const queryClient = useQueryClient();
   const storage = useMemo(() => getStorageAdapter(), []);
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  // Load events on mount
-  useEffect(() => {
-    let cancelled = false;
+  // 1. Fetch data using useQuery
+  const { data: events = [], isLoading: loading } = useQuery({
+    queryKey: QUERY_KEY,
+    queryFn: async () => {
+      const records = await storage.listCalendarEvents();
+      return records.map(fromRecord);
+    },
+    // Keep data fresh, especially if multiple tabs are open
+    staleTime: 1000 * 30, // 30 seconds
+  });
 
-    async function load() {
-      try {
-        const records = await storage.listCalendarEvents();
-        if (!cancelled) {
-          setEvents(records.map(fromRecord));
+  // 2. Wrap save logic in useMutation
+  const saveMutation = useMutation({
+    mutationFn: (event: CalendarEvent) => storage.saveCalendarEvent(toRecord(event)),
+    // Optimistic Update: update UI immediately before server confirms
+    onMutate: async (newEvent) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEY });
+      const previousEvents = queryClient.getQueryData<CalendarEvent[]>(QUERY_KEY);
+
+      queryClient.setQueryData<CalendarEvent[]>(QUERY_KEY, (prev = []) => {
+        const exists = prev.some((e) => e.id === newEvent.id);
+        if (exists) {
+          return prev.map((e) => (e.id === newEvent.id ? newEvent : e));
         }
-      } catch (e) {
-        console.error('Failed to load calendar events:', e);
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
+        return [...prev, newEvent];
+      });
 
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [storage]);
+      return { previousEvents };
+    },
+    // If it fails, roll back to previous state
+    onError: (err, newEvent, context) => {
+      queryClient.setQueryData(QUERY_KEY, context?.previousEvents);
+      console.error('Failed to save calendar event:', err);
+    },
+    // Always refetch after success or error to stay in sync
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+    },
+  });
+
+  // 3. Wrap delete logic in useMutation
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => storage.deleteCalendarEvent(id),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEY });
+      const previousEvents = queryClient.getQueryData<CalendarEvent[]>(QUERY_KEY);
+
+      queryClient.setQueryData<CalendarEvent[]>(QUERY_KEY, (prev = []) =>
+        prev.filter((e) => e.id !== id)
+      );
+
+      return { previousEvents };
+    },
+    onError: (err, id, context) => {
+      queryClient.setQueryData(QUERY_KEY, context?.previousEvents);
+      console.error('Failed to delete calendar event:', err);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+    },
+  });
 
   const saveEvent = useCallback(
     async (event: CalendarEvent) => {
-      try {
-        await storage.saveCalendarEvent(toRecord(event));
-        setEvents((prev) => {
-          const exists = prev.some((e) => e.id === event.id);
-          if (exists) {
-            return prev.map((e) => (e.id === event.id ? event : e));
-          }
-          return [...prev, event];
-        });
-      } catch (e) {
-        console.error('Failed to save calendar event:', e);
-      }
+      saveMutation.mutate(event);
     },
-    [storage],
+    [saveMutation],
   );
 
   const deleteEvent = useCallback(
     async (id: string) => {
-      try {
-        await storage.deleteCalendarEvent(id);
-        setEvents((prev) => prev.filter((e) => e.id !== id));
-      } catch (e) {
-        console.error('Failed to delete calendar event:', e);
-      }
+      deleteMutation.mutate(id);
     },
-    [storage],
+    [deleteMutation],
   );
 
   return {
@@ -113,3 +133,4 @@ export function useCalendarEvents() {
     deleteEvent,
   };
 }
+

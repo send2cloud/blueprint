@@ -23,7 +23,7 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [isNewEvent, setIsNewEvent] = useState(false);
-  
+
   const { config, updateConfig } = useCalendarConfig();
   const { currentView, setCurrentView, currentDate, setCurrentDate, navigate } = useCalendarNavigation();
 
@@ -114,7 +114,7 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
             date={currentDate}
             events={allEvents}
             onSelectEvent={handleSelectEvent}
-            onNavigate={(date) => handleNavigate(date)}
+            onNavigate={handleNavigate}
             weekStartsOn={config.weekStartsOn}
           />
         ) : (
@@ -123,8 +123,8 @@ export function CalendarEditor({ events, onSaveEvent, onDeleteEvent, linkedEvent
             events={allEvents}
             startAccessor="start"
             endAccessor="end"
-            view={currentView as typeof Views[keyof typeof Views]}
-            onView={(view) => setCurrentView(view as typeof currentView)}
+            view={currentView as any}
+            onView={setCurrentView}
             date={currentDate}
             onNavigate={setCurrentDate}
             onSelectEvent={handleSelectEvent}

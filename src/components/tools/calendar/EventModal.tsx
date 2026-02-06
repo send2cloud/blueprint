@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { format, setHours, setMinutes } from 'date-fns';
 import { Trash2, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import {
@@ -81,7 +82,6 @@ export function EventModal({
     const [hours, minutes] = timeStr.split(':').map(Number);
     return setMinutes(setHours(new Date(date), hours), minutes);
   };
-
   const handleSave = () => {
     if (!title.trim()) return;
 
@@ -89,7 +89,7 @@ export function EventModal({
     const finalEnd = allDay ? endDate : combineDateTime(endDate, endTime);
 
     onSave({
-      id: event?.id || `event-${Date.now()}`,
+      id: event?.id || uuidv4(),
       title: title.trim(),
       description: description.trim() || undefined,
       start: finalStart,

@@ -1,16 +1,20 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { ToolType, ALL_TOOLS, StorageAdapter, getStorageAdapter, BlueprintSettings } from '@/lib/storage';
 
-interface BlueprintContextValue {
+interface BlueprintState {
   enabledTools: ToolType[];
-  toggleTool: (tool: ToolType) => void;
-  isToolEnabled: (tool: ToolType) => boolean;
-  storage: StorageAdapter;
   loading: boolean;
   settings: BlueprintSettings;
+  storage: StorageAdapter;
 }
 
-const BlueprintContext = createContext<BlueprintContextValue | null>(null);
+interface BlueprintActions {
+  toggleTool: (tool: ToolType) => void;
+  isToolEnabled: (tool: ToolType) => boolean;
+}
+
+const BlueprintStateContext = createContext<BlueprintState | null>(null);
+const BlueprintActionsContext = createContext<BlueprintActions | null>(null);
 
 export function BlueprintProvider({ children }: { children: React.ReactNode }) {
   const [enabledTools, setEnabledTools] = useState<ToolType[]>([...ALL_TOOLS]);
@@ -23,9 +27,7 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
     const loadSettings = async () => {
       try {
         const loadedSettings = await storage.getSettings();
-        // Filter out old tool types that no longer exist
         const validTools = loadedSettings.enabledTools.filter(t => ALL_TOOLS.includes(t));
-        // If no valid tools, default to all tools
         setEnabledTools(validTools.length > 0 ? validTools : [...ALL_TOOLS]);
         setSettings({
           ...loadedSettings,
@@ -45,44 +47,66 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
       const newTools = prev.includes(tool)
         ? prev.filter(t => t !== tool)
         : [...prev, tool];
-      
-      // Persist to storage
-      setSettings(prevSettings => {
-        const nextSettings: BlueprintSettings = { ...prevSettings, enabledTools: newTools };
-        storage.saveSettings(nextSettings).catch(e => {
-          console.error('Failed to save settings:', e);
-        });
-        return nextSettings;
+
+      const nextSettings: BlueprintSettings = { ...settings, enabledTools: newTools };
+      setSettings(nextSettings);
+      storage.saveSettings(nextSettings).catch(e => {
+        console.error('Failed to save settings:', e);
       });
-      
+
       return newTools;
     });
-  }, [storage]);
+  }, [storage, settings]);
 
   const isToolEnabled = useCallback((tool: ToolType) => {
     return enabledTools.includes(tool);
   }, [enabledTools]);
 
-  const value = useMemo(() => ({
+  const stateValue = useMemo(() => ({
     enabledTools,
-    toggleTool,
-    isToolEnabled,
-    storage,
     loading,
     settings,
-  }), [enabledTools, toggleTool, isToolEnabled, storage, loading, settings]);
+    storage,
+  }), [enabledTools, loading, settings, storage]);
+
+  const actionsValue = useMemo(() => ({
+    toggleTool,
+    isToolEnabled,
+  }), [toggleTool, isToolEnabled]);
 
   return (
-    <BlueprintContext.Provider value={value}>
-      {children}
-    </BlueprintContext.Provider>
+    <BlueprintStateContext.Provider value={stateValue}>
+      <BlueprintActionsContext.Provider value={actionsValue}>
+        {children}
+      </BlueprintActionsContext.Provider>
+    </BlueprintStateContext.Provider>
   );
 }
 
 export function useBlueprint() {
-  const context = useContext(BlueprintContext);
-  if (!context) {
+  const state = useContext(BlueprintStateContext);
+  const actions = useContext(BlueprintActionsContext);
+  if (!state || !actions) {
     throw new Error('useBlueprint must be used within a BlueprintProvider');
   }
+  return { ...state, ...actions };
+}
+
+/**
+ * Access only actions (functions) to avoid re-renders when data changes.
+ */
+export function useBlueprintActions() {
+  const context = useContext(BlueprintActionsContext);
+  if (!context) throw new Error('useBlueprintActions must be used within a BlueprintProvider');
   return context;
 }
+
+/**
+ * Access only state to avoid unnecessary dependencies.
+ */
+export function useBlueprintState() {
+  const context = useContext(BlueprintStateContext);
+  if (!context) throw new Error('useBlueprintState must be used within a BlueprintProvider');
+  return context;
+}
+

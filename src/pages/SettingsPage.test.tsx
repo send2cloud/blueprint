@@ -28,6 +28,18 @@ vi.mock("@/contexts/BlueprintContext", () => ({
         toggleTool: vi.fn(),
         loading: false,
     }),
+    useBlueprintState: () => ({
+        enabledTools: ["whiteboard"],
+        loading: false,
+        storage: {
+            listArtifacts: vi.fn().mockResolvedValue([]),
+            getSettings: vi.fn().mockResolvedValue({}),
+            saveSettings: vi.fn(),
+        }
+    }),
+    useBlueprintActions: () => ({
+        toggleTool: vi.fn(),
+    }),
 }));
 
 // Mock window.location.reload
@@ -101,13 +113,17 @@ describe("SettingsPage", () => {
 
         // Check save button enabled?
         const saveBtn = screen.getByText("Save & Connect");
-        expect(saveBtn).not.toBeDisabled();
+        await waitFor(() => {
+            expect(saveBtn).not.toBeDisabled();
+        });
 
         fireEvent.click(saveBtn);
 
-        expect(saveDbConfig).toHaveBeenCalledWith({
-            provider: "instantdb",
-            instantAppId: "new-id",
+        await waitFor(() => {
+            expect(saveDbConfig).toHaveBeenCalledWith({
+                provider: "instantdb",
+                instantAppId: "new-id",
+            });
         });
         expect(initializeStorageAdapter).toHaveBeenCalled();
 
