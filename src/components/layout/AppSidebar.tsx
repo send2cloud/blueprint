@@ -64,27 +64,23 @@ export function AppSidebar() {
                 className="flex items-center gap-2" 
                 activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
               >
-                <Home className="h-4 w-4" />
+                <div className="relative">
+                  <Home className="h-4 w-4" />
+                  <span
+                    className={`absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full border border-sidebar-background ${
+                      storageType === 'instantdb'
+                        ? 'bg-emerald-500'
+                        : 'bg-red-500'
+                    }`}
+                    title={
+                      storageType === 'instantdb'
+                        ? 'Connected to InstantDB'
+                        : 'No database connected (local only)'
+                    }
+                  />
+                </div>
                 {!collapsed && (
-                  <span className="flex flex-col leading-tight">
-                    <span className="font-semibold">Blueprints</span>
-                    {storageType === 'instantdb' ? (
-                      <span
-                        className="inline-flex w-fit items-center gap-1 rounded-full bg-status-synced/20 px-2 py-0.5 text-[10px] font-medium text-status-synced-foreground"
-                        title="Data syncs across devices via InstantDB"
-                      >
-                        <Cloud className="h-2.5 w-2.5" />
-                        Synced
-                      </span>
-                    ) : (
-                      <span
-                        className="inline-flex w-fit rounded-full bg-status-local/20 px-2 py-0.5 text-[10px] font-medium text-status-local-foreground"
-                        title="Data is stored in this browser only. Connect InstantDB in Settings to sync with a project."
-                      >
-                        Using local storage
-                      </span>
-                    )}
-                  </span>
+                  <span className="font-semibold">Blueprint</span>
                 )}
               </NavLink>
             </SidebarMenuButton>
