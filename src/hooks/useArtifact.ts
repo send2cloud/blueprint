@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import { getStorageAdapter, Artifact, ToolType, CURRENT_SCHEMA_VERSION } from '@/lib/storage';
+import { getStorageAdapter, Artifact, ToolType, CURRENT_SCHEMA_VERSION } from '../lib/storage';
 
 /**
  * Hook for managing a single artifact (create, load, save, rename, toggle flags)

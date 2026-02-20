@@ -1,8 +1,8 @@
 import { Loader2 } from 'lucide-react';
-import { CalendarEditor } from '@/components/tools/calendar/CalendarEditor';
-import { useCalendarEvents } from '@/hooks/useCalendarEvents';
-import { useTaskEvents } from '@/hooks/useTaskEvents';
-import { TOOL_CONFIG } from '@/lib/toolConfig';
+import { CalendarEditor } from '../components/tools/calendar/CalendarEditor';
+import { useCalendarEvents } from '../hooks/useCalendarEvents';
+import { useTaskEvents } from '../hooks/useTaskEvents';
+import { TOOL_CONFIG } from '../lib/toolConfig';
 
 const tool = TOOL_CONFIG.calendar;
 

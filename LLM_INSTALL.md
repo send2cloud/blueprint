@@ -209,3 +209,4 @@ const BlueprintApp = lazy(() => import('./blueprint/src/App'));
 3. **Check for conflicts** - Don't overwrite existing tailwind.config.ts, merge instead
 4. **Dependencies first** - Install npm packages before copying files to avoid import errors
 5. **Prioritize core** - If interrupted, ensure Batch 1-2 complete first (app won't work without them)
+6. **Cloud IDEs** - In cloud IDEs like Lovable/Cursor/Codespaces, preview URLs dynamically replace localhost ports. Ensure you're verifying URLs using the native preview window.

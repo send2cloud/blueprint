@@ -1,9 +1,9 @@
  import { useState } from 'react';
  import { MessageSquare, Trash2 } from 'lucide-react';
- import { Button } from '@/components/ui/button';
- import { Textarea } from '@/components/ui/textarea';
+ import { Button } from '../../ui/button';
+ import { Textarea } from '../../ui/textarea';
  import { CardComment } from './types';
- import { formatRelative } from '@/lib/formatters';
+ import { formatRelative } from '../../../lib/formatters';
  
  interface CardCommentsProps {
    comments: CardComment[];

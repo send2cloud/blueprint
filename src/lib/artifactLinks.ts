@@ -1,4 +1,4 @@
-import type { Artifact } from '@/lib/storage/types';
+import type { Artifact } from './storage/types';
 
 /**
  * Regex to match [[artifact-name]] wiki-style links

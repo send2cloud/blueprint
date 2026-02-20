@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { format } from 'date-fns';
-import { Button } from '@/components/ui/button';
+import { Button } from '../../ui/button';
 import { CalendarSettings, CalendarConfig } from './CalendarSettings';
 
 export type ViewType = 'day' | 'week' | 'month' | 'year' | 'agenda';

@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { Tag } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { Artifact } from '@/lib/storage';
+import { Badge } from '../ui/badge';
+import { cn } from '../../lib/utils';
+import { Artifact } from '../../lib/storage';
 
 interface TagCloudProps {
   artifacts: Artifact[];

@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { Trash2, Share2, Star, Pin } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { Artifact } from '@/lib/storage';
-import { TOOL_CONFIG } from '@/lib/toolConfig';
+import { Card } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { useToast } from '../../hooks/use-toast';
+import { Artifact } from '../../lib/storage';
+import { TOOL_CONFIG } from '../../lib/toolConfig';
 import { ArtifactPreview, getPreviewHeight } from './ArtifactPreview';
 
 interface ArtifactCardProps {

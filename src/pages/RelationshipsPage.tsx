@@ -14,8 +14,8 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Network, Loader2 } from 'lucide-react';
-import { useRelationshipGraph } from '@/hooks/useArtifactLinks';
-import { TOOL_CONFIG } from '@/lib/toolConfig';
+import { useRelationshipGraph } from '../hooks/useArtifactLinks';
+import { TOOL_CONFIG } from '../lib/toolConfig';
 import { useTheme } from 'next-themes';
 
 // Color mapping for different artifact types

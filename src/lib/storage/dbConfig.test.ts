@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { loadDbConfig, saveDbConfig, clearDbConfig } from "@/lib/storage/dbConfig";
+import { loadDbConfig, saveDbConfig, clearDbConfig } from './dbConfig';
 
 describe("dbConfig", () => {
   beforeEach(() => {

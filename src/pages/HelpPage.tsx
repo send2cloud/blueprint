@@ -1,5 +1,5 @@
 import { HelpCircle } from 'lucide-react';
-import { ToolHeader } from '@/components/layout/ToolHeader';
+import { ToolHeader } from '../components/layout/ToolHeader';
 
 export default function HelpPage() {
   return (

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { LocalStorageAdapter } from "@/lib/storage/localStorage";
-import type { Artifact } from "@/lib/storage/types";
-import { CURRENT_SCHEMA_VERSION } from "@/lib/storage/schema";
+import { LocalStorageAdapter } from './localStorage';
+import type { Artifact } from './types';
+import { CURRENT_SCHEMA_VERSION } from './schema';
 
 const now = new Date().toISOString();
 

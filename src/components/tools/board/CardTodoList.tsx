@@ -1,9 +1,9 @@
  import { useState } from 'react';
  import { CheckSquare, Plus, Trash2 } from 'lucide-react';
- import { Button } from '@/components/ui/button';
- import { Input } from '@/components/ui/input';
- import { Checkbox } from '@/components/ui/checkbox';
- import { Progress } from '@/components/ui/progress';
+ import { Button } from '../../ui/button';
+ import { Input } from '../../ui/input';
+ import { Checkbox } from '../../ui/checkbox';
+ import { Progress } from '../../ui/progress';
  import { TodoItem } from './types';
  
  interface CardTodoListProps {

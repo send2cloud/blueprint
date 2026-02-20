@@ -5,8 +5,8 @@ import {
   findBacklinks, 
   buildRelationshipGraph,
   type ArtifactRelationship 
-} from '@/lib/artifactLinks';
-import type { Artifact } from '@/lib/storage/types';
+} from '../lib/artifactLinks';
+import type { Artifact } from '../lib/storage/types';
 
 /**
  * Hook to get links and backlinks for a specific artifact

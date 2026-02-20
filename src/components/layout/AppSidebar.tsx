@@ -1,11 +1,11 @@
 import { Home, Star, Settings, Moon, Sun, PanelLeftClose, PanelLeft, HelpCircle, Tag, Network } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { NavLink } from '@/components/NavLink';
-import { useBlueprint } from '@/contexts/BlueprintContext';
-import { TOOL_LIST, TOOL_CONFIG } from '@/lib/toolConfig';
-import { useAllArtifacts } from '@/hooks/useArtifacts';
-import { TagCloud } from '@/components/sidebar/TagCloud';
-import { getStorageAdapterType } from '@/lib/storage/adapter';
+import { NavLink } from '../NavLink';
+import { useBlueprint } from '../../contexts/BlueprintContext';
+import { TOOL_LIST, TOOL_CONFIG } from '../../lib/toolConfig';
+import { useAllArtifacts } from '../../hooks/useArtifacts';
+import { TagCloud } from '../sidebar/TagCloud';
+import { getStorageAdapterType } from '../../lib/storage/adapter';
 import {
   Sidebar,
   SidebarContent,
@@ -18,12 +18,12 @@ import {
   SidebarHeader,
   SidebarFooter,
   useSidebar,
-} from '@/components/ui/sidebar';
+} from '../ui/sidebar';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+} from '../ui/collapsible';
 
 export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();

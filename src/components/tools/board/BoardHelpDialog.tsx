@@ -3,7 +3,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '../../ui/dialog';
 import { LayoutGrid, Plus, GripVertical, Calendar, Keyboard } from 'lucide-react';
 
 interface BoardHelpDialogProps {

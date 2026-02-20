@@ -1,17 +1,17 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Copy, Settings } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useBlueprint } from '@/contexts/BlueprintContext';
-import { TOOL_LIST } from '@/lib/toolConfig';
-import { TOOL_CONFIG } from '@/lib/toolConfig';
-import { useAllArtifacts } from '@/hooks/useArtifacts';
-import type { Artifact } from '@/lib/storage';
-import { toast } from '@/hooks/use-toast';
-import { formatRelative } from '@/lib/formatters';
-import { getArtifactSearchText } from '@/lib/artifactUtils';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { useBlueprint } from '../contexts/BlueprintContext';
+import { TOOL_LIST } from '../lib/toolConfig';
+import { TOOL_CONFIG } from '../lib/toolConfig';
+import { useAllArtifacts } from '../hooks/useArtifacts';
+import type { Artifact } from '../lib/storage';
+import { toast } from '../hooks/use-toast';
+import { formatRelative } from '../lib/formatters';
+import { getArtifactSearchText } from '../lib/artifactUtils';
 
 const Index = () => {
   const navigate = useNavigate();

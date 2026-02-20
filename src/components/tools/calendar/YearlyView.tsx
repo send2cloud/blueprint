@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { format, startOfYear, endOfYear, eachMonthOfInterval, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isSaturday, isSunday, startOfWeek } from 'date-fns';
 import { CalendarEvent } from './types';
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils';
 
 interface YearlyViewProps {
   date: Date;

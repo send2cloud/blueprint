@@ -3,7 +3,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '../../ui/dialog';
 import { Link2, Keyboard, MousePointer, ZoomIn } from 'lucide-react';
 
 interface CanvasHelpDialogProps {

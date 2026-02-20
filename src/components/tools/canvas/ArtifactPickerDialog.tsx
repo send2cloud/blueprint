@@ -5,11 +5,11 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useAllArtifacts } from '@/hooks/useArtifacts';
-import type { Artifact, ToolType } from '@/lib/storage/types';
+} from '../../ui/dialog';
+import { Input } from '../../ui/input';
+import { ScrollArea } from '../../ui/scroll-area';
+import { useAllArtifacts } from '../../../hooks/useArtifacts';
+import type { Artifact, ToolType } from '../../../lib/storage/types';
 
 const TOOL_ICONS: Record<ToolType, React.ElementType> = {
   notes: FileText,

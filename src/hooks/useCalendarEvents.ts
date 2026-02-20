@@ -1,8 +1,8 @@
 import { useCallback, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { CalendarEvent } from '@/components/tools/calendar/types';
-import { getStorageAdapter } from '@/lib/storage/adapter';
-import type { CalendarEventRecord } from '@/lib/storage/types';
+import { CalendarEvent } from '../components/tools/calendar/types';
+import { getStorageAdapter } from '../lib/storage/adapter';
+import type { CalendarEventRecord } from '../lib/storage/types';
 
 /**
  * Convert a CalendarEvent (with Date objects) to a CalendarEventRecord (with ISO strings)

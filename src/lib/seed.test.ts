@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { ensureSeedNote } from "@/lib/seed";
-import type { StorageAdapter, Artifact, BlueprintSettings } from "@/lib/storage/types";
-import { CURRENT_SCHEMA_VERSION } from "@/lib/storage/schema";
+import { ensureSeedNote } from './seed';
+import type { StorageAdapter, Artifact, BlueprintSettings } from './storage/types';
+import { CURRENT_SCHEMA_VERSION } from './storage/schema';
 
 function createMemoryStorage(): StorageAdapter & {
   artifacts: Artifact[];

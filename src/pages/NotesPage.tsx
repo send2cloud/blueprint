@@ -1,8 +1,8 @@
 import { useParams } from 'react-router-dom';
-import { EditorPageWrapper } from '@/components/layout/EditorPageWrapper';
-import { NotesEditor } from '@/components/tools/notes/NotesEditor';
-import { useArtifact } from '@/hooks/useArtifact';
-import { TOOL_CONFIG } from '@/lib/toolConfig';
+import { EditorPageWrapper } from '../components/layout/EditorPageWrapper';
+import { NotesEditor } from '../components/tools/notes/NotesEditor';
+import { useArtifact } from '../hooks/useArtifact';
+import { TOOL_CONFIG } from '../lib/toolConfig';
 
 const tool = TOOL_CONFIG.notes;
 

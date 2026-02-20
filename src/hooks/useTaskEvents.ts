@@ -1,7 +1,7 @@
 import { useMemo, useCallback } from 'react';
 import { useAllArtifacts } from './useArtifacts';
-import { getStorageAdapter } from '@/lib/storage';
-import type { BoardData, KanbanCard } from '@/components/tools/board/types';
+import { getStorageAdapter } from '../lib/storage';
+import type { BoardData, KanbanCard } from '../components/tools/board/types';
 
 /**
  * Extended calendar event that includes the full task card data

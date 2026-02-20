@@ -1,6 +1,6 @@
  import { Draggable } from '@hello-pangea/dnd';
  import { MessageSquare, CheckSquare, Calendar, Trash2 } from 'lucide-react';
- import { Button } from '@/components/ui/button';
+ import { Button } from '../../ui/button';
  import { KanbanCard as KanbanCardType } from './types';
  import { format } from 'date-fns';
  

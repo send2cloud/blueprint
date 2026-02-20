@@ -1,6 +1,6 @@
-import { ToolHeader } from '@/components/layout/ToolHeader';
-import { ArtifactGallery } from '@/components/gallery/ArtifactGallery';
-import { TOOL_CONFIG } from '@/lib/toolConfig';
+import { ToolHeader } from '../components/layout/ToolHeader';
+import { ArtifactGallery } from '../components/gallery/ArtifactGallery';
+import { TOOL_CONFIG } from '../lib/toolConfig';
 
 const tool = TOOL_CONFIG.board;
 

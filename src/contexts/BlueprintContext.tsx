@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { ToolType, ALL_TOOLS, StorageAdapter, getStorageAdapter, BlueprintSettings } from '@/lib/storage';
+import { ToolType, ALL_TOOLS, StorageAdapter, getStorageAdapter, BlueprintSettings } from '../lib/storage';
 
 interface BlueprintState {
   enabledTools: ToolType[];

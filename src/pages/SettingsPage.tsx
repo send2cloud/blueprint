@@ -1,27 +1,27 @@
 import { Settings, Database, Eye, EyeOff } from 'lucide-react';
-import { ToolHeader } from '@/components/layout/ToolHeader';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { ToolHeader } from '../components/layout/ToolHeader';
+import { Switch } from '../components/ui/switch';
+import { Label } from '../components/ui/label';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { useBlueprintState, useBlueprintActions } from '@/contexts/BlueprintContext';
-import { ALL_TOOLS, initializeStorageAdapter, loadDbConfig, saveDbConfig, isEnvConfig } from '@/lib/storage';
-import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from '@/lib/storage/schema';
-import { TOOL_CONFIG } from '@/lib/toolConfig';
+} from '../components/ui/select';
+import { useBlueprintState, useBlueprintActions } from '../contexts/BlueprintContext';
+import { ALL_TOOLS, initializeStorageAdapter, loadDbConfig, saveDbConfig, isEnvConfig } from '../lib/storage';
+import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from '../lib/storage/schema';
+import { TOOL_CONFIG } from '../lib/toolConfig';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '../hooks/use-toast';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { checkBlueprintUpdates } from '@/lib/updateChecker';
+import { checkBlueprintUpdates } from '../lib/updateChecker';
 import { ArrowUpCircle } from 'lucide-react';
 
 const dbConfigSchema = z.object({

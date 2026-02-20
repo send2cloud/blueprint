@@ -3,7 +3,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '../../ui/dialog';
 import { GitBranch, MousePointer, Keyboard, Plus } from 'lucide-react';
 
 interface DiagramHelpDialogProps {

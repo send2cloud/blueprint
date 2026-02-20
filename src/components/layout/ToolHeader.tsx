@@ -1,18 +1,18 @@
 import { ReactNode, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LucideIcon, Check, Loader2, Star, X, ChevronLeft, Tag } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { ShareButton } from '@/components/gallery/ShareButton';
-import { TagInput } from '@/components/tags/TagInput';
-import { ToolType } from '@/lib/storage';
-import { TOOL_CONFIG } from '@/lib/toolConfig';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
+import { ShareButton } from '../gallery/ShareButton';
+import { TagInput } from '../tags/TagInput';
+import { ToolType } from '../../lib/storage';
+import { TOOL_CONFIG } from '../../lib/toolConfig';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
+} from '../ui/popover';
 
 const EMPTY_TAGS: string[] = [];
 

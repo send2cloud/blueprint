@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import { useArtifactList } from "@/hooks/useArtifactList";
-import { setStorageAdapter } from "@/lib/storage";
-import type { StorageAdapter, Artifact } from "@/lib/storage/types";
+import { useArtifactList } from './useArtifactList';
+import { setStorageAdapter } from '../lib/storage';
+import type { StorageAdapter, Artifact } from '../lib/storage/types';
 
 function createStorage(artifacts: Artifact[]): StorageAdapter {
   return {

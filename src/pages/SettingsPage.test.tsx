@@ -2,13 +2,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import SettingsPage from "./SettingsPage";
-import { loadDbConfig, saveDbConfig, initializeStorageAdapter } from "@/lib/storage";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { loadDbConfig, saveDbConfig, initializeStorageAdapter } from '../lib/storage';
+import { SidebarProvider } from '../components/ui/sidebar';
 import { MemoryRouter } from "react-router-dom";
 
 // Mock the storage module
-vi.mock("@/lib/storage", async () => {
-    const actual = await vi.importActual("@/lib/storage");
+vi.mock('../lib/storage', async () => {
+    const actual = await vi.importActual('../lib/storage');
     return {
         ...actual,
         loadDbConfig: vi.fn(),
@@ -22,7 +22,7 @@ vi.mock("@/lib/storage", async () => {
 });
 
 // Mock the context
-vi.mock("@/contexts/BlueprintContext", () => ({
+vi.mock('../contexts/BlueprintContext', () => ({
     useBlueprint: () => ({
         enabledTools: ["whiteboard"],
         toggleTool: vi.fn(),

@@ -14,7 +14,7 @@ import {
   ColorMode,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Button } from '@/components/ui/button';
+import { Button } from '../../ui/button';
 import { Plus } from 'lucide-react';
 import { useTheme } from 'next-themes';
 

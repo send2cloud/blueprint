@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Link2 } from 'lucide-react';
-import { useArtifactLinks } from '@/hooks/useArtifactLinks';
-import { TOOL_CONFIG } from '@/lib/toolConfig';
-import { formatRelative } from '@/lib/formatters';
+import { useArtifactLinks } from '../hooks/useArtifactLinks';
+import { TOOL_CONFIG } from '../lib/toolConfig';
+import { formatRelative } from '../lib/formatters';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import { Button } from '@/components/ui/button';
+} from './ui/collapsible';
+import { Button } from './ui/button';
 import { useState } from 'react';
 
 interface BacklinksPanelProps {

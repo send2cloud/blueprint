@@ -1,8 +1,8 @@
 import { useEffect, useCallback, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from 'next-themes';
-import { TOOL_CONFIG, TOOL_LIST } from '@/lib/toolConfig';
-import { ToolType } from '@/lib/storage';
+import { TOOL_CONFIG, TOOL_LIST } from '../lib/toolConfig';
+import { ToolType } from '../lib/storage';
 
 export function useKeyboardShortcuts() {
   const navigate = useNavigate();

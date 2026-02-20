@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, fireEvent, act } from "@testing-library/react";
-import { ShareButton } from "@/components/gallery/ShareButton";
+import { ShareButton } from './ShareButton';
 
 describe("ShareButton", () => {
   beforeEach(() => {

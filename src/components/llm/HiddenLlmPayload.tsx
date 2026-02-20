@@ -1,4 +1,4 @@
-import type { Artifact } from '@/lib/storage';
+import type { Artifact } from '../../lib/storage';
 
 interface HiddenLlmPayloadProps {
   artifact?: Artifact | null;

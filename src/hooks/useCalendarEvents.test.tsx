@@ -2,11 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useCalendarEvents } from './useCalendarEvents'; // Adjust path
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { getStorageAdapter } from '@/lib/storage/adapter';
-import { CalendarEvent } from '@/components/tools/calendar/types';
+import { getStorageAdapter } from '../lib/storage/adapter';
+import { CalendarEvent } from '../components/tools/calendar/types';
 
 // Mock dependencies
-vi.mock('@/lib/storage/adapter', () => ({
+vi.mock('../lib/storage/adapter', () => ({
     getStorageAdapter: vi.fn(),
 }));
 

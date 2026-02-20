@@ -142,7 +142,7 @@ Blueprint can also run independently:
 ```bash
 cd blueprint
 npm run dev
-# Opens at http://localhost:8080
+# Opens at your local dev server URL (e.g. http://localhost:5173) or Cloud Preview IDE
 ```
 
 ---

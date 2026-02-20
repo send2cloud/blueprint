@@ -1,6 +1,6 @@
  import { useState, useEffect, useCallback } from 'react';
- import { getStorageAdapter, Artifact, ToolType, CURRENT_SCHEMA_VERSION } from '@/lib/storage';
- import { sortArtifacts } from '@/lib/artifactUtils';
+ import { getStorageAdapter, Artifact, ToolType, CURRENT_SCHEMA_VERSION } from '../lib/storage';
+ import { sortArtifacts } from '../lib/artifactUtils';
  
  /**
   * Hook for listing and managing artifacts of a specific type

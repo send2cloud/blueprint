@@ -8,9 +8,9 @@ import { CalendarToolbar } from './CalendarToolbar';
 import { useCalendarNavigation } from './useCalendarNavigation';
 import { useCalendarConfig } from './useCalendarConfig';
 import { CalendarEvent } from './types';
-import { CardDetailModal } from '@/components/tools/board/CardDetailModal';
-import type { TaskCalendarEvent } from '@/hooks/useTaskEvents';
-import type { KanbanCard } from '@/components/tools/board/types';
+import { CardDetailModal } from '../board/CardDetailModal';
+import type { TaskCalendarEvent } from '../../../hooks/useTaskEvents';
+import type { KanbanCard } from '../board/types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const locales = { 'en-US': enUS };

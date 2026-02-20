@@ -1,8 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAllArtifacts } from '@/hooks/useArtifacts';
-import { ArtifactCard } from '@/components/gallery/ArtifactCard';
-import { sortArtifacts } from '@/lib/artifactUtils';
-import { Button } from '@/components/ui/button';
+import { useAllArtifacts } from '../hooks/useArtifacts';
+import { ArtifactCard } from '../components/gallery/ArtifactCard';
+import { sortArtifacts } from '../lib/artifactUtils';
+import { Button } from '../components/ui/button';
 import { ChevronLeft, Tag } from 'lucide-react';
 
 export default function TagPage() {

@@ -1,9 +1,9 @@
  import { Droppable } from '@hello-pangea/dnd';
  import { Plus } from 'lucide-react';
  import { useState } from 'react';
- import { Button } from '@/components/ui/button';
- import { Input } from '@/components/ui/input';
- import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+ import { Button } from '../../ui/button';
+ import { Input } from '../../ui/input';
+ import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
  import { KanbanCardItem } from './KanbanCard';
  import { KanbanCard, KanbanColumn as KanbanColumnType } from './types';
  

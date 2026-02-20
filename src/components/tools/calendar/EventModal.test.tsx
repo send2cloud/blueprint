@@ -5,7 +5,7 @@ import { EventModal } from "./EventModal";
 import { CalendarEvent } from "./types";
 
 // Mock UI components
-vi.mock("@/components/ui/dialog", () => ({
+vi.mock('../../ui/dialog', () => ({
     Dialog: ({ children, open }: any) => (open ? <div>{children}</div> : null),
     DialogContent: ({ children }: any) => <div>{children}</div>,
     DialogHeader: ({ children }: any) => <div>{children}</div>,
@@ -13,7 +13,7 @@ vi.mock("@/components/ui/dialog", () => ({
     DialogFooter: ({ children }: any) => <div>{children}</div>,
 }));
 
-vi.mock("@/components/ui/switch", () => ({
+vi.mock('../../ui/switch', () => ({
     Switch: ({ checked, onCheckedChange }: any) => (
         <button
             role="switch"
@@ -25,34 +25,34 @@ vi.mock("@/components/ui/switch", () => ({
     ),
 }));
 
-vi.mock("@/components/ui/popover", () => ({
+vi.mock('../../ui/popover', () => ({
     Popover: ({ children }: any) => <div>{children}</div>,
     PopoverTrigger: ({ children }: any) => <div>{children}</div>,
     PopoverContent: ({ children }: any) => <div>{children}</div>,
 }));
 
-vi.mock("@/components/ui/calendar", () => ({
+vi.mock('../../ui/calendar', () => ({
     Calendar: () => <div>Calendar</div>,
 }));
 
-vi.mock("@/components/ui/button", () => ({
+vi.mock('../../ui/button', () => ({
     Button: ({ children, onClick, ...props }: any) => <button onClick={onClick} {...props}>{children}</button>,
 }));
 
-vi.mock("@/components/ui/input", () => ({
+vi.mock('../../ui/input', () => ({
     Input: (props: any) => <input {...props} />,
 }));
 
-vi.mock("@/components/ui/textarea", () => ({
+vi.mock('../../ui/textarea', () => ({
     Textarea: (props: any) => <textarea {...props} />,
 }));
 
-vi.mock("@/components/ui/label", () => ({
+vi.mock('../../ui/label', () => ({
     Label: ({ children, ...props }: any) => <label {...props}>{children}</label>,
 }));
 
 // Mock TagInput as it might be complex
-vi.mock("@/components/tags/TagInput", () => ({
+vi.mock('../../tags/TagInput', () => ({
     TagInput: () => <div>TagInput</div>,
 }));
 

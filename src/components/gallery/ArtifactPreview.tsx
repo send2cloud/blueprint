@@ -1,5 +1,5 @@
  import { FileText, GitBranch, Columns3, Palette } from 'lucide-react';
- import type { Artifact } from '@/lib/storage';
+ import type { Artifact } from '../../lib/storage';
  
  interface ArtifactPreviewProps {
    artifact: Artifact;

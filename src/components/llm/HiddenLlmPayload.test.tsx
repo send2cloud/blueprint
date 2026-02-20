@@ -1,8 +1,8 @@
 import { render } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import { HiddenLlmPayload } from "@/components/llm/HiddenLlmPayload";
-import type { Artifact } from "@/lib/storage";
-import { CURRENT_SCHEMA_VERSION } from "@/lib/storage/schema";
+import { HiddenLlmPayload } from './HiddenLlmPayload';
+import type { Artifact } from '../../lib/storage';
+import { CURRENT_SCHEMA_VERSION } from '../../lib/storage/schema';
 
 describe("HiddenLlmPayload", () => {
   it("renders a hidden JSON script with artifact metadata", () => {

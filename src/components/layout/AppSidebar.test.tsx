@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { AppSidebar } from "@/components/layout/AppSidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from './AppSidebar';
+import { SidebarProvider } from '../ui/sidebar';
 
-vi.mock("@/hooks/useArtifacts", () => ({
+vi.mock('../../hooks/useArtifacts', () => ({
   useAllArtifacts: () => ({
     artifacts: [
       { id: "1", type: "notes", favorite: false },
@@ -14,7 +14,7 @@ vi.mock("@/hooks/useArtifacts", () => ({
   }),
 }));
 
-vi.mock("@/contexts/BlueprintContext", () => ({
+vi.mock('../../contexts/BlueprintContext', () => ({
   useBlueprint: () => ({
     isToolEnabled: () => true,
     loading: false,

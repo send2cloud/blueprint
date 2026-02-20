@@ -1,10 +1,10 @@
  import { Tag, X } from 'lucide-react';
- import { Button } from '@/components/ui/button';
+ import { Button } from '../../ui/button';
  import {
    Popover,
    PopoverContent,
    PopoverTrigger,
- } from '@/components/ui/popover';
+ } from '../../ui/popover';
  import { CardLabel, DEFAULT_LABELS } from './types';
  
  interface CardLabelsProps {

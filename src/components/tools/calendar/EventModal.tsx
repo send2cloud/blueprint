@@ -8,20 +8,20 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Calendar } from '@/components/ui/calendar';
-import { TagInput } from '@/components/tags/TagInput';
+} from '../../ui/dialog';
+import { Button } from '../../ui/button';
+import { Input } from '../../ui/input';
+import { Textarea } from '../../ui/textarea';
+import { Label } from '../../ui/label';
+import { Switch } from '../../ui/switch';
+import { Calendar } from '../../ui/calendar';
+import { TagInput } from '../../tags/TagInput';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
+} from '../../ui/popover';
+import { cn } from '../../../lib/utils';
 import { CalendarEvent, EVENT_COLORS } from './types';
 
 interface EventFormState {

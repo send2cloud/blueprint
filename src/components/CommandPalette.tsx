@@ -18,11 +18,11 @@ import {
   CommandItem,
   CommandShortcut,
   CommandSeparator,
-} from '@/components/ui/command';
-import { useAllArtifacts } from '@/hooks/useArtifacts';
-import { TOOL_LIST, TOOL_CONFIG } from '@/lib/toolConfig';
-import { useBlueprint } from '@/contexts/BlueprintContext';
-import { formatRelative } from '@/lib/formatters';
+} from './ui/command';
+import { useAllArtifacts } from '../hooks/useArtifacts';
+import { TOOL_LIST, TOOL_CONFIG } from '../lib/toolConfig';
+import { useBlueprint } from '../contexts/BlueprintContext';
+import { formatRelative } from '../lib/formatters';
 
 interface CommandPaletteProps {
   open: boolean;

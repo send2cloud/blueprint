@@ -6,11 +6,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from '../../ui/dialog';
+import { Button } from '../../ui/button';
+import { Input } from '../../ui/input';
+import { Separator } from '../../ui/separator';
+import { ScrollArea } from '../../ui/scroll-area';
 import { KanbanCard, TodoItem, CardComment, CardLabel } from './types';
 import { CardDescription } from './CardDescription';
 import { CardTodoList } from './CardTodoList';

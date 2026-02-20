@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { Plus, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '../ui/button';
 import { ArtifactCard } from './ArtifactCard';
-import { useArtifactList } from '@/hooks/useArtifactList';
-import { ToolType } from '@/lib/storage';
+import { useArtifactList } from '../../hooks/useArtifactList';
+import { ToolType } from '../../lib/storage';
 
 interface ArtifactGalleryProps {
   type: ToolType;

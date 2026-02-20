@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
 import { Loader2, LucideIcon } from 'lucide-react';
 import { ToolHeader } from './ToolHeader';
-import { HiddenLlmPayload } from '@/components/llm/HiddenLlmPayload';
-import { BacklinksPanel } from '@/components/BacklinksPanel';
-import type { Artifact, ToolType } from '@/lib/storage';
+import { HiddenLlmPayload } from '../llm/HiddenLlmPayload';
+import { BacklinksPanel } from '../BacklinksPanel';
+import type { Artifact, ToolType } from '../../lib/storage';
 
 interface EditorPageWrapperProps {
   /** Tool title for the header */

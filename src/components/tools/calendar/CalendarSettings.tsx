@@ -1,6 +1,6 @@
 import { Settings } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { Button } from '../../ui/button';
+import { Label } from '../../ui/label';
 import {
   Sheet,
   SheetContent,
@@ -8,14 +8,14 @@ import {
   SheetTitle,
   SheetTrigger,
   SheetDescription,
-} from '@/components/ui/sheet';
+} from '../../ui/sheet';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '../../ui/select';
 
 export interface CalendarConfig {
   weekStartsOn: 0 | 1; // 0 = Sunday, 1 = Monday

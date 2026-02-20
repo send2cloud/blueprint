@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { HelpCircle } from 'lucide-react';
-import { EditorPageWrapper } from '@/components/layout/EditorPageWrapper';
-import { CanvasEditor } from '@/components/tools/canvas/CanvasEditor';
-import { CanvasHelpDialog } from '@/components/tools/canvas/CanvasHelpDialog';
-import { Button } from '@/components/ui/button';
-import { useArtifact } from '@/hooks/useArtifact';
-import { TOOL_CONFIG } from '@/lib/toolConfig';
+import { EditorPageWrapper } from '../components/layout/EditorPageWrapper';
+import { CanvasEditor } from '../components/tools/canvas/CanvasEditor';
+import { CanvasHelpDialog } from '../components/tools/canvas/CanvasHelpDialog';
+import { Button } from '../components/ui/button';
+import { useArtifact } from '../hooks/useArtifact';
+import { TOOL_CONFIG } from '../lib/toolConfig';
 
 const tool = TOOL_CONFIG.canvas;
 

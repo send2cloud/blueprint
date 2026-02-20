@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from "@/lib/storage/schema";
+import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from './schema';
 
 describe("normalizeArtifact", () => {
   it("returns null for invalid tool types", () => {

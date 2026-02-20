@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { useAllArtifacts } from '@/hooks/useArtifacts';
-import type { Artifact } from '@/lib/storage/types';
+import { useAllArtifacts } from '../../hooks/useArtifacts';
+import type { Artifact } from '../../lib/storage/types';
 
 /**
  * Find an artifact by name (case-insensitive).

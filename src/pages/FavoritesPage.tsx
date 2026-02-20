@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Star, Loader2 } from 'lucide-react';
-import { ToolHeader } from '@/components/layout/ToolHeader';
-import { ArtifactCard } from '@/components/gallery/ArtifactCard';
-import { getStorageAdapter, Artifact, CURRENT_SCHEMA_VERSION } from '@/lib/storage';
-import { sortArtifacts } from '@/lib/artifactUtils';
+import { ToolHeader } from '../components/layout/ToolHeader';
+import { ArtifactCard } from '../components/gallery/ArtifactCard';
+import { getStorageAdapter, Artifact, CURRENT_SCHEMA_VERSION } from '../lib/storage';
+import { sortArtifacts } from '../lib/artifactUtils';
 
 export default function FavoritesPage() {
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);

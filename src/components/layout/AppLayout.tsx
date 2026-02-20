@@ -1,11 +1,11 @@
 import { Outlet } from 'react-router-dom';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarInset } from '../ui/sidebar';
 import { AppSidebar } from './AppSidebar';
-import { BlueprintProvider, useBlueprint } from '@/contexts/BlueprintContext';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { BlueprintProvider, useBlueprint } from '../../contexts/BlueprintContext';
+import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 import { useEffect } from 'react';
-import { ensureSeedNote } from '@/lib/seed';
-import { CommandPalette } from '@/components/CommandPalette';
+import { ensureSeedNote } from '../../lib/seed';
+import { CommandPalette } from '../CommandPalette';
 
 function AppLayoutContent() {
   const { commandPaletteOpen, setCommandPaletteOpen } = useKeyboardShortcuts();
