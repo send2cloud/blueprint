@@ -3,7 +3,7 @@ import { Toaster as Sonner } from './components/ui/sonner';
 import { TooltipProvider } from './components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Suspense, lazy } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from './components/theme/ThemeProvider';
 import { AppLayout } from './components/layout/AppLayout';
 import Index from "./pages/Index";
@@ -28,7 +28,14 @@ const queryClient = new QueryClient();
 const NotesGallery = lazy(() => import("./pages/NotesGallery"));
 const NotesPage = lazy(() => import("./pages/NotesPage"));
 
-const App = () => (
+interface AppProps {
+  // When embedded inside a host app, pass the sub-path Blueprint is mounted at.
+  // e.g. basename="/blueprint" so internal links go to /blueprint/canvas etc.
+  // When running standalone (via main.tsx), omit this — main.tsx provides the BrowserRouter.
+  basename?: string;
+}
+
+const AppRoutes = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <TooltipProvider>
@@ -89,5 +96,20 @@ const App = () => (
     </ThemeProvider>
   </QueryClientProvider>
 );
+
+const App = ({ basename }: AppProps = {}) => {
+  // Embedded mode: wrap with our own BrowserRouter using the correct basename
+  // so internal links are prefixed correctly (e.g. /blueprint/canvas).
+  if (basename) {
+    return (
+      <BrowserRouter basename={basename}>
+        <AppRoutes />
+      </BrowserRouter>
+    );
+  }
+
+  // Standalone mode: main.tsx already provides a BrowserRouter, just render routes.
+  return <AppRoutes />;
+};
 
 export default App;
