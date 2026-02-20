@@ -26,7 +26,11 @@ Then follow instructions to:
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
 ```
 
-This automates the entire process of cloning Blueprint without git history into a `blueprint` folder and installing dependencies.
+This automates the process of cloning Blueprint without git history into a `blueprint` folder.
+
+> **⚠️ IMPORTANT:** The script does NOT run `npm install` automatically. If embedding into a host app, install dependencies in your HOST project's `package.json` to prevent fatal React `useRef` duplicate instance errors. 
+> 
+> *Only* run `npm install` inside the `blueprint` folder if you are running it as a standalone web app!
 
 ---
 
@@ -34,6 +38,8 @@ This automates the entire process of cloning Blueprint without git history into 
 
 ```bash
 npx degit send2cloud/blueprint blueprint
+
+# ONLY run these if using Standalone (NOT embedding)
 cd blueprint && npm install
 npm run dev
 ```
@@ -48,6 +54,8 @@ This clones Blueprint without git history into a `blueprint` folder.
 git clone https://github.com/send2cloud/blueprint.git blueprint
 cd blueprint
 rm -rf .git  # Remove Blueprint's git history
+
+# ONLY run these if using Standalone (NOT embedding)
 npm install
 npm run dev
 ```

@@ -26,17 +26,15 @@ else
   exit 1
 fi
 
-# Install dependencies
-echo "📦 Installing dependencies..."
-cd "$BLUEPRINT_DIR"
-npm install
-
 echo ""
 echo "✅ Blueprint installed successfully!"
 echo ""
-echo "Next steps:"
-echo "  1. cd $BLUEPRINT_DIR && npm run dev"
-echo "  2. Open the dev URL provided in your terminal (e.g. http://localhost:5173) or Cloud Preview IDE"
+echo "⚠️ IMPORTANT: We did NOT run 'npm install' automatically to avoid breaking"
+echo "duplicate dependencies when embedding into another React app."
+echo ""
+echo "Next steps (Standalone mode):"
+echo "  1. cd $BLUEPRINT_DIR && npm install && npm run dev"
+echo "  2. Open the dev URL provided in your terminal (e.g. http://localhost:5173)"
 echo ""
 echo "To embed in your app, add to your router:"
 echo "  import BlueprintApp from './blueprint/src/App';"

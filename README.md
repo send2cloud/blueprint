@@ -83,8 +83,9 @@ If you want to install Blueprint yourself into a new or existing project, run th
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
 ```
 This script will automatically:
-- Download the latest Blueprint template without any confusing Git history.
-- Install all necessary dependencies in the `blueprint` folder.
+- Download the latest Blueprint template without any confusing Git history into a `blueprint` folder.
+
+*(Note: It does **NOT** automatically run `npm install` inside the folder. If you are embedding Blueprint into a host app, you should install the dependencies in your HOST project's `package.json` to avoid duplicate React instances. Only run `npm install` inside the `blueprint` folder if running standalone!)*
 
 *(Note: You will still need to manually mount the App via your router and add ProseMirror deduplication to your Vite config. See `INSTALL.md` for step-by-step guidance).*
 
