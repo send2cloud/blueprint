@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useBlueprintNavigate } from '../../lib/basePath';
 import { Plus, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { ArtifactCard } from './ArtifactCard';
@@ -20,7 +20,7 @@ export function ArtifactGallery({
   emptyDescription,
   newButtonLabel,
 }: ArtifactGalleryProps) {
-  const navigate = useNavigate();
+  const navigate = useBlueprintNavigate();
   const { artifacts, loading, deleteArtifact, toggleFavorite, togglePinned } = useArtifactList(type);
 
   if (loading) {

@@ -1,4 +1,4 @@
-import { j as e, T as o, A as s, a } from "./App-D3xD3Exg.js";
+import { j as e, T as o, A as s, a } from "./App-BZJFzLB8.js";
 const t = a.notes;
 function n() {
   return /* @__PURE__ */ e.jsxs("div", { className: "flex flex-col h-full", children: [

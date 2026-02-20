@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useBlueprintNavigate } from '../lib/basePath';
 import { v4 as uuidv4 } from 'uuid';
 import { getStorageAdapter, Artifact, ToolType, CURRENT_SCHEMA_VERSION } from '../lib/storage';
 
@@ -29,7 +29,7 @@ const DEFAULT_NAMES: Record<ToolType, string> = {
   diagram: 'Untitled Diagram',
   board: 'Untitled Board',
   notes: 'Untitled Note',
-   calendar: 'Untitled Calendar',
+  calendar: 'Untitled Calendar',
 };
 
 export function useArtifact(
@@ -38,7 +38,7 @@ export function useArtifact(
   options: UseArtifactOptions = {}
 ): UseArtifactReturn {
   const { autoSave = true, autoSaveDelay = 1000 } = options;
-  const navigate = useNavigate();
+  const navigate = useBlueprintNavigate();
   const storage = getStorageAdapter();
 
   const [artifact, setArtifact] = useState<Artifact | null>(null);

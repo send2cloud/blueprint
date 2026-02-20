@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useBlueprintNavigate, useBasePath } from '../lib/basePath';
+import { NavLink } from '../components/NavLink';
 import { Copy, Settings } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -14,7 +15,8 @@ import { formatRelative } from '../lib/formatters';
 import { getArtifactSearchText } from '../lib/artifactUtils';
 
 const Index = () => {
-  const navigate = useNavigate();
+  const navigate = useBlueprintNavigate();
+  const basePath = useBasePath();
   const { isToolEnabled, loading } = useBlueprint();
   const { artifacts } = useAllArtifacts();
   const [search, setSearch] = useState('');
@@ -23,7 +25,7 @@ const Index = () => {
   const recentArtifacts = useMemo(() => artifacts.slice(0, 5), [artifacts]);
 
   const handleCopyLink = async (artifact: Artifact) => {
-    const link = `${window.location.origin}${TOOL_CONFIG[artifact.type].path}/${artifact.id}`;
+    const link = `${window.location.origin}${basePath}${TOOL_CONFIG[artifact.type].path}/${artifact.id}`;
     try {
       await navigator.clipboard.writeText(link);
       toast({ title: 'Link copied' });
@@ -66,7 +68,7 @@ const Index = () => {
               ) : (
                 <div className="space-y-2">
                   {searchResults.slice(0, 10).map((artifact) => (
-                    <Link
+                    <NavLink
                       key={artifact.id}
                       to={`${TOOL_CONFIG[artifact.type].path}/${artifact.id}`}
                       className="block rounded-lg border border-border bg-card p-3 transition hover:border-ring"
@@ -80,7 +82,7 @@ const Index = () => {
                         </div>
                         <span className="text-xs text-muted-foreground">{artifact.type}</span>
                       </div>
-                    </Link>
+                    </NavLink>
                   ))}
                 </div>
               )}
@@ -131,7 +133,7 @@ const Index = () => {
                   key={artifact.id}
                   className="flex items-center justify-between rounded-lg border border-border bg-card p-3 transition hover:border-ring"
                 >
-                  <Link
+                  <NavLink
                     to={`${TOOL_CONFIG[artifact.type].path}/${artifact.id}`}
                     className="flex-1"
                   >
@@ -141,7 +143,7 @@ const Index = () => {
                         {TOOL_CONFIG[artifact.type].title} • Updated {formatRelative(artifact.updatedAt)}
                       </p>
                     </div>
-                  </Link>
+                  </NavLink>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -159,8 +161,8 @@ const Index = () => {
         {/* Keyboard shortcuts hint */}
         <div className="text-center text-sm text-muted-foreground space-y-1">
           <p>
-            <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">⌘K</kbd> quick capture • 
-            <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded ml-2">N</kbd> new • 
+            <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded">⌘K</kbd> quick capture •
+            <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded ml-2">N</kbd> new •
             <kbd className="px-1.5 py-0.5 text-xs font-mono bg-muted rounded ml-2">R</kbd> relationships
           </p>
           <p className="text-xs text-muted-foreground/70">

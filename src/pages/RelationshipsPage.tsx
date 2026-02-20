@@ -1,5 +1,5 @@
 import { useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useBlueprintNavigate } from '../lib/basePath';
 import {
   ReactFlow,
   MiniMap,
@@ -27,7 +27,7 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 export default function RelationshipsPage() {
-  const navigate = useNavigate();
+  const navigate = useBlueprintNavigate();
   const { resolvedTheme } = useTheme();
   const theme = (resolvedTheme === 'dark' ? 'dark' : 'light') as ColorMode;
   const { nodes: graphNodes, edges: graphEdges, loading } = useRelationshipGraph();
@@ -42,12 +42,12 @@ export default function RelationshipsPage() {
       const angle = index * angleStep;
       const x = 400 + radius * Math.cos(angle);
       const y = 300 + radius * Math.sin(angle);
-      
+
       return {
         id: node.id,
         type: 'default',
         position: { x, y },
-        data: { 
+        data: {
           label: node.name,
           type: node.type,
         },
@@ -109,7 +109,7 @@ export default function RelationshipsPage() {
             <Network className="h-16 w-16 text-muted-foreground mb-4" />
             <h2 className="text-lg font-medium text-foreground mb-2">No connections yet</h2>
             <p className="text-sm text-muted-foreground max-w-md">
-              Use <code className="px-1.5 py-0.5 bg-muted rounded">[[artifact name]]</code> syntax in your Docs, 
+              Use <code className="px-1.5 py-0.5 bg-muted rounded">[[artifact name]]</code> syntax in your Docs,
               Tasks, or Flows to create links between artifacts. They'll appear here as a visual graph.
             </p>
           </div>
@@ -125,7 +125,7 @@ export default function RelationshipsPage() {
             proOptions={{ hideAttribution: true }}
           >
             <Controls />
-            <MiniMap 
+            <MiniMap
               nodeColor={(node) => TYPE_COLORS[node.data?.type as string] || 'hsl(var(--primary))'}
             />
             <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
@@ -139,9 +139,9 @@ export default function RelationshipsPage() {
           <span className="font-medium">Legend:</span>
           {Object.entries(TYPE_COLORS).map(([type, color]) => (
             <div key={type} className="flex items-center gap-1.5">
-              <div 
-                className="w-3 h-3 rounded" 
-                style={{ backgroundColor: color }} 
+              <div
+                className="w-3 h-3 rounded"
+                style={{ backgroundColor: color }}
               />
               <span className="capitalize">{TOOL_CONFIG[type as keyof typeof TOOL_CONFIG]?.title || type}</span>
             </div>
