@@ -20,6 +20,11 @@ import HelpPage from "./pages/HelpPage";
 import TagPage from "./pages/TagPage";
 import RelationshipsPage from "./pages/RelationshipsPage";
 import NotFound from "./pages/NotFound";
+import { initializeStorageAdapter } from './lib/storage';
+
+// Initialize storage as soon as this module loads — works in both standalone
+// (via main.tsx) and embedded (via dist/blueprint.es.js import) modes.
+initializeStorageAdapter();
 
 const queryClient = new QueryClient();
 
@@ -36,65 +41,67 @@ interface AppProps {
 }
 
 const AppRoutes = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <Suspense
-          fallback={
-            <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-              Loading…
-            </div>
-          }
-        >
-          <Routes>
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<Index />} />
+  <div className="blueprint-app h-full">
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <Suspense
+            fallback={
+              <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+                Loading…
+              </div>
+            }
+          >
+            <Routes>
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<Index />} />
 
-              {/* Canvas (drawings, whiteboards) */}
-              <Route path="/canvas" element={<CanvasGallery />} />
-              <Route path="/canvas/new" element={<CanvasPage />} />
-              <Route path="/canvas/:id" element={<CanvasPage />} />
+                {/* Canvas (drawings, whiteboards) */}
+                <Route path="/canvas" element={<CanvasGallery />} />
+                <Route path="/canvas/new" element={<CanvasPage />} />
+                <Route path="/canvas/:id" element={<CanvasPage />} />
 
-              {/* Diagram (flows, mind maps) */}
-              <Route path="/diagram" element={<DiagramGallery />} />
-              <Route path="/diagram/new" element={<DiagramPage />} />
-              <Route path="/diagram/:id" element={<DiagramPage />} />
+                {/* Diagram (flows, mind maps) */}
+                <Route path="/diagram" element={<DiagramGallery />} />
+                <Route path="/diagram/new" element={<DiagramPage />} />
+                <Route path="/diagram/:id" element={<DiagramPage />} />
 
-              {/* Board (kanban) */}
-              <Route path="/board" element={<BoardGallery />} />
-              <Route path="/board/new" element={<BoardPage />} />
-              <Route path="/board/:id" element={<BoardPage />} />
+                {/* Board (kanban) */}
+                <Route path="/board" element={<BoardGallery />} />
+                <Route path="/board/new" element={<BoardPage />} />
+                <Route path="/board/:id" element={<BoardPage />} />
 
-              {/* Calendar (singular view, no gallery) */}
-              <Route path="/calendar" element={<CalendarPage />} />
+                {/* Calendar (singular view, no gallery) */}
+                <Route path="/calendar" element={<CalendarPage />} />
 
-              {/* Notes */}
-              <Route path="/notes" element={<NotesGallery />} />
-              <Route path="/notes/new" element={<NotesPage />} />
-              <Route path="/notes/:id" element={<NotesPage />} />
+                {/* Notes */}
+                <Route path="/notes" element={<NotesGallery />} />
+                <Route path="/notes/new" element={<NotesPage />} />
+                <Route path="/notes/:id" element={<NotesPage />} />
 
-              {/* Tags */}
-              <Route path="/tag/:tag" element={<TagPage />} />
+                {/* Tags */}
+                <Route path="/tag/:tag" element={<TagPage />} />
 
-              {/* Relationships Graph */}
-              <Route path="/relationships" element={<RelationshipsPage />} />
+                {/* Relationships Graph */}
+                <Route path="/relationships" element={<RelationshipsPage />} />
 
-              {/* Favorites */}
-              <Route path="/favorites" element={<FavoritesPage />} />
+                {/* Favorites */}
+                <Route path="/favorites" element={<FavoritesPage />} />
 
-              {/* Help */}
-              <Route path="/help" element={<HelpPage />} />
+                {/* Help */}
+                <Route path="/help" element={<HelpPage />} />
 
-              <Route path="/settings" element={<SettingsPage />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+                <Route path="/settings" element={<SettingsPage />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  </div>
 );
 
 const App = ({ basename }: AppProps = {}) => {

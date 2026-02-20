@@ -5,9 +5,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 /* Blueprint Creator Suite - Design System */
+/* All CSS custom properties are scoped to .blueprint-app to avoid leaking
+   into the host application's global CSS variable namespace. */
 
 @layer base {
-  :root {
+  .blueprint-app {
     --background: 0 0% 100%;
     --foreground: 240 10% 10%;
 
@@ -54,7 +56,8 @@
     --status-local-foreground: 45 93% 30%;
   }
 
-  .dark {
+  /* Dark mode: next-themes adds 'dark' class to <html>, so we scope to that */
+  .dark .blueprint-app {
     --background: 240 10% 6%;
     --foreground: 0 0% 95%;
 
@@ -101,16 +104,17 @@
 }
 
 @layer base {
-  * {
+  .blueprint-app * {
     @apply border-border;
   }
 
-  body {
+  .blueprint-app {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, sans-serif;
   }
 
-  code, pre {
+  .blueprint-app code,
+  .blueprint-app pre {
     font-family: 'JetBrains Mono', monospace;
   }
 }

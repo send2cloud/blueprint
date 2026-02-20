@@ -10,6 +10,9 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
       defaultTheme="dark"
       enableSystem={false}
       disableTransitionOnChange
+      // Use a Blueprint-specific key so we don't fight with the host app's
+      // own next-themes instance over the shared "theme" localStorage key.
+      storageKey="blueprint-theme"
       {...props}
     >
       {children}
