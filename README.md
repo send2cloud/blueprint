@@ -71,8 +71,8 @@ Hey AI, install the Blueprint Idea Room into my project:
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
 
 Once the script finishes:
-1. Find the ProseMirror dedupe config array listed in `blueprint/INSTALL.md` and inject it into my `vite.config.ts`
-2. Import `<BlueprintApp />` from `./blueprint/src/App` and mount it at the `/blueprint/*` route.
+1. Import `<BlueprintApp />` from `./blueprint/dist/blueprint.es.js` and mount it at the `/blueprint/*` route.
+2. Import the CSS file: `import './blueprint/dist/style.css'`
 ```
 
 ### Scenario B: Manual Fresh Install
@@ -86,7 +86,7 @@ This script will automatically:
 
 *(Note: It does **NOT** automatically run `npm install` inside the folder. If you are embedding Blueprint into a host app, you should install the dependencies in your HOST project's `package.json` to avoid duplicate React instances. Only run `npm install` inside the `blueprint` folder if running standalone!)*
 
-*(Note: You will still need to manually mount the App via your router and add ProseMirror deduplication to your Vite config. See `INSTALL.md` for step-by-step guidance).*
+*(Note: You will still need to manually mount the App via your router. See `INSTALL.md` for step-by-step guidance).*
 
 ### Scenario C: Updating an Existing Blueprint
 Blueprint has a built-in update checker! If you are running an outdated version, you'll see a teal banner at the top of the **Settings** page letting you know a new version has been published to GitHub.
@@ -172,9 +172,6 @@ The Calendar tool is architected to aggregate time-based data from the entire pr
 ---
 
 ## Troubleshooting
-
-### BlockNote crashes with "Duplicate use of selection JSON ID"
-Add the ProseMirror dedupe config to your `vite.config.ts` (see Step 3).
 
 ### Data not persisting between sessions
 You're using localStorage, which is browser-specific. Set `VITE_INSTANTDB_APP_ID` for persistent cloud storage.

@@ -73,47 +73,14 @@ node blueprint/scripts/copy-to-project.js /path/to/your/project
 
 ## Post-Install Setup
 
-### 1. Install Dependencies
-
-In your host project root:
-
-```bash
-npm install tldraw @xyflow/react @blocknote/react @blocknote/mantine @blocknote/core @hello-pangea/dnd react-big-calendar @instantdb/react date-fns lucide-react uuid @types/uuid next-themes sonner vaul cmdk @tanstack/react-query react-router-dom
-```
-
-### 2. Configure Vite
-
-Add ProseMirror deduplication to prevent BlockNote crashes:
-
-```ts
-// vite.config.ts
-export default defineConfig({
-  resolve: {
-    dedupe: [
-      "@tiptap/pm",
-      "prosemirror-state",
-      "prosemirror-view",
-      "prosemirror-model",
-      "prosemirror-transform",
-      "prosemirror-commands",
-      "prosemirror-history",
-      "prosemirror-keymap",
-      "prosemirror-inputrules",
-      "prosemirror-schema-list",
-      "prosemirror-gapcursor",
-      "prosemirror-dropcursor",
-    ],
-  },
-});
-```
-
-### 3. Mount Blueprint Routes
+### 1. Mount Blueprint Routes
 
 ```tsx
 // In your main App.tsx or router
 import { lazy, Suspense } from 'react';
 
-const BlueprintApp = lazy(() => import('./blueprint/src/App'));
+const BlueprintApp = lazy(() => import('./blueprint/dist/blueprint.es.js'));
+import './blueprint/dist/style.css'; // Don't forget the styles!
 
 function App() {
   return (
@@ -129,7 +96,7 @@ function App() {
 }
 ```
 
-### 4. Configure Storage (Optional)
+### 2. Configure Storage (Optional)
 
 For cloud persistence, set the InstantDB App ID:
 
@@ -148,22 +115,7 @@ Blueprint can also run independently:
 
 ```bash
 cd blueprint
+npm install
 npm run dev
 # Opens at your local dev server URL (e.g. http://localhost:5173) or Cloud Preview IDE
-```
-
----
-
-## Troubleshooting
-
-### BlockNote crashes with "Duplicate use of selection JSON ID"
-Add the ProseMirror dedupe config to vite.config.ts (see Step 2).
-
-### Module not found errors
-Ensure all dependencies are installed in your host project's node_modules.
-
-### Styles not loading
-Import Blueprint's CSS in your main entry point:
-```ts
-import './blueprint/src/index.css';
 ```

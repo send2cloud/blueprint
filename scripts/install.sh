@@ -31,34 +31,14 @@ echo "✅ Blueprint downloaded successfully!"
 echo ""
 
 if [ -f "$TARGET_DIR/package.json" ]; then
-  echo "📦 Host package.json detected! Automatically merging Blueprint dependencies..."
-  
-  # Use node to extract dependencies from blueprint package.json, excluding react & react-dom to avoid duplicate useRef collisions!
-  DEPS=$(node -e "
-    const fs = require('fs');
-    try {
-      const pkg = JSON.parse(fs.readFileSync('$BLUEPRINT_DIR/package.json'));
-      const deps = Object.keys(pkg.dependencies || {}).filter(d => d !== 'react' && d !== 'react-dom');
-      console.log(deps.join(' '));
-    } catch (e) {
-      console.log('');
-    }
-  ")
-  
-  if [ -n "$DEPS" ]; then
-    echo "Running npm install in host project..."
-    cd "$TARGET_DIR"
-    npm install $DEPS
-    echo "✅ Dependencies integrated into host project."
-  else
-    echo "⚠️ Could not parse Blueprint dependencies."
-  fi
+  echo "📦 Host package.json detected!"
+  echo "Because Blueprint is pre-bundled, zero host dependencies are required!"
   
   echo ""
   echo "🎉 EMBED INSTALLATION COMPLETE!"
-  echo "To finish setup in your app, ask your AI (or do manually):"
-  echo "  1. Add ProseMirror dedupe array to your vite.config.ts (See blueprint/INSTALL.md)"
-  echo "  2. import BlueprintApp from './blueprint/src/App';"
+  echo "To finish setup in your React app, ask your AI (or do manually):"
+  echo "  1. import BlueprintApp from './blueprint/dist/blueprint.es.js';"
+  echo "  2. import './blueprint/dist/style.css';"
   echo "  3. Mount <Route path=\"/blueprint/*\" element={<BlueprintApp />} />"
 else
   echo "⚠️ No host package.json found. If running standalone:"
