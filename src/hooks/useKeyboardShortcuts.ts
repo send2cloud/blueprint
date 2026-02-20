@@ -1,11 +1,12 @@
 import { useEffect, useCallback, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import { TOOL_CONFIG, TOOL_LIST } from '../lib/toolConfig';
 import { ToolType } from '../lib/storage';
+import { useBlueprintNavigate } from '../lib/basePath';
 
 export function useKeyboardShortcuts() {
-  const navigate = useNavigate();
+  const navigate = useBlueprintNavigate();
   const location = useLocation();
   const { resolvedTheme, setTheme } = useTheme();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
@@ -32,17 +33,17 @@ export function useKeyboardShortcuts() {
     // Ignore if user is typing in an input, textarea, or contenteditable
     const target = e.target as HTMLElement;
     const tagName = target.tagName?.toUpperCase();
-    
+
     // Check for direct input elements
     if (tagName === 'INPUT' || tagName === 'TEXTAREA') {
       return;
     }
-    
+
     // Check for contenteditable (BlockNote, rich text editors)
     if (target.isContentEditable || target.closest('[contenteditable="true"]')) {
       return;
     }
-    
+
     // Check for common editor containers (tldraw, xyflow, etc.)
     if (
       target.closest('.tl-container') ||      // tldraw

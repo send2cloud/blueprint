@@ -1,5 +1,5 @@
 import { ReactNode, useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useBlueprintNavigate } from '../../lib/basePath';
 import { LucideIcon, Check, Loader2, Star, X, ChevronLeft, Tag } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
@@ -31,11 +31,11 @@ interface ToolHeaderProps {
   headerActions?: ReactNode;
 }
 
-export function ToolHeader({ 
-  title, 
-  icon: Icon, 
-  artifactId, 
-  artifactName, 
+export function ToolHeader({
+  title,
+  icon: Icon,
+  artifactId,
+  artifactName,
   artifactType,
   artifactFavorite,
   artifactTags = EMPTY_TAGS,
@@ -45,7 +45,7 @@ export function ToolHeader({
   onUpdateTags,
   headerActions,
 }: ToolHeaderProps) {
-  const navigate = useNavigate();
+  const navigate = useBlueprintNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(artifactName || '');
   const [tagsOpen, setTagsOpen] = useState(false);
@@ -108,7 +108,7 @@ export function ToolHeader({
               autoFocus
             />
           ) : (
-            <h1 
+            <h1
               className="text-lg font-semibold text-foreground truncate cursor-pointer hover:text-primary transition-colors"
               onClick={() => {
                 setEditValue(artifactName || '');
@@ -122,7 +122,7 @@ export function ToolHeader({
         ) : (
           <h1 className="text-lg font-semibold text-foreground">{title}</h1>
         )}
-        
+
         {saving && (
           <div className="flex items-center gap-1 text-muted-foreground text-sm">
             <Loader2 className="h-3 w-3 animate-spin" />
@@ -136,7 +136,7 @@ export function ToolHeader({
           </div>
         )}
       </div>
-      
+
       <div className="flex items-center gap-2">
         {headerActions}
         {showArtifactInfo && onUpdateTags && (

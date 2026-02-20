@@ -3,7 +3,7 @@ import { Toaster as Sonner } from './components/ui/sonner';
 import { TooltipProvider } from './components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Suspense, lazy } from "react";
-import { Routes, Route, BrowserRouter } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { ThemeProvider } from './components/theme/ThemeProvider';
 import { AppLayout } from './components/layout/AppLayout';
 import Index from "./pages/Index";
@@ -21,6 +21,7 @@ import TagPage from "./pages/TagPage";
 import RelationshipsPage from "./pages/RelationshipsPage";
 import NotFound from "./pages/NotFound";
 import { initializeStorageAdapter } from './lib/storage';
+import { BasePathProvider } from './lib/basePath';
 
 // Initialize storage as soon as this module loads — works in both standalone
 // (via main.tsx) and embedded (via dist/blueprint.es.js import) modes.
@@ -35,11 +36,15 @@ const NotesPage = lazy(() => import("./pages/NotesPage"));
 
 interface AppProps {
   // When embedded inside a host app, pass the sub-path Blueprint is mounted at.
-  // e.g. basename="/blueprint" so internal links go to /blueprint/canvas etc.
-  // When running standalone (via main.tsx), omit this — main.tsx provides the BrowserRouter.
+  // e.g. basename="/blueprint" so internal navigate() calls go to /blueprint/canvas etc.
+  // When running standalone (via main.tsx), omit this — basePath defaults to ''.
   basename?: string;
 }
 
+// All routes are relative (no leading /) so React Router v6 resolves them
+// correctly whether Blueprint is standalone or nested under /blueprint/*.
+// IMPORTANT: We never render a nested <BrowserRouter> — the host's router
+// context is inherited directly. basePath is threaded via context instead.
 const AppRoutes = () => (
   <div className="blueprint-app h-full">
     <QueryClientProvider client={queryClient}>
@@ -56,44 +61,44 @@ const AppRoutes = () => (
           >
             <Routes>
               <Route element={<AppLayout />}>
-                <Route path="/" element={<Index />} />
+                <Route index element={<Index />} />
 
                 {/* Canvas (drawings, whiteboards) */}
-                <Route path="/canvas" element={<CanvasGallery />} />
-                <Route path="/canvas/new" element={<CanvasPage />} />
-                <Route path="/canvas/:id" element={<CanvasPage />} />
+                <Route path="canvas" element={<CanvasGallery />} />
+                <Route path="canvas/new" element={<CanvasPage />} />
+                <Route path="canvas/:id" element={<CanvasPage />} />
 
                 {/* Diagram (flows, mind maps) */}
-                <Route path="/diagram" element={<DiagramGallery />} />
-                <Route path="/diagram/new" element={<DiagramPage />} />
-                <Route path="/diagram/:id" element={<DiagramPage />} />
+                <Route path="diagram" element={<DiagramGallery />} />
+                <Route path="diagram/new" element={<DiagramPage />} />
+                <Route path="diagram/:id" element={<DiagramPage />} />
 
                 {/* Board (kanban) */}
-                <Route path="/board" element={<BoardGallery />} />
-                <Route path="/board/new" element={<BoardPage />} />
-                <Route path="/board/:id" element={<BoardPage />} />
+                <Route path="board" element={<BoardGallery />} />
+                <Route path="board/new" element={<BoardPage />} />
+                <Route path="board/:id" element={<BoardPage />} />
 
                 {/* Calendar (singular view, no gallery) */}
-                <Route path="/calendar" element={<CalendarPage />} />
+                <Route path="calendar" element={<CalendarPage />} />
 
                 {/* Notes */}
-                <Route path="/notes" element={<NotesGallery />} />
-                <Route path="/notes/new" element={<NotesPage />} />
-                <Route path="/notes/:id" element={<NotesPage />} />
+                <Route path="notes" element={<NotesGallery />} />
+                <Route path="notes/new" element={<NotesPage />} />
+                <Route path="notes/:id" element={<NotesPage />} />
 
                 {/* Tags */}
-                <Route path="/tag/:tag" element={<TagPage />} />
+                <Route path="tag/:tag" element={<TagPage />} />
 
                 {/* Relationships Graph */}
-                <Route path="/relationships" element={<RelationshipsPage />} />
+                <Route path="relationships" element={<RelationshipsPage />} />
 
                 {/* Favorites */}
-                <Route path="/favorites" element={<FavoritesPage />} />
+                <Route path="favorites" element={<FavoritesPage />} />
 
                 {/* Help */}
-                <Route path="/help" element={<HelpPage />} />
+                <Route path="help" element={<HelpPage />} />
 
-                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="settings" element={<SettingsPage />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
@@ -104,19 +109,13 @@ const AppRoutes = () => (
   </div>
 );
 
-const App = ({ basename }: AppProps = {}) => {
-  // Embedded mode: wrap with our own BrowserRouter using the correct basename
-  // so internal links are prefixed correctly (e.g. /blueprint/canvas).
-  if (basename) {
-    return (
-      <BrowserRouter basename={basename}>
-        <AppRoutes />
-      </BrowserRouter>
-    );
-  }
-
-  // Standalone mode: main.tsx already provides a BrowserRouter, just render routes.
-  return <AppRoutes />;
-};
+const App = ({ basename = '' }: AppProps = {}) => (
+  // Provide the base path via context so navigate() calls throughout Blueprint
+  // can prefix absolute paths correctly (e.g. /canvas → /blueprint/canvas).
+  // No nested BrowserRouter — we inherit the host's router context.
+  <BasePathProvider value={basename}>
+    <AppRoutes />
+  </BasePathProvider>
+);
 
 export default App;

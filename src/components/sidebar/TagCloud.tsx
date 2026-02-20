@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Tag } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useBlueprintNavigate } from '../../lib/basePath';
 import { Badge } from '../ui/badge';
 import { cn } from '../../lib/utils';
 import { Artifact } from '../../lib/storage';
@@ -11,17 +12,17 @@ interface TagCloudProps {
 }
 
 export function TagCloud({ artifacts, collapsed }: TagCloudProps) {
-  const navigate = useNavigate();
+  const navigate = useBlueprintNavigate();
   const location = useLocation();
-  
+
   // Extract current tag from URL if on tag page
-  const currentTag = location.pathname.startsWith('/tag/') 
-    ? decodeURIComponent(location.pathname.split('/tag/')[1]) 
+  const currentTag = location.pathname.startsWith('/tag/')
+    ? decodeURIComponent(location.pathname.split('/tag/')[1])
     : null;
 
   const tagCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    
+
     for (const artifact of artifacts) {
       if (artifact.tags) {
         for (const tag of artifact.tags) {
@@ -29,7 +30,7 @@ export function TagCloud({ artifacts, collapsed }: TagCloudProps) {
         }
       }
     }
-    
+
     // Sort by count (descending), then alphabetically
     return Object.entries(counts)
       .sort(([a, countA], [b, countB]) => {
@@ -66,8 +67,8 @@ export function TagCloud({ artifacts, collapsed }: TagCloudProps) {
           variant={currentTag === tag ? 'default' : 'secondary'}
           className={cn(
             "cursor-pointer text-[10px] px-2 py-0.5 transition-colors",
-            currentTag === tag 
-              ? "bg-primary text-primary-foreground" 
+            currentTag === tag
+              ? "bg-primary text-primary-foreground"
               : "hover:bg-accent"
           )}
           onClick={() => handleTagClick(tag)}

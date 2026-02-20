@@ -1,4 +1,5 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useBlueprintNavigate } from '../lib/basePath';
 import { useAllArtifacts } from '../hooks/useArtifacts';
 import { ArtifactCard } from '../components/gallery/ArtifactCard';
 import { sortArtifacts } from '../lib/artifactUtils';
@@ -7,11 +8,11 @@ import { ChevronLeft, Tag } from 'lucide-react';
 
 export default function TagPage() {
   const { tag } = useParams<{ tag: string }>();
-  const navigate = useNavigate();
+  const navigate = useBlueprintNavigate();
   const { artifacts, loading, deleteArtifact, toggleFavorite, togglePinned } = useAllArtifacts();
-  
+
   const decodedTag = tag ? decodeURIComponent(tag) : '';
-  
+
   const filteredArtifacts = artifacts.filter(
     artifact => artifact.tags?.includes(decodedTag)
   );

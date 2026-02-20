@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Plus, 
-  Search, 
-  Star, 
-  Settings, 
+import { useBlueprintNavigate } from '../lib/basePath';
+import {
+  Plus,
+  Search,
+  Star,
+  Settings,
   HelpCircle,
   Home,
   Network,
@@ -30,7 +30,7 @@ interface CommandPaletteProps {
 }
 
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
-  const navigate = useNavigate();
+  const navigate = useBlueprintNavigate();
   const { artifacts } = useAllArtifacts();
   const { isToolEnabled } = useBlueprint();
   const [search, setSearch] = useState('');
@@ -45,7 +45,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   }, [artifacts, search]);
 
   // Get enabled tools
-  const enabledTools = useMemo(() => 
+  const enabledTools = useMemo(() =>
     TOOL_LIST.filter((t) => isToolEnabled(t.type)),
     [isToolEnabled]
   );
@@ -62,8 +62,8 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
-      <CommandInput 
-        placeholder="Search artifacts, create new, or navigate..." 
+      <CommandInput
+        placeholder="Search artifacts, create new, or navigate..."
         value={search}
         onValueChange={setSearch}
       />
@@ -102,7 +102,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           {enabledTools.filter(t => !t.singular).map((tool) => {
             const Icon = tool.icon;
             return (
-              <CommandItem 
+              <CommandItem
                 key={tool.type}
                 onSelect={() => runCommand(() => navigate(`${tool.path}/new`))}
               >
@@ -121,7 +121,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           {enabledTools.map((tool) => {
             const Icon = tool.icon;
             return (
-              <CommandItem 
+              <CommandItem
                 key={tool.type}
                 onSelect={() => runCommand(() => navigate(tool.path))}
               >
@@ -142,7 +142,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                 const tool = TOOL_CONFIG[artifact.type];
                 const Icon = tool.icon;
                 return (
-                  <CommandItem 
+                  <CommandItem
                     key={artifact.id}
                     onSelect={() => runCommand(() => navigate(`${tool.path}/${artifact.id}`))}
                   >
