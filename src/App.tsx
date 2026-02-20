@@ -3,7 +3,7 @@ import { Toaster as Sonner } from './components/ui/sonner';
 import { TooltipProvider } from './components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { ThemeProvider } from './components/theme/ThemeProvider';
 import { AppLayout } from './components/layout/AppLayout';
 import Index from "./pages/Index";
@@ -34,59 +34,57 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Suspense
-            fallback={
-              <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-                Loading…
-              </div>
-            }
-          >
-            <Routes>
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<Index />} />
+        <Suspense
+          fallback={
+            <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+              Loading…
+            </div>
+          }
+        >
+          <Routes>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<Index />} />
 
-                {/* Canvas (drawings, whiteboards) */}
-                <Route path="/canvas" element={<CanvasGallery />} />
-                <Route path="/canvas/new" element={<CanvasPage />} />
-                <Route path="/canvas/:id" element={<CanvasPage />} />
+              {/* Canvas (drawings, whiteboards) */}
+              <Route path="/canvas" element={<CanvasGallery />} />
+              <Route path="/canvas/new" element={<CanvasPage />} />
+              <Route path="/canvas/:id" element={<CanvasPage />} />
 
-                {/* Diagram (flows, mind maps) */}
-                <Route path="/diagram" element={<DiagramGallery />} />
-                <Route path="/diagram/new" element={<DiagramPage />} />
-                <Route path="/diagram/:id" element={<DiagramPage />} />
+              {/* Diagram (flows, mind maps) */}
+              <Route path="/diagram" element={<DiagramGallery />} />
+              <Route path="/diagram/new" element={<DiagramPage />} />
+              <Route path="/diagram/:id" element={<DiagramPage />} />
 
-                {/* Board (kanban) */}
-                <Route path="/board" element={<BoardGallery />} />
-                <Route path="/board/new" element={<BoardPage />} />
-                <Route path="/board/:id" element={<BoardPage />} />
+              {/* Board (kanban) */}
+              <Route path="/board" element={<BoardGallery />} />
+              <Route path="/board/new" element={<BoardPage />} />
+              <Route path="/board/:id" element={<BoardPage />} />
 
-                {/* Calendar (singular view, no gallery) */}
-                <Route path="/calendar" element={<CalendarPage />} />
+              {/* Calendar (singular view, no gallery) */}
+              <Route path="/calendar" element={<CalendarPage />} />
 
-                {/* Notes */}
-                <Route path="/notes" element={<NotesGallery />} />
-                <Route path="/notes/new" element={<NotesPage />} />
-                <Route path="/notes/:id" element={<NotesPage />} />
+              {/* Notes */}
+              <Route path="/notes" element={<NotesGallery />} />
+              <Route path="/notes/new" element={<NotesPage />} />
+              <Route path="/notes/:id" element={<NotesPage />} />
 
-                {/* Tags */}
-                <Route path="/tag/:tag" element={<TagPage />} />
+              {/* Tags */}
+              <Route path="/tag/:tag" element={<TagPage />} />
 
-                {/* Relationships Graph */}
-                <Route path="/relationships" element={<RelationshipsPage />} />
+              {/* Relationships Graph */}
+              <Route path="/relationships" element={<RelationshipsPage />} />
 
-                {/* Favorites */}
-                <Route path="/favorites" element={<FavoritesPage />} />
+              {/* Favorites */}
+              <Route path="/favorites" element={<FavoritesPage />} />
 
-                {/* Help */}
-                <Route path="/help" element={<HelpPage />} />
+              {/* Help */}
+              <Route path="/help" element={<HelpPage />} />
 
-                <Route path="/settings" element={<SettingsPage />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
+              <Route path="/settings" element={<SettingsPage />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
