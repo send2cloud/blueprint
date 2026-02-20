@@ -20,7 +20,7 @@ fi
 # Clone via degit (no git history, clean copy)
 if command -v npx &> /dev/null; then
   echo "📦 Cloning Blueprint (via degit)..."
-  npx degit YOUR_GITHUB_USERNAME/blueprint "$BLUEPRINT_DIR"
+  npx degit send2cloud/blueprint "$BLUEPRINT_DIR"
 else
   echo "❌ Error: npx not found. Please install Node.js first."
   exit 1

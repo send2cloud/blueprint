@@ -14,6 +14,8 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 
+const EMPTY_TAGS: string[] = [];
+
 interface ToolHeaderProps {
   title: string;
   icon: LucideIcon;
@@ -36,7 +38,7 @@ export function ToolHeader({
   artifactName, 
   artifactType,
   artifactFavorite,
-  artifactTags = [],
+  artifactTags = EMPTY_TAGS,
   saving,
   onRename,
   onToggleFavorite,
@@ -47,10 +49,6 @@ export function ToolHeader({
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(artifactName || '');
   const [tagsOpen, setTagsOpen] = useState(false);
-
-  useEffect(() => {
-    setEditValue(artifactName || '');
-  }, [artifactName]);
 
   const handleBlur = useCallback(() => {
     setIsEditing(false);
@@ -112,7 +110,10 @@ export function ToolHeader({
           ) : (
             <h1 
               className="text-lg font-semibold text-foreground truncate cursor-pointer hover:text-primary transition-colors"
-              onClick={() => setIsEditing(true)}
+              onClick={() => {
+                setEditValue(artifactName || '');
+                setIsEditing(true);
+              }}
               title="Click to rename"
             >
               {artifactName}

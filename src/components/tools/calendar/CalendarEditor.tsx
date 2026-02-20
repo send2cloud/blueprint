@@ -15,6 +15,8 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const locales = { 'en-US': enUS };
 
+const EMPTY_LINKED_EVENTS: TaskCalendarEvent[] = [];
+
 interface CalendarEditorProps {
   events: CalendarEvent[];
   onSaveEvent: (event: CalendarEvent) => void;
@@ -24,11 +26,11 @@ interface CalendarEditorProps {
   onDeleteCard?: (boardId: string, cardId: string) => void;
 }
 
-export function CalendarEditor({ 
-  events, 
-  onSaveEvent, 
-  onDeleteEvent, 
-  linkedEvents = [],
+export function CalendarEditor({
+  events,
+  onSaveEvent,
+  onDeleteEvent,
+  linkedEvents = EMPTY_LINKED_EVENTS,
   onSaveCard,
   onDeleteCard,
 }: CalendarEditorProps) {

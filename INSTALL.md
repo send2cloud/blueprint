@@ -8,10 +8,11 @@ Blueprint can be installed into any React/Vite project using one of these method
 
 If you're using an AI assistant (like Lovable or Cursor), give it this prompt:
 
-```
-Install Blueprint from https://github.com/YOUR_USERNAME/blueprint
+```text
+Install Blueprint using: 
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
 
-1. Clone/copy the Blueprint repo into a /blueprint folder
+Then follow instructions to:
 2. Install these dependencies: tldraw @xyflow/react @blocknote/react @blocknote/mantine @blocknote/core @hello-pangea/dnd react-big-calendar @instantdb/react date-fns lucide-react uuid @types/uuid next-themes sonner vaul cmdk @tanstack/react-query
 3. Add ProseMirror dedupe to vite.config.ts
 4. Mount <BlueprintApp /> at /blueprint/* route
@@ -19,10 +20,20 @@ Install Blueprint from https://github.com/YOUR_USERNAME/blueprint
 
 ---
 
-## Method 2: Using degit (One Command)
+## Method 2: Using the Install Script (One Command)
 
 ```bash
-npx degit YOUR_USERNAME/blueprint blueprint
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
+```
+
+This automates the entire process of cloning Blueprint without git history into a `blueprint` folder and installing dependencies.
+
+---
+
+## Method 3: Using degit (Manual)
+
+```bash
+npx degit send2cloud/blueprint blueprint
 cd blueprint && npm install
 npm run dev
 ```
@@ -31,10 +42,10 @@ This clones Blueprint without git history into a `blueprint` folder.
 
 ---
 
-## Method 3: Git Clone
+## Method 4: Git Clone
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/blueprint.git blueprint
+git clone https://github.com/send2cloud/blueprint.git blueprint
 cd blueprint
 rm -rf .git  # Remove Blueprint's git history
 npm install
@@ -43,7 +54,7 @@ npm run dev
 
 ---
 
-## Method 4: Copy Script (From Blueprint Repo)
+## Method 5: Copy Script (From Blueprint Repo)
 
 If you already have Blueprint cloned locally:
 
