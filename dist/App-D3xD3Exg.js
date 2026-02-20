@@ -122614,7 +122614,7 @@ const y3t = () => {
   ] }) });
 };
 TN();
-const v3t = new k1e(), b3t = hq(() => import("./NotesGallery-sBgF9dl2.js")), JY = hq(() => import("./NotesPage-CZobA_EZ.js")), x3t = () => /* @__PURE__ */ h.jsx("div", { className: "blueprint-app h-full", children: /* @__PURE__ */ h.jsx(N1e, { client: v3t, children: /* @__PURE__ */ h.jsx(G1e, { children: /* @__PURE__ */ h.jsxs(jX, { children: [
+const v3t = new k1e(), b3t = hq(() => import("./NotesGallery-CPIUFldt.js")), JY = hq(() => import("./NotesPage-Cp9euB6Y.js")), x3t = () => /* @__PURE__ */ h.jsx("div", { className: "blueprint-app h-full", children: /* @__PURE__ */ h.jsx(N1e, { client: v3t, children: /* @__PURE__ */ h.jsx(G1e, { children: /* @__PURE__ */ h.jsxs(jX, { children: [
   /* @__PURE__ */ h.jsx(Uwe, {}),
   /* @__PURE__ */ h.jsx(C0e, {}),
   /* @__PURE__ */ h.jsx(
@@ -122648,9 +122648,8 @@ const v3t = new k1e(), b3t = hq(() => import("./NotesGallery-sBgF9dl2.js")), JY 
     }
   )
 ] }) }) }) }), x5t = ({ basename: t = "" } = {}) => (
-  // Provide the base path via context so navigate() calls throughout Blueprint
-  // can prefix absolute paths correctly (e.g. /canvas → /blueprint/canvas).
-  // No nested BrowserRouter — we inherit the host's router context.
+  // Provide basePath via context so navigate() calls throughout Blueprint
+  // prefix absolute paths correctly (e.g. /canvas → /blueprint/canvas).
   /* @__PURE__ */ h.jsx(w_e, { value: t, children: /* @__PURE__ */ h.jsx(x3t, {}) })
 );
 export {

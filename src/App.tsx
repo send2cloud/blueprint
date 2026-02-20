@@ -43,8 +43,7 @@ interface AppProps {
 
 // All routes are relative (no leading /) so React Router v6 resolves them
 // correctly whether Blueprint is standalone or nested under /blueprint/*.
-// IMPORTANT: We never render a nested <BrowserRouter> — the host's router
-// context is inherited directly. basePath is threaded via context instead.
+// basePath is threaded via context rather than a nested router.
 const AppRoutes = () => (
   <div className="blueprint-app h-full">
     <QueryClientProvider client={queryClient}>
@@ -110,9 +109,8 @@ const AppRoutes = () => (
 );
 
 const App = ({ basename = '' }: AppProps = {}) => (
-  // Provide the base path via context so navigate() calls throughout Blueprint
-  // can prefix absolute paths correctly (e.g. /canvas → /blueprint/canvas).
-  // No nested BrowserRouter — we inherit the host's router context.
+  // Provide basePath via context so navigate() calls throughout Blueprint
+  // prefix absolute paths correctly (e.g. /canvas → /blueprint/canvas).
   <BasePathProvider value={basename}>
     <AppRoutes />
   </BasePathProvider>
