@@ -59,112 +59,46 @@ The InstantDB adapter implements a **local outbox and optimistic caching system*
 
 ---
 
-## Installation Options
+## Quick Start & Installation
 
-Blueprint can be installed three ways depending on your setup:
+Because Blueprint is designed to live *inside* your existing project (without messy Git submodules), installation is handled via a single script that downloads the files into a `blueprint` folder.
 
----
+### Scenario A: Installing via AI (Lovable, Cursor, etc.)
+If you are using an AI coding assistant, simply copy and paste this prompt to the AI so it knows how to integrate Blueprint with your existing app:
 
-### Option 1: NPM Package (Easiest - Coming Soon)
+```text
+Install Blueprint using: 
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
 
-Once published, installation will be as simple as:
+Then follow instructions to:
+1. Install these dependencies: tldraw @xyflow/react @blocknote/react @blocknote/mantine @blocknote/core @hello-pangea/dnd react-big-calendar @instantdb/react date-fns lucide-react uuid @types/uuid next-themes sonner vaul cmdk @tanstack/react-query react-use
+2. Add ProseMirror dedupe to vite.config.ts
+3. Mount <BlueprintApp /> at /blueprint/* route
+```
+
+### Scenario B: Manual Fresh Install
+If you want to install Blueprint yourself into a new or existing project, run this single command in your terminal from the root of your project:
 
 ```bash
-npm install @anthropic/blueprint
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
 ```
+This script will automatically:
+- Download the latest Blueprint template without any confusing Git history.
+- Install all necessary dependencies in the `blueprint` folder.
 
-```tsx
-import { BlueprintApp } from '@anthropic/blueprint';
+*(Note: You will still need to manually mount the App via your router and add ProseMirror deduplication to your Vite config. See `INSTALL.md` for step-by-step guidance).*
 
-<Route path="/blueprint/*" element={<BlueprintApp />} />
-```
+### Scenario C: Updating an Existing Blueprint
+Blueprint has a built-in update checker! If you are running an outdated version, you'll see a teal banner at the top of the **Settings** page letting you know a new version has been published to GitHub.
 
-> **Status:** Blueprint is not yet published to npm. See "Publishing to NPM" below to set this up yourself.
-
----
-
-### Option 2: LLM Cloud Installation (For Lovable/Cursor/etc)
-
-If you're using an AI coding assistant, give it this prompt:
-
-```
-Install Blueprint from https://github.com/anthropics/blueprint
-
-1. Read LLM_INSTALL.md and blueprint-manifest.json from the repo
-2. Install dependencies: npm install tldraw @xyflow/react @blocknote/react @blocknote/mantine @blocknote/core @hello-pangea/dnd react-big-calendar @instantdb/react date-fns lucide-react uuid next-themes sonner vaul cmdk @tanstack/react-query
-3. Copy files in batches as listed in the manifest (fetch in parallel)
-4. Add ProseMirror dedupe to vite.config.ts
-5. Mount BlueprintApp at /blueprint/* route
-```
-
-The LLM should read `LLM_INSTALL.md` for optimized batch-copying instructions.
-
----
-
-### Option 3: Local Git Merge (For Developers)
-
-If you have a local development environment:
-
-```bash
-# Clone Blueprint into your project
-npx degit YOUR_USERNAME/blueprint blueprint
-
-# Install Blueprint's dependencies in your project root
-npm install tldraw @xyflow/react @blocknote/react @blocknote/mantine @blocknote/core @hello-pangea/dnd react-big-calendar @instantdb/react date-fns lucide-react uuid @types/uuid next-themes sonner vaul cmdk @tanstack/react-query
-
-# Add ProseMirror dedupe to your vite.config.ts (see INSTALL.md)
-
-# Mount in your router
-```
-
-```tsx
-import { lazy, Suspense } from 'react';
-const BlueprintApp = lazy(() => import('./blueprint/src/App'));
-
-<Route path="/blueprint/*" element={
-  <Suspense fallback={<div>Loading...</div>}>
-    <BlueprintApp />
-  </Suspense>
-} />
-```
-
----
-
-### Publishing to NPM (Make it installable)
-
-To publish Blueprint as an npm package yourself:
-
-1. **Update package.json** with exports:
-```json
-{
-  "name": "@yourorg/blueprint",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
-    },
-    "./styles": "./dist/index.css"
-  }
-}
-```
-
-2. **Create src/index.ts** entry point:
-```ts
-export { default as BlueprintApp } from './App';
-export * from './lib/storage';
-export * from './contexts/BlueprintContext';
-```
-
-3. **Build and publish**:
-```bash
-npm run build
-npm publish --access public
-```
-
-Once published, others can `npm install @yourorg/blueprint` just like tldraw.
+To update an existing project:
+1. **Backup:** Export your settings/data from the Blueprint Settings page just in case!
+2. **Delete Old:** Delete your project's local `blueprint` folder (`rm -rf blueprint`).
+3. **Re-Install:** Run the install script again:
+   ```bash
+   bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
+   ```
+4. **Done:** Because you already configured Vite and your router previously, the new files will drop right into place and work immediately!
 
 ---
 
