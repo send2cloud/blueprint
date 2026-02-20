@@ -67,13 +67,12 @@ Because Blueprint is designed to live *inside* your existing project (without me
 If you are using an AI coding assistant, simply copy and paste this prompt to the AI so it knows how to integrate Blueprint with your existing app:
 
 ```text
-Install Blueprint using: 
+Hey AI, install the Blueprint Idea Room into my project: 
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
 
-Then follow instructions to:
-1. Install these dependencies: tldraw @xyflow/react @blocknote/react @blocknote/mantine @blocknote/core @hello-pangea/dnd react-big-calendar @instantdb/react date-fns lucide-react uuid @types/uuid next-themes sonner vaul cmdk @tanstack/react-query react-use
-2. Add ProseMirror dedupe to vite.config.ts
-3. Mount <BlueprintApp /> at /blueprint/* route
+Once the script finishes:
+1. Find the ProseMirror dedupe config array listed in `blueprint/INSTALL.md` and inject it into my `vite.config.ts`
+2. Import `<BlueprintApp />` from `./blueprint/src/App` and mount it at the `/blueprint/*` route.
 ```
 
 ### Scenario B: Manual Fresh Install

@@ -13,12 +13,8 @@ Read `blueprint-manifest.json` from this repo. It contains:
 
 ---
 
-## Step 2: Install Dependencies (One Command)
-
-```bash
-npm install tldraw @xyflow/react @blocknote/react @blocknote/mantine @blocknote/core @hello-pangea/dnd react-big-calendar @instantdb/react date-fns lucide-react uuid @types/uuid next-themes sonner vaul cmdk @tanstack/react-query react-router-dom zod @hookform/resolvers react-hook-form
-```
-
+## Step 2: Dependencies are Automatic!
+The script above will automatically detect your host project and safely merge/install Blueprint's dependencies directly into your root `package.json` (intentionally omitting `react`/`react-dom` to prevent `useRef` duplicate errors). *Do NOT try to run `npm install` inside the `blueprint` folder yourself!* 
 Also ensure shadcn/ui is set up with these components: button, dialog, input, label, tabs, card, badge, dropdown-menu, popover, calendar, checkbox, textarea, select, scroll-area, separator, sheet, sidebar, toast, tooltip, toggle, command, context-menu, accordion, alert-dialog, avatar, collapsible, form, hover-card, menubar, navigation-menu, progress, radio-group, resizable, slider, switch, table, toggle-group.
 
 ---

@@ -27,16 +27,42 @@ else
 fi
 
 echo ""
-echo "✅ Blueprint installed successfully!"
+echo "✅ Blueprint downloaded successfully!"
 echo ""
-echo "⚠️ IMPORTANT: We did NOT run 'npm install' automatically to avoid breaking"
-echo "duplicate dependencies when embedding into another React app."
-echo ""
-echo "Next steps (Standalone mode):"
-echo "  1. cd $BLUEPRINT_DIR && npm install && npm run dev"
-echo "  2. Open the dev URL provided in your terminal (e.g. http://localhost:5173)"
-echo ""
-echo "To embed in your app, add to your router:"
-echo "  import BlueprintApp from './blueprint/src/App';"
-echo "  <Route path=\"/blueprint/*\" element={<BlueprintApp />} />"
+
+if [ -f "$TARGET_DIR/package.json" ]; then
+  echo "📦 Host package.json detected! Automatically merging Blueprint dependencies..."
+  
+  # Use node to extract dependencies from blueprint package.json, excluding react & react-dom to avoid duplicate useRef collisions!
+  DEPS=$(node -e "
+    const fs = require('fs');
+    try {
+      const pkg = JSON.parse(fs.readFileSync('$BLUEPRINT_DIR/package.json'));
+      const deps = Object.keys(pkg.dependencies || {}).filter(d => d !== 'react' && d !== 'react-dom');
+      console.log(deps.join(' '));
+    } catch (e) {
+      console.log('');
+    }
+  ")
+  
+  if [ -n "$DEPS" ]; then
+    echo "Running npm install in host project..."
+    cd "$TARGET_DIR"
+    npm install $DEPS
+    echo "✅ Dependencies integrated into host project."
+  else
+    echo "⚠️ Could not parse Blueprint dependencies."
+  fi
+  
+  echo ""
+  echo "🎉 EMBED INSTALLATION COMPLETE!"
+  echo "To finish setup in your app, ask your AI (or do manually):"
+  echo "  1. Add ProseMirror dedupe array to your vite.config.ts (See blueprint/INSTALL.md)"
+  echo "  2. import BlueprintApp from './blueprint/src/App';"
+  echo "  3. Mount <Route path=\"/blueprint/*\" element={<BlueprintApp />} />"
+else
+  echo "⚠️ No host package.json found. If running standalone:"
+  echo "  1. cd $BLUEPRINT_DIR && npm install && npm run dev"
+  echo "  2. Open the dev URL provided in your terminal"
+fi
 echo ""

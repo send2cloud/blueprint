@@ -9,13 +9,12 @@ Blueprint can be installed into any React/Vite project using one of these method
 If you're using an AI assistant (like Lovable or Cursor), give it this prompt:
 
 ```text
-Install Blueprint using: 
+Hey AI, install the Blueprint Idea Room into my project: 
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
 
-Then follow instructions to:
-2. Install these dependencies: tldraw @xyflow/react @blocknote/react @blocknote/mantine @blocknote/core @hello-pangea/dnd react-big-calendar @instantdb/react date-fns lucide-react uuid @types/uuid next-themes sonner vaul cmdk @tanstack/react-query
-3. Add ProseMirror dedupe to vite.config.ts
-4. Mount <BlueprintApp /> at /blueprint/* route
+Once the script finishes:
+1. Find the ProseMirror dedupe config array listed in `blueprint/INSTALL.md` and inject it into my `vite.config.ts`
+2. Import `<BlueprintApp />` from `./blueprint/src/App` and mount it at the `/blueprint/*` route.
 ```
 
 ---
