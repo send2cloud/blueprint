@@ -21,6 +21,8 @@ import { toast } from '@/hooks/use-toast';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { checkBlueprintUpdates } from '@/lib/updateChecker';
+import { ArrowUpCircle } from 'lucide-react';
 
 const dbConfigSchema = z.object({
   provider: z.enum(['local', 'instantdb']),
@@ -45,6 +47,14 @@ export default function SettingsPage() {
   const [savedId, setSavedId] = useState('');
   const [isFromEnv, setIsFromEnv] = useState(false);
   const importInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [updateInfo, setUpdateInfo] = useState<{ hasUpdate: boolean, current: string, latest: string } | null>(null);
+
+  useEffect(() => {
+    checkBlueprintUpdates().then(info => {
+      setUpdateInfo(info);
+    }).catch(console.error);
+  }, []);
 
   const { control, handleSubmit, watch, setValue, reset, formState: { isDirty, isValid } } = useForm<DbConfigForm>({
     resolver: zodResolver(dbConfigSchema),
@@ -205,6 +215,29 @@ export default function SettingsPage() {
       <ToolHeader title="Settings" icon={Settings} />
       <div className="flex-1 p-6 max-w-2xl px-4 sm:px-6">
         <div className="space-y-6 pb-12">
+
+          {updateInfo?.hasUpdate && (
+            <div className="rounded-lg border border-teal-500/30 bg-teal-500/10 p-4 shadow-sm flex items-start gap-3">
+              <ArrowUpCircle className="h-5 w-5 text-teal-500 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-foreground">Blueprint Update Available!</h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  A new version of Blueprint is available ({updateInfo.latest}). You are currently running v{updateInfo.current}.
+                </p>
+                <div className="mt-3">
+                  <a
+                    href="https://github.com/send2cloud/blueprint"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-teal-500 text-primary-foreground hover:bg-teal-500/90 h-8 px-4"
+                  >
+                    View on GitHub
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-4 rounded-lg border border-border bg-card p-4 sm:p-6 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
