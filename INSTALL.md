@@ -27,7 +27,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/mai
 
 This downloads Blueprint without git history into a `blueprint` folder.
 
-> **⚠️ IMPORTANT:** For embedding, do NOT run `npm install` inside the `blueprint` folder. The pre-built library bundle at `dist-lib/` is ready to use — the host project provides React. Only run `npm install` if running Blueprint standalone.
+> **⚠️ IMPORTANT:** For Solo mode (embedding), do NOT run `npm install` inside the `blueprint` folder. The pre-built bundle at `dist-lib/` is ready to use — the host project provides React. Only run `npm install` if running in Multi-Project mode (standalone).
 
 ---
 
@@ -36,7 +36,7 @@ This downloads Blueprint without git history into a `blueprint` folder.
 ```bash
 npx degit send2cloud/blueprint blueprint
 
-# ONLY for standalone mode (NOT embedding)
+# ONLY for Multi-Project mode (standalone, NOT embedding)
 cd blueprint && npm install
 npm run dev
 ```
@@ -50,7 +50,7 @@ git clone https://github.com/send2cloud/blueprint.git blueprint
 cd blueprint
 rm -rf .git  # Remove Blueprint's git history
 
-# ONLY for standalone mode (NOT embedding)
+# ONLY for Multi-Project mode (standalone, NOT embedding)
 npm install
 npm run dev
 ```
@@ -67,7 +67,7 @@ node blueprint/scripts/copy-to-project.js /path/to/your/project
 
 ---
 
-## Post-Install Setup (Embedding)
+## Post-Install Setup (Solo Mode — Embedding)
 
 ### 1. Mount Blueprint Routes
 
@@ -86,7 +86,7 @@ function App() {
 }
 ```
 
-The library bundle externalizes React, ReactDOM, and react-router-dom — your host project provides them, preventing duplicate instance crashes.
+The Solo bundle externalizes React, ReactDOM, and react-router-dom — your host project provides them, preventing duplicate instance crashes.
 
 ### 2. Configure Storage (Optional)
 
@@ -105,18 +105,18 @@ Or configure via Blueprint's Settings page after launching.
 
 Blueprint has two independent build configurations:
 
-| Build | Config File | Command | Output | Purpose |
-|-------|-------------|---------|--------|---------|
-| **SPA** | `vite.config.ts` | `npm run build` | `dist/` | Standalone site, Lovable publish |
-| **Library** | `vite.config.lib.ts` | `npm run build:lib` | `dist-lib/` | Embedding into host React apps |
+| Mode | Config File | Command | Output | Purpose |
+|------|-------------|---------|--------|---------|
+| **Multi-Project** | `vite.config.ts` | `npm run build` | `dist/` | Standalone site, Lovable publish |
+| **Solo** | `vite.config.lib.ts` | `npm run build:lib` | `dist-lib/` | Embedded inside host React apps |
 
-The SPA build is the default and produces a standard `index.html` app. The library build produces an ES module (`blueprint.es.js`) with React externalized, plus a bundled `style.css`.
+**Multi-Project** is the default and produces a standard `index.html` app. **Solo** produces an ES module (`blueprint.es.js`) with React externalized, plus a bundled `style.css`.
 
 ---
 
-## Running Standalone
+## Running Multi-Project (Standalone)
 
-Blueprint can also run independently:
+Blueprint can run independently as its own site:
 
 ```bash
 cd blueprint

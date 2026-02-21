@@ -42,7 +42,7 @@ if [ -f "$TARGET_DIR/package.json" ]; then
   echo ""
   echo "🎉 SOLO INSTALLATION COMPLETE!"
 else
-  echo "⚠️ No host package.json found. If running standalone:"
+  echo "⚠️ No host package.json found. For Multi-Project (standalone) mode:"
   echo "  1. cd $BLUEPRINT_DIR && npm install && npm run dev"
   echo "  2. Open the dev URL provided in your terminal"
 fi
