@@ -67,6 +67,12 @@ function AppLayoutContent() {
 }
 
 export function AppLayout() {
+  const { authenticated, authenticate } = usePinGate();
+
+  if (!authenticated) {
+    return <PinGate onSuccess={authenticate} />;
+  }
+
   return (
     <BlueprintProvider>
       <SidebarProvider>
