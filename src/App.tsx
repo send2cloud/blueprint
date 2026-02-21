@@ -35,9 +35,9 @@ const NotesGallery = lazy(() => import("./pages/NotesGallery"));
 const NotesPage = lazy(() => import("./pages/NotesPage"));
 
 interface AppProps {
-  // When embedded inside a host app, pass the sub-path Blueprint is mounted at.
+  // Solo mode: pass the sub-path Blueprint is mounted at in the host app.
   // e.g. basename="/blueprint" so internal navigate() calls go to /blueprint/canvas etc.
-  // When running standalone (via main.tsx), omit this — basePath defaults to ''.
+  // Multi-Project mode (via main.tsx): omit this — basePath defaults to ''.
   basename?: string;
 }
 
@@ -85,7 +85,7 @@ const coreRoutes = (
 );
 
 // All routes are relative (no leading /) so React Router v6 resolves them
-// correctly whether Blueprint is standalone or nested under /blueprint/*.
+// correctly whether Blueprint is Multi-Project (standalone) or Solo (embedded).
 // basePath is threaded via context rather than a nested router.
 const AppRoutes = () => (
   <div className="blueprint-app h-full">
@@ -102,12 +102,12 @@ const AppRoutes = () => (
             }
           >
             <Routes>
-              {/* Solo mode / fallback root routes */}
+              {/* Multi-Project mode / fallback root routes */}
               <Route element={<AppLayout />}>
                 {coreRoutes}
               </Route>
 
-              {/* Multi-project mode routes */}
+              {/* Multi-Project mode: project-scoped routes */}
               <Route path=":projectId" element={<AppLayout />}>
                 {coreRoutes}
               </Route>

@@ -1,7 +1,8 @@
 /**
- * Library entry point for Blueprint.
+ * Solo mode entry point for Blueprint.
  *
- * When Blueprint is embedded into a host project, the host imports this module:
+ * "Solo" = Blueprint embedded inside another project as a library bundle.
+ * The host imports this module:
  *   import BlueprintApp from './blueprint/dist-lib/blueprint.es.js';
  *   import './blueprint/dist-lib/style.css';
  *

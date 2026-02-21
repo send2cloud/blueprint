@@ -2,9 +2,10 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
-// Library build config — produces dist-lib/blueprint.es.js + style.css
+// Solo build config — produces dist-lib/blueprint.es.js + style.css
+// "Solo" = Blueprint embedded inside another project as a library bundle.
 // Run: npm run build:lib (or bun run build:lib)
-// This does NOT affect the default SPA build used by Lovable's publish pipeline.
+// This does NOT affect the Multi-Project build used by Lovable's publish pipeline.
 export default defineConfig({
   plugins: [react()],
   resolve: {
