@@ -451,7 +451,134 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="space-y-4 rounded-lg border border-border bg-card p-4 sm:p-6 shadow-sm">
+          {/* Project Settings */}
+          {currentProject && (
+            <div className="space-y-4 rounded-lg border border-border bg-card p-4 sm:p-6 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-md bg-primary/10">
+                  <Palette className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground">Project Identity</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Name, logo, and color for <span className="font-medium text-foreground">{currentProject.name}</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-4 mt-2 border-t border-border/50 pt-4">
+                {/* Project Name */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="project-name" className="text-xs font-bold uppercase text-muted-foreground">Project Name</Label>
+                  <Input
+                    id="project-name"
+                    value={projectName}
+                    onChange={(e) => setProjectName(e.target.value)}
+                    placeholder="Project name"
+                    className="h-10"
+                  />
+                  {currentProject.slugAliases && currentProject.slugAliases.length > 0 && (
+                    <p className="text-[11px] text-muted-foreground italic">
+                      Previous slugs still work: {currentProject.slugAliases.map(s => `/${s}`).join(', ')}
+                    </p>
+                  )}
+                </div>
+
+                {/* Logo */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold uppercase text-muted-foreground">Logo</Label>
+                  <div className="flex items-center gap-3">
+                    {projectLogo ? (
+                      <div className="relative group">
+                        <img src={projectLogo} alt="Project logo" className="size-12 rounded-lg object-cover border border-border" />
+                        <button
+                          onClick={handleRemoveLogo}
+                          className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        className="size-12 rounded-lg border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
+                        onClick={() => logoInputRef.current?.click()}
+                      >
+                        <Upload className="size-4 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <Button variant="outline" size="sm" onClick={() => logoInputRef.current?.click()}>
+                        {projectLogo ? 'Change Logo' : 'Upload Logo'}
+                      </Button>
+                      <p className="text-[11px] text-muted-foreground mt-1">PNG, JPG, SVG. Max 512KB.</p>
+                    </div>
+                    <input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                      className="hidden"
+                      onChange={handleLogoUpload}
+                    />
+                  </div>
+                </div>
+
+                {/* Color */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold uppercase text-muted-foreground">Project Color</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {PRESET_COLORS.map((c, i) => (
+                      <button
+                        key={i}
+                        onClick={() => { setProjectColor(c.bg); setCustomColorInput(''); }}
+                        className={`size-8 rounded-full border-2 transition-all ${projectColor === c.bg ? 'border-foreground scale-110' : 'border-transparent hover:scale-105'}`}
+                        style={{ backgroundColor: `hsl(${c.bg})` }}
+                        title={`Preset ${i + 1}`}
+                      />
+                    ))}
+                    {/* Clear */}
+                    <button
+                      onClick={() => { setProjectColor(''); setCustomColorInput(''); }}
+                      className={`size-8 rounded-full border-2 transition-all flex items-center justify-center ${!projectColor ? 'border-foreground scale-110' : 'border-border hover:scale-105'}`}
+                      title="Auto (based on project ID)"
+                    >
+                      <X className="size-3 text-muted-foreground" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Label htmlFor="custom-color" className="text-[11px] text-muted-foreground whitespace-nowrap">Custom HSL:</Label>
+                    <Input
+                      id="custom-color"
+                      value={customColorInput}
+                      onChange={(e) => {
+                        setCustomColorInput(e.target.value);
+                        // Validate basic HSL format: "H S% L%"
+                        const v = e.target.value.trim();
+                        if (/^\d+\s+\d+%?\s+\d+%?$/.test(v)) {
+                          const normalized = v.replace(/(\d+)\s+(\d+)%?\s+(\d+)%?/, '$1 $2% $3%');
+                          setProjectColor(normalized);
+                        }
+                      }}
+                      placeholder="e.g. 200 70% 50%"
+                      className="h-8 text-xs font-mono max-w-48"
+                    />
+                    {projectColor && (
+                      <div
+                        className="size-8 rounded-md border border-border shrink-0"
+                        style={{ backgroundColor: `hsl(${projectColor})` }}
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2 border-t border-border/50">
+                <Button onClick={handleSaveProjectSettings} className="px-6">
+                  Save Project Settings
+                </Button>
+              </div>
+            </div>
+          )}
+
             <div>
               <h3 className="text-sm font-semibold text-foreground">Backup & Portability</h3>
               <p className="text-xs text-muted-foreground mt-1">
