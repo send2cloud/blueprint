@@ -1,6 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, fireEvent, act } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { ShareButton } from './ShareButton';
+
+vi.mock('../../contexts/BlueprintContext', () => ({
+  useBlueprint: () => ({
+    currentProjectId: null,
+    settings: { mode: 'solo', enabledTools: ['notes'] },
+  }),
+}));
 
 describe("ShareButton", () => {
   beforeEach(() => {
@@ -12,7 +20,11 @@ describe("ShareButton", () => {
   });
 
   it("copies link with LLM source instruction", async () => {
-    const { getByText } = render(<ShareButton artifactId="abc" type="notes" />);
+    const { getByText } = render(
+      <MemoryRouter>
+        <ShareButton artifactId="abc" type="notes" />
+      </MemoryRouter>
+    );
     await act(async () => {
       fireEvent.click(getByText("Share"));
     });
