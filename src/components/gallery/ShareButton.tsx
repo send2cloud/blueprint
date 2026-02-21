@@ -2,7 +2,7 @@ import { Share2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useToast } from '../../hooks/use-toast';
 import { ToolType } from '../../lib/storage';
-import { useBlueprint } from '../../contexts/BlueprintContext';
+import { useParams } from 'react-router-dom';
 
 interface ShareButtonProps {
   artifactId: string;
@@ -20,13 +20,12 @@ const TYPE_LABELS: Record<ToolType, string> = {
 
 export function ShareButton({ artifactId, type, className }: ShareButtonProps) {
   const { toast } = useToast();
-  const { settings, getCurrentProject } = useBlueprint();
+  const { projectId: projectSlug } = useParams();
 
   const handleShare = async () => {
     const baseUrl = window.location.origin;
-    const currentProject = getCurrentProject();
-    const projectPrefix = currentProject ? `/${currentProject.slug}` : '';
-    const url = `${baseUrl}${projectPrefix}/${type}/${artifactId}`;
+    const prefix = projectSlug ? `/${projectSlug}` : '';
+    const url = `${baseUrl}${prefix}/${type}/${artifactId}`;
 
     const message = `Here is the link I want you to reference: ${url}\nPlease check the page source for LLM instructions (look for the "blueprint-llm" JSON block).`;
 
