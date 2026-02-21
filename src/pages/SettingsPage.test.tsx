@@ -43,7 +43,7 @@ vi.mock('../contexts/BlueprintContext', () => ({
     }),
     useBlueprintActions: () => ({
         toggleTool: vi.fn(),
-        getCurrentProject: vi.fn(() => ({ id: 'default', name: 'Default', slug: 'default' })),
+        getCurrentProject: vi.fn(() => ({ id: '00000000-0000-4000-8000-000000000000', name: 'Default', slug: 'default' })),
         updateProject: vi.fn(),
     }),
 }));
