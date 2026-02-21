@@ -56,40 +56,7 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        {true ? (
-          <ProjectSwitcher />
-        ) : (
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Blueprints">
-                <NavLink
-                  to="/"
-                  end
-                  className="flex items-center gap-2"
-                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
-                >
-                  <div className="relative">
-                    <Home className="h-4 w-4" />
-                    <span
-                      className={`absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full border border-sidebar-background ${storageType === 'instantdb'
-                        ? 'bg-emerald-500'
-                        : 'bg-red-500'
-                        }`}
-                      title={
-                        storageType === 'instantdb'
-                          ? 'Connected to InstantDB'
-                          : 'No database connected (local only)'
-                      }
-                    />
-                  </div>
-                  {!collapsed && (
-                    <span className="font-semibold">Blueprint</span>
-                  )}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        )}
+        <ProjectSwitcher />
       </SidebarHeader>
 
       <SidebarContent>
