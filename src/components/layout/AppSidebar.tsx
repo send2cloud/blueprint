@@ -5,7 +5,7 @@ import { useBlueprint } from '../../contexts/BlueprintContext';
 import { TOOL_LIST, TOOL_CONFIG } from '../../lib/toolConfig';
 import { useAllArtifacts } from '../../hooks/useArtifacts';
 import { TagCloud } from '../sidebar/TagCloud';
-import { getStorageAdapterType } from '../../lib/storage/adapter';
+
 import { ProjectSwitcher } from './ProjectSwitcher';
 import {
   Sidebar,
