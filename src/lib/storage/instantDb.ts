@@ -34,6 +34,74 @@ export class InstantDbAdapter implements StorageAdapter {
     this.appId = appId;
     this.cacheKeyPrefix = `blueprint:instant:${appId}`;
     this.flushOutbox();
+    this.migrateDefaultIds();
+  }
+
+  /**
+   * Migrate legacy non-UUID 'default' IDs to proper UUIDs.
+   * InstantDB requires entity IDs to be UUIDs.
+   */
+  private async migrateDefaultIds() {
+    const migrationKey = `${this.cacheKeyPrefix}:migrated-default-ids`;
+    if (localStorage.getItem(migrationKey)) return;
+
+    try {
+      // Migrate project with id='default' → new UUID
+      const projectResp = await this.db.queryOnce({
+        [TABLE_PROJECTS]: { $: { where: { id: LEGACY_DEFAULT_PROJECT_ID } } },
+      });
+      const legacyProject = projectResp.data?.[TABLE_PROJECTS]?.[0] as Project | undefined;
+      if (legacyProject) {
+        console.log('Blueprint: Migrating default project from legacy ID to UUID');
+        const migratedProject = { ...legacyProject, id: DEFAULT_PROJECT_ID };
+        const tx = (this.db.tx as any)[TABLE_PROJECTS][DEFAULT_PROJECT_ID].update(migratedProject);
+        await this.db.transact(tx);
+        // Delete old record (may fail silently if InstantDB can't address non-UUID)
+        try {
+          const delTx = (this.db.tx as any)[TABLE_PROJECTS][LEGACY_DEFAULT_PROJECT_ID].delete();
+          await this.db.transact(delTx);
+        } catch { /* old record may not be deletable */ }
+      }
+
+      // Migrate artifacts that reference projectId='default'
+      const artifactResp = await this.db.queryOnce({
+        [TABLE_ARTIFACTS]: { $: { where: { projectId: LEGACY_DEFAULT_PROJECT_ID } } },
+      });
+      const legacyArtifacts = (artifactResp.data?.[TABLE_ARTIFACTS] ?? []) as Artifact[];
+      if (legacyArtifacts.length > 0) {
+        console.log(`Blueprint: Migrating ${legacyArtifacts.length} artifacts from legacy projectId`);
+        for (const artifact of legacyArtifacts) {
+          try {
+            const tx = (this.db.tx as any)[TABLE_ARTIFACTS][artifact.id].update({ projectId: DEFAULT_PROJECT_ID });
+            await this.db.transact(tx);
+          } catch (e) {
+            console.error('Blueprint: Failed to migrate artifact', artifact.id, e);
+          }
+        }
+      }
+
+      // Migrate calendar events
+      const calResp = await this.db.queryOnce({
+        [TABLE_CALENDAR_EVENTS]: { $: { where: { projectId: LEGACY_DEFAULT_PROJECT_ID } } },
+      });
+      const legacyCal = (calResp.data?.[TABLE_CALENDAR_EVENTS] ?? []) as CalendarEventRecord[];
+      if (legacyCal.length > 0) {
+        console.log(`Blueprint: Migrating ${legacyCal.length} calendar events from legacy projectId`);
+        for (const event of legacyCal) {
+          try {
+            const tx = (this.db.tx as any)[TABLE_CALENDAR_EVENTS][event.id].update({ projectId: DEFAULT_PROJECT_ID });
+            await this.db.transact(tx);
+          } catch (e) {
+            console.error('Blueprint: Failed to migrate calendar event', event.id, e);
+          }
+        }
+      }
+
+      localStorage.setItem(migrationKey, 'true');
+      console.log('Blueprint: Default ID migration complete');
+    } catch (e) {
+      console.error('Blueprint: Default ID migration failed (will retry next load):', e);
+    }
   }
 
   private cacheKey(suffix: string) {
