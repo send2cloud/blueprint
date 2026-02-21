@@ -154,6 +154,7 @@ export class InstantDbAdapter implements StorageAdapter {
 
   async getSettings(): Promise<BlueprintSettings> {
     try {
+      // Try new UUID-based settings ID first
       const resp = await this.db.queryOnce({
         [TABLE_SETTINGS]: {
           $: { where: { id: SETTINGS_ID } },
@@ -167,6 +168,25 @@ export class InstantDbAdapter implements StorageAdapter {
           mode: row.mode,
         };
         this.saveCache('settings', settings);
+        return settings;
+      }
+
+      // Migrate from legacy 'default' ID if it exists
+      const legacyResp = await this.db.queryOnce({
+        [TABLE_SETTINGS]: {
+          $: { where: { id: LEGACY_SETTINGS_ID } },
+        },
+      });
+      const legacyRow = legacyResp.data?.[TABLE_SETTINGS]?.[0] as { enabledTools?: ToolType[]; seededNoteCreated?: boolean; mode?: 'solo' | 'multi' } | undefined;
+      if (legacyRow?.enabledTools && Array.isArray(legacyRow.enabledTools)) {
+        console.log('Blueprint: Migrating settings from legacy ID to UUID');
+        const settings: BlueprintSettings = {
+          enabledTools: legacyRow.enabledTools.filter((t) => ALL_TOOLS.includes(t)),
+          seededNoteCreated: legacyRow.seededNoteCreated,
+          mode: legacyRow.mode,
+        };
+        // Save under new UUID ID
+        await this.saveSettings(settings);
         return settings;
       }
     } catch (e) {
