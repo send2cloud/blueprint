@@ -202,6 +202,19 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
     getProjectBySlug,
     getCurrentProject,
   }), [toggleTool, isToolEnabled, setCurrentProject, createProject, updateProject, getProjectBySlug, getCurrentProject]);
+
+  return (
+    <BlueprintStateContext.Provider value={stateValue}>
+      <BlueprintActionsContext.Provider value={actionsValue}>
+        {children}
+      </BlueprintActionsContext.Provider>
+    </BlueprintStateContext.Provider>
+  );
+}
+
+export function useBlueprint() {
+  const state = useContext(BlueprintStateContext);
+  const actions = useContext(BlueprintActionsContext);
   if (!state || !actions) {
     throw new Error('useBlueprint must be used within a BlueprintProvider');
   }
