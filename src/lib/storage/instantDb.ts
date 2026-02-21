@@ -8,6 +8,9 @@ const TABLE_SETTINGS = 'blueprint_settings';
 const TABLE_CALENDAR_EVENTS = 'blueprint_calendar_events';
 const TABLE_PROJECTS = 'blueprint_projects';
 const SETTINGS_ID = '00000000-0000-4000-8000-000000000001'; // Singleton UUID for settings
+const LEGACY_SETTINGS_ID = 'default'; // Old non-UUID settings ID to migrate from
+const LEGACY_DEFAULT_PROJECT_ID = 'default'; // Old non-UUID project ID
+const DEFAULT_PROJECT_ID = '00000000-0000-4000-8000-000000000000'; // New UUID project ID
 
 // Legacy tables from the split-table architecture (to be cleaned up)
 const LEGACY_TABLES = ['blueprint_notes', 'blueprint_diagrams', 'blueprint_canvases', 'blueprint_boards'];
