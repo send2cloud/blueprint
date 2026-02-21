@@ -1,9 +1,25 @@
-import { Artifact, ToolType, ALL_TOOLS } from './types';
+import { Artifact, ToolType, ALL_TOOLS, Project } from './types';
 
 export const CURRENT_SCHEMA_VERSION = 1;
 
 function isValidToolType(value: unknown): value is ToolType {
   return typeof value === 'string' && (ALL_TOOLS as string[]).includes(value);
+}
+
+export function normalizeProject(raw: Partial<Project> | null | undefined): Project | null {
+  if (!raw || typeof raw !== 'object') return null;
+  if (!raw.id || typeof raw.id !== 'string') return null;
+
+  const now = new Date().toISOString();
+  const createdAt = safeIsoDate(raw.createdAt, now);
+  const updatedAt = safeIsoDate(raw.updatedAt, createdAt);
+
+  return {
+    id: raw.id,
+    name: typeof raw.name === 'string' && raw.name.trim().length > 0 ? raw.name : 'Untitled Project',
+    createdAt,
+    updatedAt,
+  };
 }
 
 function safeIsoDate(value: unknown, fallback: string): string {
@@ -35,6 +51,7 @@ export function normalizeArtifact(raw: Partial<Artifact> | null | undefined): Ar
         ? raw.schemaVersion
         : CURRENT_SCHEMA_VERSION,
     tags: Array.isArray(raw.tags) ? raw.tags.filter((t): t is string => typeof t === 'string') : undefined,
+    projectId: typeof raw.projectId === 'string' ? raw.projectId : undefined,
   };
 
   return migrateArtifact(normalized);

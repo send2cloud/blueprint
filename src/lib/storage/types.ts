@@ -9,6 +9,14 @@ export const ARTIFACT_TOOLS: ArtifactToolType[] = ['canvas', 'diagram', 'board',
 export interface BlueprintSettings {
   enabledTools: ToolType[];
   seededNoteCreated?: boolean;
+  mode?: 'solo' | 'multi';
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Artifact {
@@ -22,6 +30,7 @@ export interface Artifact {
   schemaVersion: number;
   pinned: boolean;
   tags?: string[];
+  projectId?: string;
 }
 
 /** Calendar event stored in the database */
@@ -36,23 +45,29 @@ export interface CalendarEventRecord {
   tags?: string[];
   sourceType?: 'manual' | 'task' | 'doc';
   sourceId?: string;
+  projectId?: string;
 }
 
 export interface StorageAdapter {
   // Settings
   getSettings(): Promise<BlueprintSettings>;
   saveSettings(settings: BlueprintSettings): Promise<void>;
-  
+
+  // Projects
+  getProjects(): Promise<Project[]>;
+  saveProject(project: Project): Promise<void>;
+  deleteProject(id: string): Promise<void>;
+
   // Artifacts (flows, drawings, etc.)
   getArtifact(id: string): Promise<Artifact | null>;
   saveArtifact(artifact: Artifact): Promise<void>;
   deleteArtifact(id: string): Promise<void>;
-  listArtifacts(type?: ToolType): Promise<Artifact[]>;
-  listFavorites(): Promise<Artifact[]>;
-  listByTag(tag: string): Promise<Artifact[]>;
-  
+  listArtifacts(type?: ToolType, projectId?: string): Promise<Artifact[]>;
+  listFavorites(projectId?: string): Promise<Artifact[]>;
+  listByTag(tag: string, projectId?: string): Promise<Artifact[]>;
+
   // Calendar events
-  listCalendarEvents(): Promise<CalendarEventRecord[]>;
+  listCalendarEvents(projectId?: string): Promise<CalendarEventRecord[]>;
   saveCalendarEvent(event: CalendarEventRecord): Promise<void>;
   deleteCalendarEvent(id: string): Promise<void>;
 }

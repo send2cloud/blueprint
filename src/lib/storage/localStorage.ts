@@ -1,10 +1,12 @@
-import { StorageAdapter, BlueprintSettings, Artifact, ToolType, ALL_TOOLS, CalendarEventRecord } from './types';
-import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from './schema';
+import { StorageAdapter, BlueprintSettings, Artifact, ToolType, ALL_TOOLS, CalendarEventRecord, Project } from './types';
+import { normalizeArtifact, normalizeProject, CURRENT_SCHEMA_VERSION } from './schema';
 
 const SETTINGS_KEY = 'blueprint:settings';
 const ARTIFACT_PREFIX = 'blueprint:artifact:';
 const ARTIFACT_INDEX_KEY = 'blueprint:artifacts';
 const CALENDAR_EVENTS_KEY = 'blueprint:calendar:events';
+const PROJECT_PREFIX = 'blueprint:project:';
+const PROJECT_INDEX_KEY = 'blueprint:projects';
 
 export class LocalStorageAdapter implements StorageAdapter {
   async getSettings(): Promise<BlueprintSettings> {
@@ -32,6 +34,65 @@ export class LocalStorageAdapter implements StorageAdapter {
     }
   }
 
+  // Projects
+  async getProjects(): Promise<Project[]> {
+    try {
+      const index = await this.getProjectIndex();
+      const projects: Project[] = [];
+      for (const id of index) {
+        const stored = localStorage.getItem(PROJECT_PREFIX + id);
+        if (stored) {
+          const parsed = JSON.parse(stored) as Partial<Project>;
+          const normalized = normalizeProject(parsed);
+          if (normalized) projects.push(normalized);
+        }
+      }
+      return projects.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    } catch (e) {
+      console.error('Failed to load projects:', e);
+      return [];
+    }
+  }
+
+  async saveProject(project: Project): Promise<void> {
+    try {
+      const normalized = normalizeProject(project);
+      if (!normalized) return;
+      localStorage.setItem(PROJECT_PREFIX + normalized.id, JSON.stringify(normalized));
+      const index = await this.getProjectIndex();
+      if (!index.includes(normalized.id)) {
+        index.push(normalized.id);
+        localStorage.setItem(PROJECT_INDEX_KEY, JSON.stringify(index));
+      }
+    } catch (e) {
+      console.error('Failed to save project:', e);
+    }
+  }
+
+  async deleteProject(id: string): Promise<void> {
+    try {
+      localStorage.removeItem(PROJECT_PREFIX + id);
+      const index = await this.getProjectIndex();
+      const newIndex = index.filter(i => i !== id);
+      localStorage.setItem(PROJECT_INDEX_KEY, JSON.stringify(newIndex));
+
+      // Also cleanup artifacts and calendar events for this project (optional, or rely on cascades elsewhere)
+    } catch (e) {
+      console.error('Failed to delete project:', e);
+    }
+  }
+
+  private async getProjectIndex(): Promise<string[]> {
+    try {
+      const stored = localStorage.getItem(PROJECT_INDEX_KEY);
+      if (stored) return JSON.parse(stored) as string[];
+    } catch (e) {
+      console.error('Failed to load project index:', e);
+    }
+    return [];
+  }
+
+  // Artifacts
   async getArtifact(id: string): Promise<Artifact | null> {
     try {
       const stored = localStorage.getItem(ARTIFACT_PREFIX + id);
@@ -79,22 +140,22 @@ export class LocalStorageAdapter implements StorageAdapter {
     }
   }
 
-  async listArtifacts(type?: ToolType): Promise<Artifact[]> {
+  async listArtifacts(type?: ToolType, projectId?: string): Promise<Artifact[]> {
     try {
       const index = await this.getArtifactIndex();
       const artifacts: Artifact[] = [];
-      
+
       for (const id of index) {
         const artifact = await this.getArtifact(id);
         if (artifact) {
-          if (!type || artifact.type === type) {
+          if ((!type || artifact.type === type) && (!projectId || artifact.projectId === projectId)) {
             const normalized = normalizeArtifact(artifact);
             if (normalized) artifacts.push(normalized);
           }
         }
       }
-      
-      return artifacts.sort((a, b) => 
+
+      return artifacts.sort((a, b) =>
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
     } catch (e) {
@@ -103,20 +164,20 @@ export class LocalStorageAdapter implements StorageAdapter {
     }
   }
 
-  async listFavorites(): Promise<Artifact[]> {
+  async listFavorites(projectId?: string): Promise<Artifact[]> {
     try {
       const index = await this.getArtifactIndex();
       const favorites: Artifact[] = [];
-      
+
       for (const id of index) {
         const artifact = await this.getArtifact(id);
-        if (artifact && artifact.favorite) {
+        if (artifact && artifact.favorite && (!projectId || artifact.projectId === projectId)) {
           const normalized = normalizeArtifact(artifact);
           if (normalized) favorites.push(normalized);
         }
       }
-      
-      return favorites.sort((a, b) => 
+
+      return favorites.sort((a, b) =>
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
     } catch (e) {
@@ -125,20 +186,20 @@ export class LocalStorageAdapter implements StorageAdapter {
     }
   }
 
-  async listByTag(tag: string): Promise<Artifact[]> {
+  async listByTag(tag: string, projectId?: string): Promise<Artifact[]> {
     try {
       const index = await this.getArtifactIndex();
       const tagged: Artifact[] = [];
-      
+
       for (const id of index) {
         const artifact = await this.getArtifact(id);
-        if (artifact && artifact.tags?.includes(tag)) {
+        if (artifact && artifact.tags?.includes(tag) && (!projectId || artifact.projectId === projectId)) {
           const normalized = normalizeArtifact(artifact);
           if (normalized) tagged.push(normalized);
         }
       }
-      
-      return tagged.sort((a, b) => 
+
+      return tagged.sort((a, b) =>
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
     } catch (e) {
@@ -160,11 +221,12 @@ export class LocalStorageAdapter implements StorageAdapter {
   }
 
   // Calendar events
-  async listCalendarEvents(): Promise<CalendarEventRecord[]> {
+  async listCalendarEvents(projectId?: string): Promise<CalendarEventRecord[]> {
     try {
       const stored = localStorage.getItem(CALENDAR_EVENTS_KEY);
       if (stored) {
-        return JSON.parse(stored) as CalendarEventRecord[];
+        const events = JSON.parse(stored) as CalendarEventRecord[];
+        return projectId ? events.filter(e => e.projectId === projectId) : events;
       }
     } catch (e) {
       console.error('Failed to load calendar events:', e);

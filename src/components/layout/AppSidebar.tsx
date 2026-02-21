@@ -6,6 +6,7 @@ import { TOOL_LIST, TOOL_CONFIG } from '../../lib/toolConfig';
 import { useAllArtifacts } from '../../hooks/useArtifacts';
 import { TagCloud } from '../sidebar/TagCloud';
 import { getStorageAdapterType } from '../../lib/storage/adapter';
+import { ProjectSwitcher } from './ProjectSwitcher';
 import {
   Sidebar,
   SidebarContent,
@@ -27,14 +28,14 @@ import {
 
 export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
-  const { isToolEnabled, loading } = useBlueprint();
+  const { isToolEnabled, loading, settings } = useBlueprint();
   const { resolvedTheme, setTheme } = useTheme();
   const collapsed = state === 'collapsed';
   const { artifacts } = useAllArtifacts();
   const storageType = getStorageAdapterType();
 
-  const visibleTools = loading 
-    ? TOOL_LIST 
+  const visibleTools = loading
+    ? TOOL_LIST
     : TOOL_LIST.filter(item => isToolEnabled(item.type));
 
   // Only count artifacts for non-singular tools
@@ -55,37 +56,40 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Blueprints">
-              <NavLink 
-                to="/" 
-                end 
-                className="flex items-center gap-2" 
-                activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
-              >
-                <div className="relative">
-                  <Home className="h-4 w-4" />
-                  <span
-                    className={`absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full border border-sidebar-background ${
-                      storageType === 'instantdb'
+        {settings.mode === 'multi' ? (
+          <ProjectSwitcher />
+        ) : (
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Blueprints">
+                <NavLink
+                  to="/"
+                  end
+                  className="flex items-center gap-2"
+                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                >
+                  <div className="relative">
+                    <Home className="h-4 w-4" />
+                    <span
+                      className={`absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full border border-sidebar-background ${storageType === 'instantdb'
                         ? 'bg-emerald-500'
                         : 'bg-red-500'
-                    }`}
-                    title={
-                      storageType === 'instantdb'
-                        ? 'Connected to InstantDB'
-                        : 'No database connected (local only)'
-                    }
-                  />
-                </div>
-                {!collapsed && (
-                  <span className="font-semibold">Blueprint</span>
-                )}
-              </NavLink>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+                        }`}
+                      title={
+                        storageType === 'instantdb'
+                          ? 'Connected to InstantDB'
+                          : 'No database connected (local only)'
+                      }
+                    />
+                  </div>
+                  {!collapsed && (
+                    <span className="font-semibold">Blueprint</span>
+                  )}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        )}
       </SidebarHeader>
 
       <SidebarContent>
@@ -97,8 +101,8 @@ export function AppSidebar() {
               {visibleTools.map((item) => (
                 <SidebarMenuItem key={item.type}>
                   <SidebarMenuButton asChild tooltip={`${item.title} (${item.shortcut})`}>
-                    <NavLink 
-                      to={item.path} 
+                    <NavLink
+                      to={item.path}
                       className="flex items-center gap-2"
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
                     >
@@ -131,8 +135,8 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="Favorites (S)">
-                  <NavLink 
-                    to="/favorites" 
+                  <NavLink
+                    to="/favorites"
                     className="flex items-center gap-2"
                     activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
                   >
@@ -210,8 +214,8 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Settings">
-              <NavLink 
-                to="/settings" 
+              <NavLink
+                to="/settings"
                 className="flex items-center gap-2"
                 activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
               >

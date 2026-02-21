@@ -41,6 +41,49 @@ interface AppProps {
   basename?: string;
 }
 
+const coreRoutes = (
+  <>
+    <Route index element={<Index />} />
+
+    {/* Canvas (drawings, whiteboards) */}
+    <Route path="canvas" element={<CanvasGallery />} />
+    <Route path="canvas/new" element={<CanvasPage />} />
+    <Route path="canvas/:id" element={<CanvasPage />} />
+
+    {/* Diagram (flows, mind maps) */}
+    <Route path="diagram" element={<DiagramGallery />} />
+    <Route path="diagram/new" element={<DiagramPage />} />
+    <Route path="diagram/:id" element={<DiagramPage />} />
+
+    {/* Board (kanban) */}
+    <Route path="board" element={<BoardGallery />} />
+    <Route path="board/new" element={<BoardPage />} />
+    <Route path="board/:id" element={<BoardPage />} />
+
+    {/* Calendar (singular view, no gallery) */}
+    <Route path="calendar" element={<CalendarPage />} />
+
+    {/* Notes */}
+    <Route path="notes" element={<NotesGallery />} />
+    <Route path="notes/new" element={<NotesPage />} />
+    <Route path="notes/:id" element={<NotesPage />} />
+
+    {/* Tags */}
+    <Route path="tag/:tag" element={<TagPage />} />
+
+    {/* Relationships Graph */}
+    <Route path="relationships" element={<RelationshipsPage />} />
+
+    {/* Favorites */}
+    <Route path="favorites" element={<FavoritesPage />} />
+
+    {/* Help */}
+    <Route path="help" element={<HelpPage />} />
+
+    <Route path="settings" element={<SettingsPage />} />
+  </>
+);
+
 // All routes are relative (no leading /) so React Router v6 resolves them
 // correctly whether Blueprint is standalone or nested under /blueprint/*.
 // basePath is threaded via context rather than a nested router.
@@ -59,46 +102,16 @@ const AppRoutes = () => (
             }
           >
             <Routes>
+              {/* Solo mode / fallback root routes */}
               <Route element={<AppLayout />}>
-                <Route index element={<Index />} />
-
-                {/* Canvas (drawings, whiteboards) */}
-                <Route path="canvas" element={<CanvasGallery />} />
-                <Route path="canvas/new" element={<CanvasPage />} />
-                <Route path="canvas/:id" element={<CanvasPage />} />
-
-                {/* Diagram (flows, mind maps) */}
-                <Route path="diagram" element={<DiagramGallery />} />
-                <Route path="diagram/new" element={<DiagramPage />} />
-                <Route path="diagram/:id" element={<DiagramPage />} />
-
-                {/* Board (kanban) */}
-                <Route path="board" element={<BoardGallery />} />
-                <Route path="board/new" element={<BoardPage />} />
-                <Route path="board/:id" element={<BoardPage />} />
-
-                {/* Calendar (singular view, no gallery) */}
-                <Route path="calendar" element={<CalendarPage />} />
-
-                {/* Notes */}
-                <Route path="notes" element={<NotesGallery />} />
-                <Route path="notes/new" element={<NotesPage />} />
-                <Route path="notes/:id" element={<NotesPage />} />
-
-                {/* Tags */}
-                <Route path="tag/:tag" element={<TagPage />} />
-
-                {/* Relationships Graph */}
-                <Route path="relationships" element={<RelationshipsPage />} />
-
-                {/* Favorites */}
-                <Route path="favorites" element={<FavoritesPage />} />
-
-                {/* Help */}
-                <Route path="help" element={<HelpPage />} />
-
-                <Route path="settings" element={<SettingsPage />} />
+                {coreRoutes}
               </Route>
+
+              {/* Multi-project mode routes */}
+              <Route path=":projectId" element={<AppLayout />}>
+                {coreRoutes}
+              </Route>
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

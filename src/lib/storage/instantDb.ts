@@ -1,11 +1,12 @@
 import { init } from '@instantdb/react';
-import { StorageAdapter, BlueprintSettings, Artifact, ToolType, ALL_TOOLS, CalendarEventRecord } from './types';
-import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from './schema';
+import { StorageAdapter, BlueprintSettings, Artifact, ToolType, ALL_TOOLS, CalendarEventRecord, Project } from './types';
+import { normalizeArtifact, normalizeProject, CURRENT_SCHEMA_VERSION } from './schema';
 
 // Single table for all artifacts - simpler queries, no type routing needed
 const TABLE_ARTIFACTS = 'blueprint_artifacts';
 const TABLE_SETTINGS = 'blueprint_settings';
 const TABLE_CALENDAR_EVENTS = 'blueprint_calendar_events';
+const TABLE_PROJECTS = 'blueprint_projects';
 const SETTINGS_ID = 'default'; // Singleton row for settings
 
 // Legacy tables from the split-table architecture (to be cleaned up)
@@ -16,6 +17,8 @@ type InstantOutbox = {
   settings?: BlueprintSettings;
   calendarEvents: Record<string, CalendarEventRecord>;
   calendarDeletes: string[];
+  projects: Record<string, Project>;
+  projectDeletes: string[];
 };
 
 export class InstantDbAdapter implements StorageAdapter {
@@ -59,6 +62,8 @@ export class InstantDbAdapter implements StorageAdapter {
       settings: raw?.settings,
       calendarEvents: raw?.calendarEvents ?? {},
       calendarDeletes: raw?.calendarDeletes ?? [],
+      projects: raw?.projects ?? {},
+      projectDeletes: raw?.projectDeletes ?? [],
     };
   }
 
@@ -71,17 +76,21 @@ export class InstantDbAdapter implements StorageAdapter {
     const artifactEntries = Object.values(outbox.artifacts ?? {});
     const calendarUpserts = Object.values(outbox.calendarEvents ?? {});
     const calendarDeletes = outbox.calendarDeletes ?? [];
+    const projectUpserts = Object.values(outbox.projects ?? {});
+    const projectDeletes = outbox.projectDeletes ?? [];
 
     if (
       artifactEntries.length === 0 &&
       !outbox.settings &&
       calendarUpserts.length === 0 &&
-      calendarDeletes.length === 0
+      calendarDeletes.length === 0 &&
+      projectUpserts.length === 0 &&
+      projectDeletes.length === 0
     ) {
       return;
     }
 
-    const remaining: InstantOutbox = { artifacts: {}, calendarEvents: {}, calendarDeletes: [] };
+    const remaining: InstantOutbox = { artifacts: {}, calendarEvents: {}, calendarDeletes: [], projects: {}, projectDeletes: [] };
 
     for (const artifact of artifactEntries) {
       try {
@@ -110,12 +119,30 @@ export class InstantDbAdapter implements StorageAdapter {
       }
     }
 
+    for (const id of projectDeletes) {
+      try {
+        const tx = (this.db.tx as any)[TABLE_PROJECTS][id].delete();
+        await this.db.transact(tx);
+      } catch {
+        remaining.projectDeletes.push(id);
+      }
+    }
+
     for (const event of calendarUpserts) {
       try {
         const tx = (this.db.tx as any)[TABLE_CALENDAR_EVENTS][event.id].update(event);
         await this.db.transact(tx);
       } catch {
         remaining.calendarEvents[event.id] = event;
+      }
+    }
+
+    for (const project of projectUpserts) {
+      try {
+        const tx = (this.db.tx as any)[TABLE_PROJECTS][project.id].update(project);
+        await this.db.transact(tx);
+      } catch {
+        remaining.projects[project.id] = project;
       }
     }
 
@@ -129,11 +156,12 @@ export class InstantDbAdapter implements StorageAdapter {
           $: { where: { id: SETTINGS_ID } },
         },
       });
-      const row = resp.data?.[TABLE_SETTINGS]?.[0] as { enabledTools?: ToolType[]; seededNoteCreated?: boolean } | undefined;
+      const row = resp.data?.[TABLE_SETTINGS]?.[0] as { enabledTools?: ToolType[]; seededNoteCreated?: boolean; mode?: 'solo' | 'multi' } | undefined;
       if (row?.enabledTools && Array.isArray(row.enabledTools)) {
         const settings: BlueprintSettings = {
           enabledTools: row.enabledTools.filter((t) => ALL_TOOLS.includes(t)),
           seededNoteCreated: row.seededNoteCreated,
+          mode: row.mode,
         };
         this.saveCache('settings', settings);
         return settings;
@@ -149,6 +177,7 @@ export class InstantDbAdapter implements StorageAdapter {
       const tx = (this.db.tx as any)[TABLE_SETTINGS][SETTINGS_ID].update({
         enabledTools: settings.enabledTools,
         seededNoteCreated: settings.seededNoteCreated ?? false,
+        mode: settings.mode,
       });
       await this.db.transact(tx);
       this.saveCache('settings', settings);
@@ -158,6 +187,66 @@ export class InstantDbAdapter implements StorageAdapter {
       outbox.settings = settings;
       this.saveOutbox(outbox);
     }
+  }
+
+  // Projects
+  async getProjects(): Promise<Project[]> {
+    try {
+      const resp = await this.db.queryOnce({
+        [TABLE_PROJECTS]: {},
+      });
+      const rows = (resp.data?.[TABLE_PROJECTS] ?? []) as Project[];
+      const normalized = rows
+        .map(row => normalizeProject(row))
+        .filter((row): row is Project => Boolean(row));
+
+      const sorted = normalized.sort(
+        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+      this.saveCache('projects', sorted);
+      return sorted;
+    } catch (e) {
+      console.error('Failed to load projects from InstantDB:', e);
+      const cache = this.loadCache<Project[]>('projects') ?? [];
+      return cache
+        .map(row => normalizeProject(row))
+        .filter((row): row is Project => Boolean(row))
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    }
+  }
+
+  async saveProject(project: Project): Promise<void> {
+    try {
+      const projectToSave = normalizeProject(project);
+      if (!projectToSave) return;
+
+      const tx = (this.db.tx as any)[TABLE_PROJECTS][projectToSave.id].update(projectToSave);
+      await this.db.transact(tx);
+
+      const cached = this.loadCache<Project[]>('projects') ?? [];
+      const next = cached.filter(p => p.id !== projectToSave.id);
+      next.unshift(projectToSave);
+      this.saveCache('projects', next);
+    } catch (e) {
+      console.error('Failed to save project to InstantDB:', e);
+      const normalized = normalizeProject(project);
+      if (normalized) {
+        const outbox = this.loadOutbox();
+        outbox.projects[normalized.id] = normalized;
+        this.saveOutbox(outbox);
+      }
+    }
+  }
+
+  async deleteProject(id: string): Promise<void> {
+    try {
+      const tx = (this.db.tx as any)[TABLE_PROJECTS][id].delete();
+      await this.db.transact(tx);
+    } catch (e) {
+      console.error('Failed to delete project from InstantDB:', e);
+    }
+    const cached = this.loadCache<Project[]>('projects') ?? [];
+    this.saveCache('projects', cached.filter(p => p.id !== id));
   }
 
   async getArtifact(id: string): Promise<Artifact | null> {
@@ -217,10 +306,14 @@ export class InstantDbAdapter implements StorageAdapter {
     this.saveCache('artifacts', cached.filter((item) => item.id !== id));
   }
 
-  async listArtifacts(type?: ToolType): Promise<Artifact[]> {
+  async listArtifacts(type?: ToolType, projectId?: string): Promise<Artifact[]> {
     try {
+      const where: any = {};
+      if (type) where.type = type;
+      if (projectId) where.projectId = projectId;
+
       const resp = await this.db.queryOnce({
-        [TABLE_ARTIFACTS]: type ? { $: { where: { type } } } : {},
+        [TABLE_ARTIFACTS]: Object.keys(where).length > 0 ? { $: { where } } : {},
       });
       const rows = (resp.data?.[TABLE_ARTIFACTS] ?? []) as Artifact[];
 
@@ -248,7 +341,11 @@ export class InstantDbAdapter implements StorageAdapter {
     } catch (e) {
       console.error('Failed to list artifacts from InstantDB:', e);
       const cache = this.loadCache<Artifact[]>('artifacts') ?? [];
-      const filtered = type ? cache.filter((row) => row.type === type) : cache;
+      const filtered = cache.filter(row => {
+        if (type && row.type !== type) return false;
+        if (projectId && row.projectId !== projectId) return false;
+        return true;
+      });
       return filtered
         .map((row) => normalizeArtifact(row))
         .filter((row): row is Artifact => Boolean(row))
@@ -256,10 +353,13 @@ export class InstantDbAdapter implements StorageAdapter {
     }
   }
 
-  async listFavorites(): Promise<Artifact[]> {
+  async listFavorites(projectId?: string): Promise<Artifact[]> {
     try {
+      const where: any = { favorite: true };
+      if (projectId) where.projectId = projectId;
+
       const resp = await this.db.queryOnce({
-        [TABLE_ARTIFACTS]: { $: { where: { favorite: true } } },
+        [TABLE_ARTIFACTS]: { $: { where } },
       });
       const rows = (resp.data?.[TABLE_ARTIFACTS] ?? []) as Artifact[];
       return rows
@@ -268,7 +368,7 @@ export class InstantDbAdapter implements StorageAdapter {
         .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
     } catch (e) {
       console.error('Failed to list favorites from InstantDB:', e);
-      const cache = (this.loadCache<Artifact[]>('artifacts') ?? []).filter((row) => row.favorite);
+      const cache = (this.loadCache<Artifact[]>('artifacts') ?? []).filter((row) => row.favorite && (!projectId || row.projectId === projectId));
       return cache
         .map((row) => normalizeArtifact(row))
         .filter((row): row is Artifact => Boolean(row))
@@ -276,10 +376,10 @@ export class InstantDbAdapter implements StorageAdapter {
     }
   }
 
-  async listByTag(tag: string): Promise<Artifact[]> {
+  async listByTag(tag: string, projectId?: string): Promise<Artifact[]> {
     try {
       // InstantDB doesn't support array-contains queries well, so fetch all and filter
-      const all = await this.listArtifacts();
+      const all = await this.listArtifacts(undefined, projectId);
       return all.filter((artifact) => artifact.tags?.includes(tag));
     } catch (e) {
       console.error('Failed to list by tag from InstantDB:', e);
@@ -288,13 +388,14 @@ export class InstantDbAdapter implements StorageAdapter {
   }
 
   // Calendar events
-  async listCalendarEvents(): Promise<CalendarEventRecord[]> {
-    const cached = this.loadCache<CalendarEventRecord[]>('calendar_events') ?? [];
+  async listCalendarEvents(projectId?: string): Promise<CalendarEventRecord[]> {
+    const cachedRaw = this.loadCache<CalendarEventRecord[]>('calendar_events') ?? [];
+    const cached = projectId ? cachedRaw.filter(e => e.projectId === projectId) : cachedRaw;
 
     try {
       console.log('Blueprint: Fetching calendar events from InstantDB...');
       const resp = await this.db.queryOnce({
-        [TABLE_CALENDAR_EVENTS]: {},
+        [TABLE_CALENDAR_EVENTS]: projectId ? { $: { where: { projectId } } } : {},
       });
 
       const rows = (resp.data?.[TABLE_CALENDAR_EVENTS] ?? []) as CalendarEventRecord[];
@@ -311,7 +412,9 @@ export class InstantDbAdapter implements StorageAdapter {
 
       // Overlay outbox (unsynced changes)
       for (const pending of Object.values(outbox.calendarEvents ?? {})) {
-        merged.set(pending.id, pending);
+        if (!projectId || pending.projectId === projectId) {
+          merged.set(pending.id, pending);
+        }
       }
 
       const result = Array.from(merged.values());

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useBlueprintNavigate } from '../lib/basePath';
 import { v4 as uuidv4 } from 'uuid';
 import { getStorageAdapter, Artifact, ToolType, CURRENT_SCHEMA_VERSION } from '../lib/storage';
+import { useBlueprint } from '../contexts/BlueprintContext';
 
 /**
  * Hook for managing a single artifact (create, load, save, rename, toggle flags)
@@ -40,6 +41,7 @@ export function useArtifact(
   const { autoSave = true, autoSaveDelay = 1000 } = options;
   const navigate = useBlueprintNavigate();
   const storage = getStorageAdapter();
+  const { currentProjectId } = useBlueprint();
 
   const [artifact, setArtifact] = useState<Artifact | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,12 +71,18 @@ export function useArtifact(
             favorite: false,
             schemaVersion: CURRENT_SCHEMA_VERSION,
             pinned: false,
+            projectId: currentProjectId || undefined,
           };
           setArtifact(newArtifact);
         } else if (id) {
           const loaded = await storage.getArtifact(id);
           if (loaded) {
-            setArtifact(loaded);
+            // Project boundary check: if the artifact belongs to a specific project, ensure we're in it
+            if (loaded.projectId && loaded.projectId !== currentProjectId) {
+              setError('Artifact not found in this workspace');
+            } else {
+              setArtifact(loaded);
+            }
           } else {
             setError('Artifact not found');
           }
@@ -87,7 +95,7 @@ export function useArtifact(
     }
 
     loadArtifact();
-  }, [id, type, isNew, storage]);
+  }, [id, type, isNew, storage, currentProjectId]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
