@@ -14,6 +14,7 @@ export interface BlueprintSettings {
 
 export interface Project {
   id: string;
+  slug: string;
   name: string;
   createdAt: string;
   updatedAt: string;

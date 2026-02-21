@@ -1,8 +1,14 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import { useArtifactList } from './useArtifactList';
 import { setStorageAdapter } from '../lib/storage';
 import type { StorageAdapter, Artifact } from '../lib/storage/types';
+
+vi.mock('../contexts/BlueprintContext', () => ({
+  useBlueprint: () => ({
+    currentProjectId: null,
+  }),
+}));
 
 function createStorage(artifacts: Artifact[]): StorageAdapter {
   return {

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { ToolType, ALL_TOOLS, StorageAdapter, getStorageAdapter, BlueprintSettings, Project } from '../lib/storage';
+import { generateSlug } from '../lib/storage/schema';
 import { v4 as uuidv4 } from 'uuid';
 
 interface BlueprintState {
@@ -16,6 +17,8 @@ interface BlueprintActions {
   isToolEnabled: (tool: ToolType) => boolean;
   setCurrentProject: (id: string) => void;
   createProject: (name: string) => Promise<Project>;
+  getProjectBySlug: (slug: string) => Project | undefined;
+  getCurrentProject: () => Project | undefined;
 }
 
 const BlueprintStateContext = createContext<BlueprintState | null>(null);
@@ -46,12 +49,38 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
           // Create default project migration
           const defaultProject: Project = {
             id: 'default',
+            slug: 'default-project',
             name: 'Default Project',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
           await storage.saveProject(defaultProject);
           loadedProjects = [defaultProject];
+        } else {
+          // Backfill slugs for any projects that don't have one
+          let needsSave = false;
+          const existingSlugs = new Set<string>();
+          loadedProjects = loadedProjects.map(p => {
+            if (!p.slug) {
+              needsSave = true;
+              let slug = generateSlug(p.name, p.id);
+              // Deduplicate
+              let counter = 2;
+              const base = slug;
+              while (existingSlugs.has(slug)) {
+                slug = `${base}-${counter++}`;
+              }
+              existingSlugs.add(slug);
+              return { ...p, slug };
+            }
+            existingSlugs.add(p.slug);
+            return p;
+          });
+          if (needsSave) {
+            for (const p of loadedProjects) {
+              await storage.saveProject(p);
+            }
+          }
         }
         setProjects(loadedProjects);
 
@@ -95,8 +124,19 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const createProject = useCallback(async (name: string): Promise<Project> => {
+    const id = uuidv4().replace(/-/g, '').substring(0, 12);
+    let slug = generateSlug(name, id);
+    // Deduplicate against existing slugs
+    const existingSlugs = new Set(projects.map(p => p.slug));
+    let counter = 2;
+    const base = slug;
+    while (existingSlugs.has(slug)) {
+      slug = `${base}-${counter++}`;
+    }
+
     const newProject: Project = {
-      id: uuidv4().replace(/-/g, '').substring(0, 12),
+      id,
+      slug,
       name,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -104,7 +144,15 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
     await storage.saveProject(newProject);
     setProjects(prev => [newProject, ...prev]);
     return newProject;
-  }, [storage]);
+  }, [storage, projects]);
+
+  const getProjectBySlug = useCallback((slug: string): Project | undefined => {
+    return projects.find(p => p.slug === slug || p.id === slug);
+  }, [projects]);
+
+  const getCurrentProject = useCallback((): Project | undefined => {
+    return projects.find(p => p.id === currentProjectId);
+  }, [projects, currentProjectId]);
 
   const stateValue = useMemo(() => ({
     enabledTools,
@@ -119,8 +167,10 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
     toggleTool,
     isToolEnabled,
     setCurrentProject,
-    createProject
-  }), [toggleTool, isToolEnabled, setCurrentProject, createProject]);
+    createProject,
+    getProjectBySlug,
+    getCurrentProject,
+  }), [toggleTool, isToolEnabled, setCurrentProject, createProject, getProjectBySlug, getCurrentProject]);
 
   return (
     <BlueprintStateContext.Provider value={stateValue}>
@@ -157,4 +207,3 @@ export function useBlueprintState() {
   if (!context) throw new Error('useBlueprintState must be used within a BlueprintProvider');
   return context;
 }
-

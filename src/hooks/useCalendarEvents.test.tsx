@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { useCalendarEvents } from './useCalendarEvents'; // Adjust path
+import { useCalendarEvents } from './useCalendarEvents';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { getStorageAdapter } from '../lib/storage/adapter';
 import { CalendarEvent } from '../components/tools/calendar/types';
@@ -8,6 +8,12 @@ import { CalendarEvent } from '../components/tools/calendar/types';
 // Mock dependencies
 vi.mock('../lib/storage/adapter', () => ({
     getStorageAdapter: vi.fn(),
+}));
+
+vi.mock('../contexts/BlueprintContext', () => ({
+    useBlueprint: () => ({
+        currentProjectId: null,
+    }),
 }));
 
 // Setup Test Wrapper
@@ -52,10 +58,8 @@ describe('useCalendarEvents', () => {
             wrapper: createWrapper(),
         });
 
-        // Initially loading
         expect(result.current.loading).toBe(true);
 
-        // Wait for success
         await waitFor(() => expect(result.current.loading).toBe(false));
 
         expect(result.current.events).toHaveLength(1);
@@ -88,10 +92,8 @@ describe('useCalendarEvents', () => {
             tags: undefined
         };
 
-        // Trigger save
         result.current.saveEvent(newEvent);
 
-        // Should be immediately visible (optimistic)
         await waitFor(() => {
             expect(result.current.events).toHaveLength(1);
             expect(result.current.events[0].title).toBe('New Event');

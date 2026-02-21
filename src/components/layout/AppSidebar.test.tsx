@@ -18,6 +18,10 @@ vi.mock('../../contexts/BlueprintContext', () => ({
   useBlueprint: () => ({
     isToolEnabled: () => true,
     loading: false,
+    settings: { mode: 'solo', enabledTools: ['canvas', 'diagram', 'board', 'notes', 'calendar'] },
+    projects: [],
+    currentProjectId: null,
+    getCurrentProject: () => undefined,
   }),
 }));
 

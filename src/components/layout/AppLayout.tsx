@@ -9,24 +9,35 @@ import { CommandPalette } from '../CommandPalette';
 
 function AppLayoutContent() {
   const { commandPaletteOpen, setCommandPaletteOpen } = useKeyboardShortcuts();
-  const { storage, currentProjectId, setCurrentProject, settings } = useBlueprint();
-  const { projectId } = useParams();
+  const { storage, currentProjectId, setCurrentProject, settings, getProjectBySlug, projects, loading } = useBlueprint();
+  const { projectId: projectSlug } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    if (projectId && projectId !== currentProjectId) {
-      setCurrentProject(projectId);
-    } else if (!projectId && currentProjectId && settings.mode === 'multi') {
-      // In multi-mode, if the user hits the root without a project slug, redirect them to their current project.
+    if (loading || projects.length === 0) return;
+
+    if (projectSlug) {
+      // Resolve slug to project
+      const project = getProjectBySlug(projectSlug);
+      if (project && project.id !== currentProjectId) {
+        setCurrentProject(project.id);
+      } else if (!project) {
+        // Unknown slug — redirect to first project
+        const fallback = projects[0];
+        navigate(`/${fallback.slug}`, { replace: true });
+      }
+    } else if (currentProjectId && settings.mode === 'multi') {
+      // In multi-mode, redirect bare paths to the current project's slug
+      const current = projects.find(p => p.id === currentProjectId) || projects[0];
+      const slug = current.slug;
       if (location.pathname === '/' || location.pathname === '') {
-        navigate(`/${currentProjectId}`, { replace: true });
+        navigate(`/${slug}`, { replace: true });
       } else {
-        // Redirect to the same path but prefixed with the project ID
-        navigate(`/${currentProjectId}${location.pathname}`, { replace: true });
+        navigate(`/${slug}${location.pathname}`, { replace: true });
       }
     }
-  }, [projectId, currentProjectId, setCurrentProject, navigate, settings.mode, location.pathname]);
+  }, [projectSlug, currentProjectId, setCurrentProject, navigate, settings.mode, location.pathname, getProjectBySlug, projects, loading]);
 
   useEffect(() => {
     ensureSeedNote(storage).catch((error) => {
