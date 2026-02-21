@@ -192,10 +192,10 @@ export default function LandingPageV2() {
     <div
       className="relative h-screen w-screen overflow-hidden select-none"
       style={{
-        background: 'linear-gradient(145deg, #e8e6e1 0%, #eae8e3 30%, #e5e3de 70%, #e2e0db 100%)',
+        background: 'linear-gradient(145deg, #d9d7d2 0%, #dbd9d4 30%, #d6d4cf 70%, #d3d1cc 100%)',
         backgroundImage: `
-          linear-gradient(145deg, #e8e6e1 0%, #eae8e3 30%, #e5e3de 70%, #e2e0db 100%),
-          radial-gradient(circle, #cbc9c4 0.6px, transparent 0.6px)
+          linear-gradient(145deg, #d9d7d2 0%, #dbd9d4 30%, #d6d4cf 70%, #d3d1cc 100%),
+          radial-gradient(circle, #c2c0bb 0.5px, transparent 0.5px)
         `,
         backgroundSize: '100% 100%, 24px 24px',
       }}
