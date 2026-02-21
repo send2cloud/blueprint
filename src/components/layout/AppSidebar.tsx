@@ -32,7 +32,7 @@ export function AppSidebar() {
   const { resolvedTheme, setTheme } = useTheme();
   const collapsed = state === 'collapsed';
   const { artifacts } = useAllArtifacts();
-  const storageType = getStorageAdapterType();
+  
 
   const visibleTools = loading
     ? TOOL_LIST
