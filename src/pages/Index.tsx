@@ -177,6 +177,11 @@ const Index = () => {
             Customize visible tools
           </Button>
         </div>
+
+        {/* Version */}
+        <div className="text-center text-xs text-muted-foreground/50 pt-4 pb-2">
+          v1.0 • Feb 21, 2026
+        </div>
       </div>
     </div>
   );

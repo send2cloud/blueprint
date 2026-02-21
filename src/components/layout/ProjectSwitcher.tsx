@@ -16,6 +16,7 @@ import {
 } from "../ui/sidebar"
 import { useBlueprint } from "../../contexts/BlueprintContext"
 import { useBasePath } from "../../lib/basePath"
+import { getProjectColor } from "../../lib/projectColors"
 
 export function ProjectSwitcher() {
     const { isMobile, state } = useSidebar()
@@ -65,8 +66,9 @@ export function ProjectSwitcher() {
 
     if (!activeProject) return null;
 
-    // Get first letter for avatar
+    // Get first letter and warm color for avatar
     const initial = activeProject.name.charAt(0).toUpperCase()
+    const activeColor = getProjectColor(activeProject.id)
 
     return (
         <SidebarMenu>
@@ -77,7 +79,10 @@ export function ProjectSwitcher() {
                             size="lg"
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
-                            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold">
+                            <div
+                                className="flex aspect-square size-8 items-center justify-center rounded-lg text-sm font-bold"
+                                style={{ backgroundColor: `hsl(${activeColor.bg})`, color: `hsl(${activeColor.fg})` }}
+                            >
                                 {initial}
                             </div>
                             {!collapsed && (
@@ -124,13 +129,17 @@ export function ProjectSwitcher() {
                                 filteredProjects.map((project) => {
                                     const isActive = project.id === currentProjectId
                                     const projectInitial = project.name.charAt(0).toUpperCase()
+                                    const projColor = getProjectColor(project.id)
                                     return (
                                         <button
                                             key={project.id}
                                             onClick={() => handleSwitchProject(project)}
                                             className={`w-full flex items-center gap-3 rounded-md px-2.5 py-2 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${isActive ? 'bg-accent/50' : ''}`}
                                         >
-                                            <div className={`flex size-7 items-center justify-center rounded-md text-xs font-bold shrink-0 ${isActive ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                                            <div
+                                                className="flex size-7 items-center justify-center rounded-md text-xs font-bold shrink-0"
+                                                style={{ backgroundColor: `hsl(${projColor.bg})`, color: `hsl(${projColor.fg})` }}
+                                            >
                                                 {projectInitial}
                                             </div>
                                             <div className="flex-1 min-w-0">
