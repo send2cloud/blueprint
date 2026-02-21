@@ -18,11 +18,18 @@ function AppLayoutContent() {
     if (loading || projects.length === 0) return;
 
     if (projectSlug) {
-      // Resolve slug to project
+      // Resolve slug to project (also checks slugAliases)
       const project = getProjectBySlug(projectSlug);
-      if (project && project.id !== currentProjectId) {
-        setCurrentProject(project.id);
-      } else if (!project) {
+      if (project) {
+        if (project.id !== currentProjectId) {
+          setCurrentProject(project.id);
+        }
+        // If matched via alias, redirect to canonical slug
+        if (project.slug !== projectSlug) {
+          const subPath = location.pathname.slice(`/${projectSlug}`.length);
+          navigate(`/${project.slug}${subPath}`, { replace: true });
+        }
+      } else {
         // Unknown slug — redirect to first project
         const fallback = projects[0];
         navigate(`/${fallback.slug}`, { replace: true });

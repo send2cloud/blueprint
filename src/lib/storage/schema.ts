@@ -35,6 +35,11 @@ export function normalizeProject(raw: Partial<Project> | null | undefined): Proj
     name,
     createdAt,
     updatedAt,
+    logo: typeof raw.logo === 'string' ? raw.logo : undefined,
+    color: typeof raw.color === 'string' ? raw.color : undefined,
+    slugAliases: Array.isArray(raw.slugAliases)
+      ? raw.slugAliases.filter((s): s is string => typeof s === 'string')
+      : undefined,
   };
 }
 

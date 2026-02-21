@@ -68,7 +68,8 @@ export function ProjectSwitcher() {
 
     // Get first letter and warm color for avatar
     const initial = activeProject.name.charAt(0).toUpperCase()
-    const activeColor = getProjectColor(activeProject.id)
+    const activeColor = getProjectColor(activeProject)
+    const hasLogo = !!activeProject.logo
 
     return (
         <SidebarMenu>
@@ -79,12 +80,16 @@ export function ProjectSwitcher() {
                             size="lg"
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
-                            <div
-                                className="flex aspect-square size-8 items-center justify-center rounded-lg text-sm font-bold"
-                                style={{ backgroundColor: `hsl(${activeColor.bg})`, color: `hsl(${activeColor.fg})` }}
-                            >
-                                {initial}
-                            </div>
+                            {hasLogo ? (
+                                <img src={activeProject.logo} alt="" className="size-8 rounded-lg object-cover" />
+                            ) : (
+                                <div
+                                    className="flex aspect-square size-8 items-center justify-center rounded-lg text-sm font-bold"
+                                    style={{ backgroundColor: `hsl(${activeColor.bg})`, color: `hsl(${activeColor.fg})` }}
+                                >
+                                    {initial}
+                                </div>
+                            )}
                             {!collapsed && (
                                 <>
                                     <div className="grid flex-1 text-left text-sm leading-tight">
@@ -129,19 +134,24 @@ export function ProjectSwitcher() {
                                 filteredProjects.map((project) => {
                                     const isActive = project.id === currentProjectId
                                     const projectInitial = project.name.charAt(0).toUpperCase()
-                                    const projColor = getProjectColor(project.id)
+                                    const projColor = getProjectColor(project)
+                                    const projHasLogo = !!project.logo
                                     return (
                                         <button
                                             key={project.id}
                                             onClick={() => handleSwitchProject(project)}
                                             className={`w-full flex items-center gap-3 rounded-md px-2.5 py-2 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${isActive ? 'bg-accent/50' : ''}`}
                                         >
-                                            <div
-                                                className="flex size-7 items-center justify-center rounded-md text-xs font-bold shrink-0"
-                                                style={{ backgroundColor: `hsl(${projColor.bg})`, color: `hsl(${projColor.fg})` }}
-                                            >
-                                                {projectInitial}
-                                            </div>
+                                            {projHasLogo ? (
+                                                <img src={project.logo} alt="" className="size-7 rounded-md object-cover shrink-0" />
+                                            ) : (
+                                                <div
+                                                    className="flex size-7 items-center justify-center rounded-md text-xs font-bold shrink-0"
+                                                    style={{ backgroundColor: `hsl(${projColor.bg})`, color: `hsl(${projColor.fg})` }}
+                                                >
+                                                    {projectInitial}
+                                                </div>
+                                            )}
                                             <div className="flex-1 min-w-0">
                                                 <div className="truncate font-medium">{project.name}</div>
                                                 <div className="truncate text-xs text-muted-foreground">/{project.slug}</div>

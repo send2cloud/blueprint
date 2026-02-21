@@ -18,6 +18,12 @@ export interface Project {
   name: string;
   createdAt: string;
   updatedAt: string;
+  /** Base64-encoded logo image */
+  logo?: string;
+  /** Custom HSL color string e.g. "20 90% 48%" */
+  color?: string;
+  /** Previous slugs that should redirect to the current slug */
+  slugAliases?: string[];
 }
 
 export interface Artifact {

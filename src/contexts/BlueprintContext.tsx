@@ -17,6 +17,7 @@ interface BlueprintActions {
   isToolEnabled: (tool: ToolType) => boolean;
   setCurrentProject: (id: string) => void;
   createProject: (name: string) => Promise<Project>;
+  updateProject: (id: string, updates: Partial<Pick<Project, 'name' | 'logo' | 'color'>>) => Promise<Project>;
   getProjectBySlug: (slug: string) => Project | undefined;
   getCurrentProject: () => Project | undefined;
 }
@@ -147,12 +148,41 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
   }, [storage, projects]);
 
   const getProjectBySlug = useCallback((slug: string): Project | undefined => {
-    return projects.find(p => p.slug === slug || p.id === slug);
+    return projects.find(p => p.slug === slug || p.id === slug || p.slugAliases?.includes(slug));
   }, [projects]);
 
   const getCurrentProject = useCallback((): Project | undefined => {
     return projects.find(p => p.id === currentProjectId);
   }, [projects, currentProjectId]);
+
+  const updateProject = useCallback(async (id: string, updates: Partial<Pick<Project, 'name' | 'logo' | 'color'>>): Promise<Project> => {
+    const existing = projects.find(p => p.id === id);
+    if (!existing) throw new Error('Project not found');
+
+    const updated: Project = { ...existing, ...updates, updatedAt: new Date().toISOString() };
+
+    // If name changed, regenerate slug and keep old slug as alias
+    if (updates.name && updates.name !== existing.name) {
+      const newSlug = generateSlug(updates.name, id);
+      if (newSlug !== existing.slug) {
+        const aliases = new Set(existing.slugAliases || []);
+        aliases.add(existing.slug);
+        updated.slug = newSlug;
+        updated.slugAliases = Array.from(aliases);
+        // Deduplicate against other projects
+        const otherSlugs = new Set(projects.filter(p => p.id !== id).map(p => p.slug));
+        let counter = 2;
+        const base = newSlug;
+        while (otherSlugs.has(updated.slug)) {
+          updated.slug = `${base}-${counter++}`;
+        }
+      }
+    }
+
+    await storage.saveProject(updated);
+    setProjects(prev => prev.map(p => p.id === id ? updated : p));
+    return updated;
+  }, [storage, projects]);
 
   const stateValue = useMemo(() => ({
     enabledTools,
@@ -168,9 +198,10 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
     isToolEnabled,
     setCurrentProject,
     createProject,
+    updateProject,
     getProjectBySlug,
     getCurrentProject,
-  }), [toggleTool, isToolEnabled, setCurrentProject, createProject, getProjectBySlug, getCurrentProject]);
+  }), [toggleTool, isToolEnabled, setCurrentProject, createProject, updateProject, getProjectBySlug, getCurrentProject]);
 
   return (
     <BlueprintStateContext.Provider value={stateValue}>
