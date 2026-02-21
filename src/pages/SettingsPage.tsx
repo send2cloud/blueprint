@@ -43,8 +43,62 @@ const dbConfigSchema = z.object({
 type DbConfigForm = z.infer<typeof dbConfigSchema>;
 
 export default function SettingsPage() {
-  const { enabledTools, loading, storage, settings } = useBlueprintState();
-  const { toggleTool } = useBlueprintActions();
+  const { enabledTools, loading, storage, settings, projects, currentProjectId } = useBlueprintState();
+  const { toggleTool, updateProject, getCurrentProject } = useBlueprintActions();
+  const navigate = useNavigate();
+  const basePath = useBasePath();
+
+  const currentProject = getCurrentProject();
+  const [projectName, setProjectName] = useState('');
+  const [projectColor, setProjectColor] = useState('');
+  const [customColorInput, setCustomColorInput] = useState('');
+  const [projectLogo, setProjectLogo] = useState<string | undefined>(undefined);
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (currentProject) {
+      setProjectName(currentProject.name);
+      setProjectColor(currentProject.color || '');
+      setProjectLogo(currentProject.logo);
+    }
+  }, [currentProject?.id]);
+
+  const handleLogoUpload = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 512 * 1024) {
+      toast({ title: 'Logo too large', description: 'Please use an image under 512KB.', variant: 'destructive' });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setProjectLogo(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  }, []);
+
+  const handleRemoveLogo = useCallback(() => {
+    setProjectLogo(undefined);
+  }, []);
+
+  const handleSaveProjectSettings = useCallback(async () => {
+    if (!currentProject) return;
+    try {
+      const updated = await updateProject(currentProject.id, {
+        name: projectName.trim() || currentProject.name,
+        color: projectColor || undefined,
+        logo: projectLogo,
+      });
+      toast({ title: 'Project updated' });
+      // If slug changed, navigate to new slug
+      if (updated.slug !== currentProject.slug && settings.mode === 'multi') {
+        navigate(`${basePath}/${updated.slug}/settings`, { replace: true });
+      }
+    } catch (err) {
+      toast({ title: 'Failed to update project', variant: 'destructive' });
+    }
+  }, [currentProject, projectName, projectColor, projectLogo, updateProject, navigate, basePath, settings.mode]);
 
   const [showFullId, setShowFullId] = useState(false);
   const [savedId, setSavedId] = useState('');
