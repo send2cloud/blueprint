@@ -107,7 +107,7 @@ const AppRoutes = () => (
                 {coreRoutes}
               </Route>
 
-              {/* Multi-project mode routes */}
+              {/* Multi-Project mode: project-scoped routes */}
               <Route path=":projectId" element={<AppLayout />}>
                 {coreRoutes}
               </Route>
