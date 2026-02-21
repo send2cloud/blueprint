@@ -36,20 +36,6 @@ export default defineConfig(({ mode }) => ({
     ],
   },
   build: {
-    lib: {
-      entry: path.resolve(__dirname, "src/App.tsx"),
-      name: "BlueprintApp",
-      fileName: (format) => `blueprint.${format}.js`,
-    },
-    rollupOptions: {
-      external: ["react", "react-dom", "react-router-dom"],
-      output: {
-        globals: {
-          react: "React",
-          "react-dom": "ReactDOM",
-          "react-router-dom": "ReactRouterDOM",
-        },
-      },
-    },
+    outDir: "dist",
   },
 }));
