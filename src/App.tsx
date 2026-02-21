@@ -35,9 +35,9 @@ const NotesGallery = lazy(() => import("./pages/NotesGallery"));
 const NotesPage = lazy(() => import("./pages/NotesPage"));
 
 interface AppProps {
-  // When embedded inside a host app, pass the sub-path Blueprint is mounted at.
+  // Solo mode: pass the sub-path Blueprint is mounted at in the host app.
   // e.g. basename="/blueprint" so internal navigate() calls go to /blueprint/canvas etc.
-  // When running standalone (via main.tsx), omit this — basePath defaults to ''.
+  // Multi-Project mode (via main.tsx): omit this — basePath defaults to ''.
   basename?: string;
 }
 
