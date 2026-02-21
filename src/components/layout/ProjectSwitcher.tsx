@@ -16,6 +16,7 @@ import {
 } from "../ui/sidebar"
 import { useBlueprint } from "../../contexts/BlueprintContext"
 import { useBasePath } from "../../lib/basePath"
+import { getProjectColor } from "../../lib/projectColors"
 
 export function ProjectSwitcher() {
     const { isMobile, state } = useSidebar()
