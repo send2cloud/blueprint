@@ -68,7 +68,8 @@ export function ProjectSwitcher() {
 
     // Get first letter and warm color for avatar
     const initial = activeProject.name.charAt(0).toUpperCase()
-    const activeColor = getProjectColor(activeProject.id)
+    const activeColor = getProjectColor(activeProject)
+    const hasLogo = !!activeProject.logo
 
     return (
         <SidebarMenu>
@@ -79,12 +80,16 @@ export function ProjectSwitcher() {
                             size="lg"
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
-                            <div
-                                className="flex aspect-square size-8 items-center justify-center rounded-lg text-sm font-bold"
-                                style={{ backgroundColor: `hsl(${activeColor.bg})`, color: `hsl(${activeColor.fg})` }}
-                            >
-                                {initial}
-                            </div>
+                            {hasLogo ? (
+                                <img src={activeProject.logo} alt="" className="size-8 rounded-lg object-cover" />
+                            ) : (
+                                <div
+                                    className="flex aspect-square size-8 items-center justify-center rounded-lg text-sm font-bold"
+                                    style={{ backgroundColor: `hsl(${activeColor.bg})`, color: `hsl(${activeColor.fg})` }}
+                                >
+                                    {initial}
+                                </div>
+                            )}
                             {!collapsed && (
                                 <>
                                     <div className="grid flex-1 text-left text-sm leading-tight">
