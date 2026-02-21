@@ -66,8 +66,9 @@ export function ProjectSwitcher() {
 
     if (!activeProject) return null;
 
-    // Get first letter for avatar
+    // Get first letter and warm color for avatar
     const initial = activeProject.name.charAt(0).toUpperCase()
+    const activeColor = getProjectColor(activeProject.id)
 
     return (
         <SidebarMenu>
