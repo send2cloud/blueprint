@@ -85,7 +85,7 @@ const coreRoutes = (
 );
 
 // All routes are relative (no leading /) so React Router v6 resolves them
-// correctly whether Blueprint is standalone or nested under /blueprint/*.
+// correctly whether Blueprint is Multi-Project (standalone) or Solo (embedded).
 // basePath is threaded via context rather than a nested router.
 const AppRoutes = () => (
   <div className="blueprint-app h-full">
