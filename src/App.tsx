@@ -110,7 +110,7 @@ const AppRoutes = ({ isSolo }: { isSolo: boolean }) => (
               {/* Landing page at root (outside AppLayout) */}
               <Route path="/" element={<LandingPage />} />
 
-              {/* App routes wrapped in layout — use /home as dashboard in Multi-Project */}
+              {/* App routes wrapped in layout */}
               <Route path="/home" element={<AppLayout />}>
                 <Route index element={<Index />} />
               </Route>
