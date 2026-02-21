@@ -29,6 +29,9 @@ function createStorage(artifacts: Artifact[]): StorageAdapter {
     },
     async saveCalendarEvent() {},
     async deleteCalendarEvent() {},
+    async getProjects() { return []; },
+    async saveProject() {},
+    async deleteProject() {},
   };
 }
 
