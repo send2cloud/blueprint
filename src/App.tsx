@@ -23,8 +23,8 @@ import NotFound from "./pages/NotFound";
 import { initializeStorageAdapter } from './lib/storage';
 import { BasePathProvider } from './lib/basePath';
 
-// Initialize storage as soon as this module loads — works in both standalone
-// (via main.tsx) and embedded (via dist/blueprint.es.js import) modes.
+// Initialize storage as soon as this module loads — works in both
+// Multi-Project (via main.tsx) and Solo (via dist-lib import) modes.
 initializeStorageAdapter();
 
 const queryClient = new QueryClient();
@@ -33,6 +33,7 @@ const queryClient = new QueryClient();
 // doesn't blank-screen if the editor chunk fails to initialize.
 const NotesGallery = lazy(() => import("./pages/NotesGallery"));
 const NotesPage = lazy(() => import("./pages/NotesPage"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
 
 interface AppProps {
   // Solo mode: pass the sub-path Blueprint is mounted at in the host app.
@@ -41,9 +42,12 @@ interface AppProps {
   basename?: string;
 }
 
+/** Dashboard + tool routes (shared between Multi-Project and Solo) */
 const coreRoutes = (
   <>
+    {/* Dashboard is at /home in Multi-Project mode (/ is the landing page) */}
     <Route index element={<Index />} />
+    <Route path="home" element={<Index />} />
 
     {/* Canvas (drawings, whiteboards) */}
     <Route path="canvas" element={<CanvasGallery />} />
@@ -87,7 +91,7 @@ const coreRoutes = (
 // All routes are relative (no leading /) so React Router v6 resolves them
 // correctly whether Blueprint is Multi-Project (standalone) or Solo (embedded).
 // basePath is threaded via context rather than a nested router.
-const AppRoutes = () => (
+const AppRoutes = ({ isSolo }: { isSolo: boolean }) => (
   <div className="blueprint-app h-full">
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -102,9 +106,53 @@ const AppRoutes = () => (
             }
           >
             <Routes>
-              {/* Multi-Project mode / fallback root routes */}
+              {/* Multi-Project mode: landing page at root (outside AppLayout) */}
+              {!isSolo && (
+                <Route path="/" element={<LandingPage />} />
+              )}
+
+              {/* App routes wrapped in layout — use /home as dashboard in Multi-Project */}
+              <Route path="/home" element={<AppLayout />}>
+                <Route index element={<Index />} />
+              </Route>
+
               <Route element={<AppLayout />}>
-                {coreRoutes}
+                {/* Canvas (drawings, whiteboards) */}
+                <Route path="canvas" element={<CanvasGallery />} />
+                <Route path="canvas/new" element={<CanvasPage />} />
+                <Route path="canvas/:id" element={<CanvasPage />} />
+
+                {/* Diagram (flows, mind maps) */}
+                <Route path="diagram" element={<DiagramGallery />} />
+                <Route path="diagram/new" element={<DiagramPage />} />
+                <Route path="diagram/:id" element={<DiagramPage />} />
+
+                {/* Board (kanban) */}
+                <Route path="board" element={<BoardGallery />} />
+                <Route path="board/new" element={<BoardPage />} />
+                <Route path="board/:id" element={<BoardPage />} />
+
+                {/* Calendar */}
+                <Route path="calendar" element={<CalendarPage />} />
+
+                {/* Notes */}
+                <Route path="notes" element={<NotesGallery />} />
+                <Route path="notes/new" element={<NotesPage />} />
+                <Route path="notes/:id" element={<NotesPage />} />
+
+                {/* Tags */}
+                <Route path="tag/:tag" element={<TagPage />} />
+
+                {/* Relationships Graph */}
+                <Route path="relationships" element={<RelationshipsPage />} />
+
+                {/* Favorites */}
+                <Route path="favorites" element={<FavoritesPage />} />
+
+                {/* Help */}
+                <Route path="help" element={<HelpPage />} />
+
+                <Route path="settings" element={<SettingsPage />} />
               </Route>
 
               {/* Multi-Project mode: project-scoped routes */}
@@ -121,12 +169,15 @@ const AppRoutes = () => (
   </div>
 );
 
-const App = ({ basename = '' }: AppProps = {}) => (
-  // Provide basePath via context so navigate() calls throughout Blueprint
-  // prefix absolute paths correctly (e.g. /canvas → /blueprint/canvas).
-  <BasePathProvider value={basename}>
-    <AppRoutes />
-  </BasePathProvider>
-);
+const App = ({ basename = '' }: AppProps = {}) => {
+  // Solo mode = has a basename (embedded in host app). No landing page.
+  const isSolo = basename !== '';
+
+  return (
+    <BasePathProvider value={basename}>
+      <AppRoutes isSolo={isSolo} />
+    </BasePathProvider>
+  );
+};
 
 export default App;
