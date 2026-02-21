@@ -196,6 +196,7 @@ export class InstantDbAdapter implements StorageAdapter {
         [TABLE_PROJECTS]: {},
       });
       const rows = (resp.data?.[TABLE_PROJECTS] ?? []) as Project[];
+      console.log('Blueprint: loaded projects from InstantDB, count:', rows.length, rows.map(r => ({ id: r.id, name: r.name, slug: r.slug })));
       const normalized = rows
         .map(row => normalizeProject(row))
         .filter((row): row is Project => Boolean(row));
@@ -206,8 +207,9 @@ export class InstantDbAdapter implements StorageAdapter {
       this.saveCache('projects', sorted);
       return sorted;
     } catch (e) {
-      console.error('Failed to load projects from InstantDB:', e);
+      console.error('Blueprint: Failed to load projects from InstantDB:', e);
       const cache = this.loadCache<Project[]>('projects') ?? [];
+      console.log('Blueprint: falling back to cached projects, count:', cache.length);
       return cache
         .map(row => normalizeProject(row))
         .filter((row): row is Project => Boolean(row))
