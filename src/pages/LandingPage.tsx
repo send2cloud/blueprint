@@ -1,12 +1,35 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
+import { getStorageAdapter } from '../lib/storage';
 
 const IdeaScene = lazy(() => import('../components/landing/IdeaScene'));
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [ready, setReady] = useState(false);
 
+  // Auto-redirect to the first project's dashboard if projects exist
+  useEffect(() => {
+    const storage = getStorageAdapter();
+    storage.getProjects().then(projects => {
+      if (projects.length > 0) {
+        navigate(`/${projects[0].slug}`, { replace: true });
+      } else {
+        setReady(true);
+      }
+    }).catch(() => setReady(true));
+  }, [navigate]);
+
+  if (!ready) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center" style={{ background: '#0a0a0b' }}>
+        <span className="text-xs tracking-[0.3em] uppercase" style={{ color: '#555', fontFamily: "'JetBrains Mono', monospace" }}>
+          Loading…
+        </span>
+      </div>
+    );
+  }
   return (
     <div className="relative h-screen w-screen overflow-hidden" style={{ background: '#0a0a0b' }}>
       {/* 3D Background */}
