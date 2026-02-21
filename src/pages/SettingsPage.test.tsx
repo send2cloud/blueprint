@@ -37,8 +37,8 @@ vi.mock('../contexts/BlueprintContext', () => ({
             getSettings: vi.fn().mockResolvedValue({}),
             saveSettings: vi.fn(),
         },
-        projects: [{ id: 'default', name: 'Default', slug: 'default' }],
-        currentProjectId: 'default',
+        projects: [{ id: '00000000-0000-4000-8000-000000000000', name: 'Default', slug: 'default' }],
+        currentProjectId: '00000000-0000-4000-8000-000000000000',
         settings: { enabledTools: ['canvas', 'diagram', 'board', 'notes', 'calendar'] }
     }),
     useBlueprintActions: () => ({
