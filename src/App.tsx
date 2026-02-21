@@ -23,8 +23,7 @@ import NotFound from "./pages/NotFound";
 import { initializeStorageAdapter } from './lib/storage';
 import { BasePathProvider } from './lib/basePath';
 
-// Initialize storage as soon as this module loads — works in both
-// Multi-Project (via main.tsx) and Solo (via dist-lib import) modes.
+// Initialize storage as soon as this module loads.
 initializeStorageAdapter();
 
 const queryClient = new QueryClient();
