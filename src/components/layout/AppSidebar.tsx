@@ -56,7 +56,7 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        {settings.mode === 'multi' ? (
+        {true ? (
           <ProjectSwitcher />
         ) : (
           <SidebarMenu>
