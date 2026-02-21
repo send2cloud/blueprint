@@ -17,6 +17,7 @@ interface BlueprintActions {
   isToolEnabled: (tool: ToolType) => boolean;
   setCurrentProject: (id: string) => void;
   createProject: (name: string) => Promise<Project>;
+  updateProject: (id: string, updates: Partial<Pick<Project, 'name' | 'logo' | 'color'>>) => Promise<Project>;
   getProjectBySlug: (slug: string) => Project | undefined;
   getCurrentProject: () => Project | undefined;
 }
