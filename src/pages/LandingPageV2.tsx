@@ -189,6 +189,28 @@ const CheckboxDoodle = ({ x, y, scale = 1, delay = 0 }: {
 
 export default function LandingPageV2() {
   const navigate = useNavigate();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const storage = getStorageAdapter();
+    storage.getProjects().then(projects => {
+      if (projects.length > 0) {
+        navigate(`/${projects[0].slug}`, { replace: true });
+      } else {
+        setReady(true);
+      }
+    }).catch(() => setReady(true));
+  }, [navigate]);
+
+  if (!ready) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center" style={{ background: '#d9d7d2' }}>
+        <span className="text-xs tracking-[0.3em] uppercase" style={{ color: '#555', fontFamily: "'JetBrains Mono', monospace" }}>
+          Loading…
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div
