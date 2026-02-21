@@ -106,14 +106,53 @@ const AppRoutes = ({ isSolo }: { isSolo: boolean }) => (
             }
           >
             <Routes>
-              {/* Multi-Project mode: landing page at root */}
+              {/* Multi-Project mode: landing page at root (outside AppLayout) */}
               {!isSolo && (
                 <Route path="/" element={<LandingPage />} />
               )}
 
-              {/* App routes wrapped in layout */}
+              {/* App routes wrapped in layout — use /home as dashboard in Multi-Project */}
+              <Route path="/home" element={<AppLayout />}>
+                <Route index element={<Index />} />
+              </Route>
+
               <Route element={<AppLayout />}>
-                {coreRoutes}
+                {/* Canvas (drawings, whiteboards) */}
+                <Route path="canvas" element={<CanvasGallery />} />
+                <Route path="canvas/new" element={<CanvasPage />} />
+                <Route path="canvas/:id" element={<CanvasPage />} />
+
+                {/* Diagram (flows, mind maps) */}
+                <Route path="diagram" element={<DiagramGallery />} />
+                <Route path="diagram/new" element={<DiagramPage />} />
+                <Route path="diagram/:id" element={<DiagramPage />} />
+
+                {/* Board (kanban) */}
+                <Route path="board" element={<BoardGallery />} />
+                <Route path="board/new" element={<BoardPage />} />
+                <Route path="board/:id" element={<BoardPage />} />
+
+                {/* Calendar */}
+                <Route path="calendar" element={<CalendarPage />} />
+
+                {/* Notes */}
+                <Route path="notes" element={<NotesGallery />} />
+                <Route path="notes/new" element={<NotesPage />} />
+                <Route path="notes/:id" element={<NotesPage />} />
+
+                {/* Tags */}
+                <Route path="tag/:tag" element={<TagPage />} />
+
+                {/* Relationships Graph */}
+                <Route path="relationships" element={<RelationshipsPage />} />
+
+                {/* Favorites */}
+                <Route path="favorites" element={<FavoritesPage />} />
+
+                {/* Help */}
+                <Route path="help" element={<HelpPage />} />
+
+                <Route path="settings" element={<SettingsPage />} />
               </Route>
 
               {/* Multi-Project mode: project-scoped routes */}
