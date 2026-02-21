@@ -66,13 +66,39 @@ export default function SettingsPage() {
   const handleLogoUpload = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 512 * 1024) {
-      toast({ title: 'Logo too large', description: 'Please use an image under 512KB.', variant: 'destructive' });
-      return;
-    }
+
+    const maxDim = 256;
     const reader = new FileReader();
-    reader.onload = () => {
-      setProjectLogo(reader.result as string);
+
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          }
+        } else {
+          if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL('image/webp', 0.8);
+          setProjectLogo(compressed);
+        }
+      };
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
     e.target.value = '';

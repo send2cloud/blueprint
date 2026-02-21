@@ -1,11 +1,9 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import tailwindcss from "tailwindcss";
+import autoprefixer from "autoprefixer";
 
-// Solo build config — produces dist-lib/blueprint.es.js + style.css
-// "Solo" = Blueprint embedded inside another project as a library bundle.
-// Run: npm run build:lib (or bun run build:lib)
-// This does NOT affect the Multi-Project build used by Lovable's publish pipeline.
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -46,4 +44,14 @@ export default defineConfig({
     },
     cssCodeSplit: false,
   },
+  css: {
+    postcss: {
+      plugins: [
+        tailwindcss({
+          config: "./tailwind.lib.config.ts"
+        }),
+        autoprefixer(),
+      ]
+    }
+  }
 });

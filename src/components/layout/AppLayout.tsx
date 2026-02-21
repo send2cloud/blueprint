@@ -30,12 +30,12 @@ function AppLayoutContent() {
           navigate(`/${project.slug}${subPath}`, { replace: true });
         }
       } else {
-        // Unknown slug — redirect to first project
-        const fallback = projects[0];
-        navigate(`/${fallback.slug}`, { replace: true });
+        // Unknown slug — navigate to 404 so user knows it's invalid
+        navigate('/404', { replace: true });
       }
-    } else if (currentProjectId && settings.mode === 'multi') {
-      // In multi-mode, redirect bare paths to the current project's slug
+    } else if (settings.mode === 'multi') {
+      // In multi-mode, redirect bare paths to the current project's slug.
+      // E.g., /settings becomes /slug/settings
       const current = projects.find(p => p.id === currentProjectId) || projects[0];
       const slug = current.slug;
       if (location.pathname === '/' || location.pathname === '') {

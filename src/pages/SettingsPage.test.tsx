@@ -27,6 +27,7 @@ vi.mock('../contexts/BlueprintContext', () => ({
         enabledTools: ["whiteboard"],
         toggleTool: vi.fn(),
         loading: false,
+        getCurrentProject: vi.fn(() => ({ id: 'default', name: 'Default', slug: 'default' })),
     }),
     useBlueprintState: () => ({
         enabledTools: ["whiteboard"],
@@ -35,10 +36,15 @@ vi.mock('../contexts/BlueprintContext', () => ({
             listArtifacts: vi.fn().mockResolvedValue([]),
             getSettings: vi.fn().mockResolvedValue({}),
             saveSettings: vi.fn(),
-        }
+        },
+        projects: [{ id: 'default', name: 'Default', slug: 'default' }],
+        currentProjectId: 'default',
+        settings: { mode: 'solo' }
     }),
     useBlueprintActions: () => ({
         toggleTool: vi.fn(),
+        getCurrentProject: vi.fn(() => ({ id: 'default', name: 'Default', slug: 'default' })),
+        updateProject: vi.fn(),
     }),
 }));
 

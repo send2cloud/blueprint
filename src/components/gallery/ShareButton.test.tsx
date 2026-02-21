@@ -7,6 +7,7 @@ vi.mock('../../contexts/BlueprintContext', () => ({
   useBlueprint: () => ({
     currentProjectId: null,
     settings: { mode: 'solo', enabledTools: ['notes'] },
+    getCurrentProject: vi.fn(() => null),
   }),
 }));
 
