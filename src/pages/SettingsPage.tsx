@@ -551,47 +551,21 @@ export default function SettingsPage() {
                 {/* Color */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold uppercase text-muted-foreground">Project Color</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {PRESET_COLORS.map((c, i) => (
-                      <button
-                        key={i}
-                        onClick={() => { setProjectColor(c.bg); setCustomColorInput(''); }}
-                        className={`size-8 rounded-full border-2 transition-all ${projectColor === c.bg ? 'border-foreground scale-110' : 'border-transparent hover:scale-105'}`}
-                        style={{ backgroundColor: `hsl(${c.bg})` }}
-                        title={`Preset ${i + 1}`}
-                      />
-                    ))}
-                    {/* Clear */}
-                    <button
-                      onClick={() => { setProjectColor(''); setCustomColorInput(''); }}
-                      className={`size-8 rounded-full border-2 transition-all flex items-center justify-center ${!projectColor ? 'border-foreground scale-110' : 'border-border hover:scale-105'}`}
-                      title="Auto (based on project ID)"
-                    >
-                      <X className="size-3 text-muted-foreground" />
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Label htmlFor="custom-color" className="text-[11px] text-muted-foreground whitespace-nowrap">Custom HSL:</Label>
-                    <Input
-                      id="custom-color"
-                      value={customColorInput}
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={projectColor ? hslToHex(projectColor) : hslToHex(getProjectColor(currentProject).bg)}
                       onChange={(e) => {
-                        setCustomColorInput(e.target.value);
-                        // Validate basic HSL format: "H S% L%"
-                        const v = e.target.value.trim();
-                        if (/^\d+\s+\d+%?\s+\d+%?$/.test(v)) {
-                          const normalized = v.replace(/(\d+)\s+(\d+)%?\s+(\d+)%?/, '$1 $2% $3%');
-                          setProjectColor(normalized);
-                        }
+                        const hsl = hexToHsl(e.target.value);
+                        setProjectColor(hsl);
                       }}
-                      placeholder="e.g. 200 70% 50%"
-                      className="h-8 text-xs font-mono max-w-48"
+                      className="size-10 rounded-md border border-border cursor-pointer bg-transparent p-0.5"
                     />
+                    <span className="text-xs text-muted-foreground">Pick a project color</span>
                     {projectColor && (
-                      <div
-                        className="size-8 rounded-md border border-border shrink-0"
-                        style={{ backgroundColor: `hsl(${projectColor})` }}
-                      />
+                      <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setProjectColor('')}>
+                        Reset
+                      </Button>
                     )}
                   </div>
                 </div>
