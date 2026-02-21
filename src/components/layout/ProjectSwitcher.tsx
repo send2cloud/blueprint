@@ -79,7 +79,10 @@ export function ProjectSwitcher() {
                             size="lg"
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
-                            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold">
+                            <div
+                                className="flex aspect-square size-8 items-center justify-center rounded-lg text-sm font-bold"
+                                style={{ backgroundColor: `hsl(${activeColor.bg})`, color: `hsl(${activeColor.fg})` }}
+                            >
                                 {initial}
                             </div>
                             {!collapsed && (
