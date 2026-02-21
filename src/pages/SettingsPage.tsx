@@ -148,7 +148,7 @@ export default function SettingsPage() {
       });
       toast({ title: 'Project updated' });
       // If slug changed, navigate to new slug
-      if (updated.slug !== currentProject.slug && settings.mode === 'multi') {
+      if (updated.slug !== currentProject.slug) {
         navigate(`${basePath}/${updated.slug}/settings`, { replace: true });
       }
     } catch (err) {
