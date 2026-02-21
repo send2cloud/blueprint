@@ -6,6 +6,19 @@ function isValidToolType(value: unknown): value is ToolType {
   return typeof value === 'string' && (ALL_TOOLS as string[]).includes(value);
 }
 
+/**
+ * Generate a URL-safe slug from a project name.
+ * Falls back to the project ID if the name produces an empty slug.
+ */
+export function generateSlug(name: string, fallbackId?: string): string {
+  const slug = name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return slug || fallbackId || 'project';
+}
+
 export function normalizeProject(raw: Partial<Project> | null | undefined): Project | null {
   if (!raw || typeof raw !== 'object') return null;
   if (!raw.id || typeof raw.id !== 'string') return null;
@@ -13,10 +26,13 @@ export function normalizeProject(raw: Partial<Project> | null | undefined): Proj
   const now = new Date().toISOString();
   const createdAt = safeIsoDate(raw.createdAt, now);
   const updatedAt = safeIsoDate(raw.updatedAt, createdAt);
+  const name = typeof raw.name === 'string' && raw.name.trim().length > 0 ? raw.name : 'Untitled Project';
+  const slug = typeof raw.slug === 'string' && raw.slug.length > 0 ? raw.slug : generateSlug(name, raw.id);
 
   return {
     id: raw.id,
-    name: typeof raw.name === 'string' && raw.name.trim().length > 0 ? raw.name : 'Untitled Project',
+    slug,
+    name,
     createdAt,
     updatedAt,
   };
