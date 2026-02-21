@@ -43,10 +43,9 @@ interface AppProps {
   basename?: string;
 }
 
-/** Dashboard + tool routes (shared between Multi-Project and Solo) */
+/** Dashboard + tool routes (shared across all contexts) */
 const coreRoutes = (
   <>
-    {/* Dashboard is at /home in Multi-Project mode (/ is the landing page) */}
     <Route index element={<Index />} />
     <Route path="home" element={<Index />} />
 
@@ -89,10 +88,7 @@ const coreRoutes = (
   </>
 );
 
-// All routes are relative (no leading /) so React Router v6 resolves them
-// correctly whether Blueprint is Multi-Project (standalone) or Solo (embedded).
-// basePath is threaded via context rather than a nested router.
-const AppRoutes = ({ isSolo }: { isSolo: boolean }) => (
+const AppRoutes = () => (
   <div className="blueprint-app h-full">
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -154,7 +150,7 @@ const AppRoutes = ({ isSolo }: { isSolo: boolean }) => (
                 <Route path="settings" element={<SettingsPage />} />
               </Route>
 
-              {/* Multi-Project mode: project-scoped routes */}
+              {/* Project-scoped routes */}
               <Route path=":projectId" element={<AppLayout />}>
                 {coreRoutes}
               </Route>
