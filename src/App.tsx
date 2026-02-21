@@ -23,8 +23,7 @@ import NotFound from "./pages/NotFound";
 import { initializeStorageAdapter } from './lib/storage';
 import { BasePathProvider } from './lib/basePath';
 
-// Initialize storage as soon as this module loads — works in both
-// Multi-Project (via main.tsx) and Solo (via dist-lib import) modes.
+// Initialize storage as soon as this module loads.
 initializeStorageAdapter();
 
 const queryClient = new QueryClient();
@@ -39,16 +38,14 @@ const LandingPage = Math.random() < 0.5
   : lazy(() => import("./pages/LandingPageV2"));
 
 interface AppProps {
-  // Solo mode: pass the sub-path Blueprint is mounted at in the host app.
-  // e.g. basename="/blueprint" so internal navigate() calls go to /blueprint/canvas etc.
-  // Multi-Project mode (via main.tsx): omit this — basePath defaults to ''.
+  /** When embedding Blueprint as a library, pass the sub-path it's mounted at
+   *  (e.g. basename="/blueprint") so internal navigation resolves correctly. */
   basename?: string;
 }
 
-/** Dashboard + tool routes (shared between Multi-Project and Solo) */
+/** Dashboard + tool routes (shared across all contexts) */
 const coreRoutes = (
   <>
-    {/* Dashboard is at /home in Multi-Project mode (/ is the landing page) */}
     <Route index element={<Index />} />
     <Route path="home" element={<Index />} />
 
@@ -91,10 +88,7 @@ const coreRoutes = (
   </>
 );
 
-// All routes are relative (no leading /) so React Router v6 resolves them
-// correctly whether Blueprint is Multi-Project (standalone) or Solo (embedded).
-// basePath is threaded via context rather than a nested router.
-const AppRoutes = ({ isSolo }: { isSolo: boolean }) => (
+const AppRoutes = () => (
   <div className="blueprint-app h-full">
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -109,12 +103,10 @@ const AppRoutes = ({ isSolo }: { isSolo: boolean }) => (
             }
           >
             <Routes>
-              {/* Multi-Project mode: landing page at root (outside AppLayout) */}
-              {!isSolo && (
-                <Route path="/" element={<LandingPage />} />
-              )}
+              {/* Landing page at root (outside AppLayout) */}
+              <Route path="/" element={<LandingPage />} />
 
-              {/* App routes wrapped in layout — use /home as dashboard in Multi-Project */}
+              {/* App routes wrapped in layout */}
               <Route path="/home" element={<AppLayout />}>
                 <Route index element={<Index />} />
               </Route>
@@ -158,7 +150,7 @@ const AppRoutes = ({ isSolo }: { isSolo: boolean }) => (
                 <Route path="settings" element={<SettingsPage />} />
               </Route>
 
-              {/* Multi-Project mode: project-scoped routes */}
+              {/* Project-scoped routes */}
               <Route path=":projectId" element={<AppLayout />}>
                 {coreRoutes}
               </Route>
@@ -172,15 +164,10 @@ const AppRoutes = ({ isSolo }: { isSolo: boolean }) => (
   </div>
 );
 
-const App = ({ basename = '' }: AppProps = {}) => {
-  // Solo mode = has a basename (embedded in host app). No landing page.
-  const isSolo = basename !== '';
-
-  return (
-    <BasePathProvider value={basename}>
-      <AppRoutes isSolo={isSolo} />
-    </BasePathProvider>
-  );
-};
+const App = ({ basename = '' }: AppProps = {}) => (
+  <BasePathProvider value={basename}>
+    <AppRoutes />
+  </BasePathProvider>
+);
 
 export default App;

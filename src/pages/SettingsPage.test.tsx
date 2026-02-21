@@ -39,7 +39,7 @@ vi.mock('../contexts/BlueprintContext', () => ({
         },
         projects: [{ id: 'default', name: 'Default', slug: 'default' }],
         currentProjectId: 'default',
-        settings: { mode: 'solo' }
+        settings: { enabledTools: ['canvas', 'diagram', 'board', 'notes', 'calendar'] }
     }),
     useBlueprintActions: () => ({
         toggleTool: vi.fn(),

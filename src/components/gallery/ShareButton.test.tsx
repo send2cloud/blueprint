@@ -6,7 +6,7 @@ import { ShareButton } from './ShareButton';
 vi.mock('../../contexts/BlueprintContext', () => ({
   useBlueprint: () => ({
     currentProjectId: null,
-    settings: { mode: 'solo', enabledTools: ['notes'] },
+    settings: { enabledTools: ['notes'] },
     getCurrentProject: vi.fn(() => null),
   }),
 }));
