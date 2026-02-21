@@ -192,11 +192,12 @@ export default function LandingPageV2() {
     <div
       className="relative h-screen w-screen overflow-hidden select-none"
       style={{
-        background: '#f8f6f1',
+        background: 'linear-gradient(145deg, #e8e6e1 0%, #eae8e3 30%, #e5e3de 70%, #e2e0db 100%)',
         backgroundImage: `
-          radial-gradient(circle, #ccc 0.8px, transparent 0.8px)
+          linear-gradient(145deg, #e8e6e1 0%, #eae8e3 30%, #e5e3de 70%, #e2e0db 100%),
+          radial-gradient(circle, #cbc9c4 0.6px, transparent 0.6px)
         `,
-        backgroundSize: '24px 24px',
+        backgroundSize: '100% 100%, 24px 24px',
       }}
     >
       {/* SVG filter for marker texture */}
