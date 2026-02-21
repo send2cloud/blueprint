@@ -102,7 +102,7 @@ const AppRoutes = () => (
             }
           >
             <Routes>
-              {/* Solo mode / fallback root routes */}
+              {/* Multi-Project mode / fallback root routes */}
               <Route element={<AppLayout />}>
                 {coreRoutes}
               </Route>
