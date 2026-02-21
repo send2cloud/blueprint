@@ -1,11 +1,11 @@
-import { Home, Star, Settings, Moon, Sun, PanelLeftClose, PanelLeft, HelpCircle, Tag, Network } from 'lucide-react';
+import { Star, Settings, Moon, Sun, PanelLeftClose, PanelLeft, HelpCircle, Tag, Network } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { NavLink } from '../NavLink';
 import { useBlueprint } from '../../contexts/BlueprintContext';
 import { TOOL_LIST, TOOL_CONFIG } from '../../lib/toolConfig';
 import { useAllArtifacts } from '../../hooks/useArtifacts';
 import { TagCloud } from '../sidebar/TagCloud';
-import { getStorageAdapterType } from '../../lib/storage/adapter';
+
 import { ProjectSwitcher } from './ProjectSwitcher';
 import {
   Sidebar,
@@ -28,11 +28,11 @@ import {
 
 export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
-  const { isToolEnabled, loading, settings } = useBlueprint();
+  const { isToolEnabled, loading } = useBlueprint();
   const { resolvedTheme, setTheme } = useTheme();
   const collapsed = state === 'collapsed';
   const { artifacts } = useAllArtifacts();
-  const storageType = getStorageAdapterType();
+  
 
   const visibleTools = loading
     ? TOOL_LIST
@@ -56,40 +56,7 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        {settings.mode === 'multi' ? (
-          <ProjectSwitcher />
-        ) : (
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Blueprints">
-                <NavLink
-                  to="/"
-                  end
-                  className="flex items-center gap-2"
-                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
-                >
-                  <div className="relative">
-                    <Home className="h-4 w-4" />
-                    <span
-                      className={`absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full border border-sidebar-background ${storageType === 'instantdb'
-                        ? 'bg-emerald-500'
-                        : 'bg-red-500'
-                        }`}
-                      title={
-                        storageType === 'instantdb'
-                          ? 'Connected to InstantDB'
-                          : 'No database connected (local only)'
-                      }
-                    />
-                  </div>
-                  {!collapsed && (
-                    <span className="font-semibold">Blueprint</span>
-                  )}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        )}
+        <ProjectSwitcher />
       </SidebarHeader>
 
       <SidebarContent>

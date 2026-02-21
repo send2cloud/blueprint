@@ -148,13 +148,13 @@ export default function SettingsPage() {
       });
       toast({ title: 'Project updated' });
       // If slug changed, navigate to new slug
-      if (updated.slug !== currentProject.slug && settings.mode === 'multi') {
+      if (updated.slug !== currentProject.slug) {
         navigate(`${basePath}/${updated.slug}/settings`, { replace: true });
       }
     } catch (err) {
       toast({ title: 'Failed to update project', variant: 'destructive' });
     }
-  }, [currentProject, projectName, projectColor, projectLogo, updateProject, navigate, basePath, settings.mode]);
+  }, [currentProject, projectName, projectColor, projectLogo, updateProject, navigate, basePath]);
 
   const [showFullId, setShowFullId] = useState(false);
   const [savedId, setSavedId] = useState('');

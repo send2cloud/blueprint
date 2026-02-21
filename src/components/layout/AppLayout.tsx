@@ -9,7 +9,7 @@ import { CommandPalette } from '../CommandPalette';
 
 function AppLayoutContent() {
   const { commandPaletteOpen, setCommandPaletteOpen } = useKeyboardShortcuts();
-  const { storage, currentProjectId, setCurrentProject, settings, getProjectBySlug, projects, loading } = useBlueprint();
+  const { storage, currentProjectId, setCurrentProject, getProjectBySlug, projects, loading } = useBlueprint();
   const { projectId: projectSlug } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,8 +33,8 @@ function AppLayoutContent() {
         // Unknown slug — navigate to 404 so user knows it's invalid
         navigate('/404', { replace: true });
       }
-    } else if (settings.mode === 'multi') {
-      // In multi-mode, redirect bare paths to the current project's slug.
+    } else {
+      // Redirect bare paths to the current project's slug.
       // E.g., /settings becomes /slug/settings
       const current = projects.find(p => p.id === currentProjectId) || projects[0];
       const slug = current.slug;
@@ -44,7 +44,7 @@ function AppLayoutContent() {
         navigate(`/${slug}${location.pathname}`, { replace: true });
       }
     }
-  }, [projectSlug, currentProjectId, setCurrentProject, navigate, settings.mode, location.pathname, getProjectBySlug, projects, loading]);
+  }, [projectSlug, currentProjectId, setCurrentProject, navigate, location.pathname, getProjectBySlug, projects, loading]);
 
   useEffect(() => {
     ensureSeedNote(storage).catch((error) => {
