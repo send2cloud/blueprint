@@ -51,8 +51,8 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
           // Use a deterministic UUID so InstantDB accepts it (requires UUID entity IDs)
           const defaultProject: Project = {
             id: '00000000-0000-4000-8000-000000000000',
-            slug: 'default-project',
-            name: 'Default Project',
+            slug: 'idearoom',
+            name: 'Idearoom',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
