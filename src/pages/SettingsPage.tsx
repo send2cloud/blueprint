@@ -579,6 +579,7 @@ export default function SettingsPage() {
             </div>
           )}
 
+          <div className="space-y-4 rounded-lg border border-border bg-card p-4 sm:p-6 shadow-sm">
             <div>
               <h3 className="text-sm font-semibold text-foreground">Backup & Portability</h3>
               <p className="text-xs text-muted-foreground mt-1">
