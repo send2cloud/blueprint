@@ -1,28 +1,31 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getStorageAdapter, Artifact, CURRENT_SCHEMA_VERSION } from '../lib/storage';
 import { sortArtifacts } from '../lib/artifactUtils';
+import { useBlueprint } from '../contexts/BlueprintContext';
 
 /**
- * Hook for listing all artifacts across all tool types
+ * Hook for listing all artifacts across all tool types,
+ * scoped to the current project when in multi-project mode.
  */
 export function useAllArtifacts() {
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const storage = getStorageAdapter();
+  const { currentProjectId } = useBlueprint();
 
   const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const list = await storage.listArtifacts();
+      const list = await storage.listArtifacts(undefined, currentProjectId || undefined);
       setArtifacts(sortArtifacts(list));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load');
     } finally {
       setLoading(false);
     }
-  }, [storage]);
+  }, [storage, currentProjectId]);
 
   useEffect(() => {
     refresh();
