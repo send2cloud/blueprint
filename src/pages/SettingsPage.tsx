@@ -154,7 +154,7 @@ export default function SettingsPage() {
     } catch (err) {
       toast({ title: 'Failed to update project', variant: 'destructive' });
     }
-  }, [currentProject, projectName, projectColor, projectLogo, updateProject, navigate, basePath, settings.mode]);
+  }, [currentProject, projectName, projectColor, projectLogo, updateProject, navigate, basePath]);
 
   const [showFullId, setShowFullId] = useState(false);
   const [savedId, setSavedId] = useState('');
