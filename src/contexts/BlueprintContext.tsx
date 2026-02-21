@@ -47,8 +47,6 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
 
         let loadedProjects = await storage.getProjects();
         if (loadedProjects.length === 0) {
-          // Create default project migration
-          // Use a deterministic UUID so InstantDB accepts it (requires UUID entity IDs)
           const defaultProject: Project = {
             id: '00000000-0000-4000-8000-000000000000',
             slug: 'idearoom',
@@ -59,6 +57,19 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
           await storage.saveProject(defaultProject);
           loadedProjects = [defaultProject];
         } else {
+          // Migrate legacy "Default Project" → "Idearoom"
+          loadedProjects = loadedProjects.map(p => {
+            if (p.name === 'Default Project' || p.slug === 'default-project') {
+              return { ...p, name: 'Idearoom', slug: 'idearoom' };
+            }
+            return p;
+          });
+          // Persist the rename
+          for (const p of loadedProjects) {
+            if (p.name === 'Idearoom' && p.slug === 'idearoom') {
+              await storage.saveProject(p);
+            }
+          }
           // Backfill slugs for any projects that don't have one
           let needsSave = false;
           const existingSlugs = new Set<string>();
