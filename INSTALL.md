@@ -13,8 +13,8 @@ Hey AI, install the Blueprint Idea Room into my project:
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
 
 Once the script finishes:
-1. Find the ProseMirror dedupe config array listed in `blueprint/INSTALL.md` and inject it into my `vite.config.ts`
-2. Import `<BlueprintApp />` from `./blueprint/src/App` and mount it at the `/blueprint/*` route.
+1. Import `<BlueprintApp />` from `./blueprint/dist-lib/blueprint.es.js` and mount it at the `/blueprint/*` route.
+2. Import the CSS file: `import './blueprint/dist-lib/style.css'`
 ```
 
 ---
@@ -25,11 +25,9 @@ Once the script finishes:
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
 ```
 
-This automates the process of cloning Blueprint without git history into a `blueprint` folder.
+This downloads Blueprint without git history into a `blueprint` folder.
 
-> **⚠️ IMPORTANT:** The script does NOT run `npm install` automatically. If embedding into a host app, install dependencies in your HOST project's `package.json` to prevent fatal React `useRef` duplicate instance errors. 
-> 
-> *Only* run `npm install` inside the `blueprint` folder if you are running it as a standalone web app!
+> **⚠️ IMPORTANT:** For embedding, do NOT run `npm install` inside the `blueprint` folder. The pre-built library bundle at `dist-lib/` is ready to use — the host project provides React. Only run `npm install` if running Blueprint standalone.
 
 ---
 
@@ -38,12 +36,10 @@ This automates the process of cloning Blueprint without git history into a `blue
 ```bash
 npx degit send2cloud/blueprint blueprint
 
-# ONLY run these if using Standalone (NOT embedding)
+# ONLY for standalone mode (NOT embedding)
 cd blueprint && npm install
 npm run dev
 ```
-
-This clones Blueprint without git history into a `blueprint` folder.
 
 ---
 
@@ -54,7 +50,7 @@ git clone https://github.com/send2cloud/blueprint.git blueprint
 cd blueprint
 rm -rf .git  # Remove Blueprint's git history
 
-# ONLY run these if using Standalone (NOT embedding)
+# ONLY for standalone mode (NOT embedding)
 npm install
 npm run dev
 ```
@@ -71,30 +67,26 @@ node blueprint/scripts/copy-to-project.js /path/to/your/project
 
 ---
 
-## Post-Install Setup
+## Post-Install Setup (Embedding)
 
 ### 1. Mount Blueprint Routes
 
 ```tsx
 // In your main App.tsx or router
-import { lazy, Suspense } from 'react';
-
-const BlueprintApp = lazy(() => import('./blueprint/dist/blueprint.es.js'));
-import './blueprint/dist/style.css'; // Don't forget the styles!
+import BlueprintApp from './blueprint/dist-lib/blueprint.es.js';
+import './blueprint/dist-lib/style.css';
 
 function App() {
   return (
     <Routes>
       {/* Your existing routes */}
-      <Route path="/blueprint/*" element={
-        <Suspense fallback={<div>Loading Blueprint...</div>}>
-          <BlueprintApp />
-        </Suspense>
-      } />
+      <Route path="/blueprint/*" element={<BlueprintApp basename="/blueprint" />} />
     </Routes>
   );
 }
 ```
+
+The library bundle externalizes React, ReactDOM, and react-router-dom — your host project provides them, preventing duplicate instance crashes.
 
 ### 2. Configure Storage (Optional)
 
@@ -106,6 +98,19 @@ VITE_INSTANTDB_APP_ID=your-app-id-here
 ```
 
 Or configure via Blueprint's Settings page after launching.
+
+---
+
+## Dual Build Architecture
+
+Blueprint has two independent build configurations:
+
+| Build | Config File | Command | Output | Purpose |
+|-------|-------------|---------|--------|---------|
+| **SPA** | `vite.config.ts` | `npm run build` | `dist/` | Standalone site, Lovable publish |
+| **Library** | `vite.config.lib.ts` | `npm run build:lib` | `dist-lib/` | Embedding into host React apps |
+
+The SPA build is the default and produces a standard `index.html` app. The library build produces an ES module (`blueprint.es.js`) with React externalized, plus a bundled `style.css`.
 
 ---
 
