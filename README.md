@@ -16,20 +16,20 @@ Plus: Tags, Favorites, deep-linking, and a gallery view for each artifact type.
 
 ---
 
-## Dual Build Architecture
+## Build Architecture
 
-Blueprint supports two deployment modes:
+Blueprint supports two build targets:
 
-| Mode | Command | Output | Use Case |
-|------|---------|--------|----------|
-| **Multi-Project** (default) | `npm run build` | `dist/` | Standalone Lovable site, `npm run dev`, direct publishing |
-| **Solo** | `npm run build:lib` | `dist-lib/` | Embedded inside another React project |
+| Build | Command | Output | Use Case |
+|-------|---------|--------|----------|
+| **Default** | `npm run build` | `dist/` | Standalone site, `npm run dev`, direct publishing |
+| **Library** | `npm run build:lib` | `dist-lib/` | Embedded inside another React project |
 
-### Multi-Project Mode
+### Default Build
 
 The default `vite build` produces a standard `index.html` + JS/CSS bundle in `dist/`. This is what Lovable's publish pipeline uses. Blueprint runs as its own full site with its own URL.
 
-### Solo Mode
+### Library Build
 
 `npm run build:lib` uses a separate `vite.config.lib.ts` to produce:
 - `dist-lib/blueprint.es.js` — ES module with React/ReactDOM externalized
@@ -38,7 +38,7 @@ The default `vite build` produces a standard `index.html` + JS/CSS bundle in `di
 The host project provides React and ReactDOM, preventing duplicate instances and `useRef` crashes.
 
 ```tsx
-// Host project usage (Solo mode)
+// Host project usage (library build)
 import BlueprintApp from './blueprint/dist-lib/blueprint.es.js';
 import './blueprint/dist-lib/style.css';
 
@@ -113,11 +113,11 @@ Run this single command from the root of your project:
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
 ```
 
-This downloads Blueprint into a `blueprint` folder. The Solo bundle is pre-built at `dist-lib/`.
+This downloads Blueprint into a `blueprint` folder. The library bundle is pre-built at `dist-lib/`.
 
-**Solo (embedded):** Import `dist-lib/blueprint.es.js` and `dist-lib/style.css` into your host project. Do NOT run `npm install` inside the blueprint folder — the host provides React.
+**Embedding:** Import `dist-lib/blueprint.es.js` and `dist-lib/style.css` into your host project. Do NOT run `npm install` inside the blueprint folder — the host provides React.
 
-**Multi-Project (standalone):** Run `cd blueprint && npm install && npm run dev`.
+**Standalone:** Run `cd blueprint && npm install && npm run dev`.
 
 ### Scenario C: Updating an Existing Blueprint
 
@@ -184,7 +184,7 @@ The Calendar tool is architected to aggregate time-based data from the entire pr
 
 ## Tech Stack
 
-- **Build:** Vite + TypeScript (dual Multi-Project + Solo configs)
+- **Build:** Vite + TypeScript (default + library configs)
 - **UI:** React, Tailwind CSS, shadcn/ui
 - **State:** TanStack Query (React Query)
 - **Whiteboard:** tldraw
