@@ -23,9 +23,39 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { checkBlueprintUpdates } from '../lib/updateChecker';
 import { ArrowUpCircle } from 'lucide-react';
-import { getProjectColor, PRESET_COLORS, getFgForHsl } from '../lib/projectColors';
+import { getProjectColor } from '../lib/projectColors';
 import { useNavigate } from 'react-router-dom';
 import { useBasePath } from '../lib/basePath';
+
+function hslToHex(hsl: string): string {
+  const parts = hsl.trim().split(/\s+/);
+  const h = parseFloat(parts[0] || '0');
+  const s = parseFloat(parts[1]?.replace('%', '') || '50') / 100;
+  const l = parseFloat(parts[2]?.replace('%', '') || '50') / 100;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12;
+    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * color).toString(16).padStart(2, '0');
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+function hexToHsl(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  if (max === min) return `0 0% ${Math.round(l * 100)}%`;
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h = 0;
+  if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+  else if (max === g) h = ((b - r) / d + 2) * 60;
+  else h = ((r - g) / d + 4) * 60;
+  return `${Math.round(h)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+}
 
 const dbConfigSchema = z.object({
   provider: z.enum(['local', 'instantdb']),
@@ -551,47 +581,21 @@ export default function SettingsPage() {
                 {/* Color */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold uppercase text-muted-foreground">Project Color</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {PRESET_COLORS.map((c, i) => (
-                      <button
-                        key={i}
-                        onClick={() => { setProjectColor(c.bg); setCustomColorInput(''); }}
-                        className={`size-8 rounded-full border-2 transition-all ${projectColor === c.bg ? 'border-foreground scale-110' : 'border-transparent hover:scale-105'}`}
-                        style={{ backgroundColor: `hsl(${c.bg})` }}
-                        title={`Preset ${i + 1}`}
-                      />
-                    ))}
-                    {/* Clear */}
-                    <button
-                      onClick={() => { setProjectColor(''); setCustomColorInput(''); }}
-                      className={`size-8 rounded-full border-2 transition-all flex items-center justify-center ${!projectColor ? 'border-foreground scale-110' : 'border-border hover:scale-105'}`}
-                      title="Auto (based on project ID)"
-                    >
-                      <X className="size-3 text-muted-foreground" />
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Label htmlFor="custom-color" className="text-[11px] text-muted-foreground whitespace-nowrap">Custom HSL:</Label>
-                    <Input
-                      id="custom-color"
-                      value={customColorInput}
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={projectColor ? hslToHex(projectColor) : hslToHex(getProjectColor(currentProject).bg)}
                       onChange={(e) => {
-                        setCustomColorInput(e.target.value);
-                        // Validate basic HSL format: "H S% L%"
-                        const v = e.target.value.trim();
-                        if (/^\d+\s+\d+%?\s+\d+%?$/.test(v)) {
-                          const normalized = v.replace(/(\d+)\s+(\d+)%?\s+(\d+)%?/, '$1 $2% $3%');
-                          setProjectColor(normalized);
-                        }
+                        const hsl = hexToHsl(e.target.value);
+                        setProjectColor(hsl);
                       }}
-                      placeholder="e.g. 200 70% 50%"
-                      className="h-8 text-xs font-mono max-w-48"
+                      className="size-10 rounded-md border border-border cursor-pointer bg-transparent p-0.5"
                     />
+                    <span className="text-xs text-muted-foreground">Pick a project color</span>
                     {projectColor && (
-                      <div
-                        className="size-8 rounded-md border border-border shrink-0"
-                        style={{ backgroundColor: `hsl(${projectColor})` }}
-                      />
+                      <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setProjectColor('')}>
+                        Reset
+                      </Button>
                     )}
                   </div>
                 </div>
