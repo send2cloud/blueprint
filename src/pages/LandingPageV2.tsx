@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { getStorageAdapter } from '../lib/storage';
 
 /**
  * Hand-drawn SVG shapes that look like whiteboard marker doodles.
