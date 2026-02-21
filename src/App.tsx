@@ -39,9 +39,8 @@ const LandingPage = Math.random() < 0.5
   : lazy(() => import("./pages/LandingPageV2"));
 
 interface AppProps {
-  // Solo mode: pass the sub-path Blueprint is mounted at in the host app.
-  // e.g. basename="/blueprint" so internal navigate() calls go to /blueprint/canvas etc.
-  // Multi-Project mode (via main.tsx): omit this — basePath defaults to ''.
+  /** When embedding Blueprint as a library, pass the sub-path it's mounted at
+   *  (e.g. basename="/blueprint") so internal navigation resolves correctly. */
   basename?: string;
 }
 
