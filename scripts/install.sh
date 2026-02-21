@@ -31,18 +31,18 @@ echo "✅ Blueprint downloaded successfully!"
 echo ""
 
 if [ -f "$TARGET_DIR/package.json" ]; then
-  echo "📦 Host package.json detected — Solo mode (embedding)."
+  echo "📦 Host package.json detected — embedding as a library."
   echo ""
-  echo "Blueprint ships with a pre-built Solo bundle."
+  echo "Blueprint ships with a pre-built library bundle."
   echo "To embed it in your React app:"
   echo ""
   echo "  1. import BlueprintApp from './blueprint/dist-lib/blueprint.es.js';"
   echo "  2. import './blueprint/dist-lib/style.css';"
   echo "  3. Mount: <Route path=\"/blueprint/*\" element={<BlueprintApp basename=\"/blueprint\" />} />"
   echo ""
-  echo "🎉 SOLO INSTALLATION COMPLETE!"
+  echo "🎉 INSTALLATION COMPLETE!"
 else
-  echo "⚠️ No host package.json found. For Multi-Project (standalone) mode:"
+  echo "⚠️ No host package.json found. To run Blueprint standalone:"
   echo "  1. cd $BLUEPRINT_DIR && npm install && npm run dev"
   echo "  2. Open the dev URL provided in your terminal"
 fi

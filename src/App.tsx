@@ -169,15 +169,10 @@ const AppRoutes = ({ isSolo }: { isSolo: boolean }) => (
   </div>
 );
 
-const App = ({ basename = '' }: AppProps = {}) => {
-  // Solo mode = has a basename (embedded in host app). No landing page.
-  const isSolo = basename !== '';
-
-  return (
-    <BasePathProvider value={basename}>
-      <AppRoutes isSolo={isSolo} />
-    </BasePathProvider>
-  );
-};
+const App = ({ basename = '' }: AppProps = {}) => (
+  <BasePathProvider value={basename}>
+    <AppRoutes />
+  </BasePathProvider>
+);
 
 export default App;

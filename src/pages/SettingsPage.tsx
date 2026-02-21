@@ -456,43 +456,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* General App Settings */}
-          <div className="space-y-4 rounded-lg border border-border bg-card p-4 sm:p-6 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-md bg-primary/10">
-                  <Settings className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground">Project Mode</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Switch between Solo (one global workspace) and Workspace (multiple projects).
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="grid gap-4 md:grid-cols-[200px_1fr] mt-2 border-t border-border/50 pt-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="app-mode" className="text-xs font-bold uppercase text-muted-foreground">App Mode</Label>
-                <Select value={settings?.mode || 'solo'} onValueChange={handleModeChange}>
-                  <SelectTrigger id="app-mode" className="h-10">
-                    <SelectValue placeholder="Select mode" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="solo">Solo Project</SelectItem>
-                    <SelectItem value="multi">Workspace (Multi-Project)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center text-sm text-muted-foreground italic pl-2 border-l border-border/50">
-                {settings?.mode === 'multi' ? (
-                  <p>In Workspace mode, you can create multiple distinct projects. Data is isolated per project, and routing includes the project slug.</p>
-                ) : (
-                  <p>In Solo mode, Blueprint behaves as a single global environment. Best for embedded host apps or singular use cases.</p>
-                )}
-              </div>
-            </div>
-          </div>
+
 
           {/* Project Settings */}
           {currentProject && (

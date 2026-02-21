@@ -85,9 +85,8 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
         }
         setProjects(loadedProjects);
 
-        // Don't auto-set currentProjectId if it's going to be managed by URL router later,
-        // but set a fallback for solo mode.
-        if (loadedSettings.mode !== 'multi') {
+        // Set a fallback; URL router may override this for project-scoped routes.
+        if (!loadedSettings.mode || loadedSettings.mode !== 'multi') {
           setCurrentProjectIdState(loadedProjects[0].id);
         }
 
