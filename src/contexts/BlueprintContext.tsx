@@ -48,8 +48,9 @@ export function BlueprintProvider({ children }: { children: React.ReactNode }) {
         let loadedProjects = await storage.getProjects();
         if (loadedProjects.length === 0) {
           // Create default project migration
+          // Use a deterministic UUID so InstantDB accepts it (requires UUID entity IDs)
           const defaultProject: Project = {
-            id: 'default',
+            id: '00000000-0000-4000-8000-000000000000',
             slug: 'default-project',
             name: 'Default Project',
             createdAt: new Date().toISOString(),

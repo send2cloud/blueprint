@@ -7,7 +7,7 @@ const TABLE_ARTIFACTS = 'blueprint_artifacts';
 const TABLE_SETTINGS = 'blueprint_settings';
 const TABLE_CALENDAR_EVENTS = 'blueprint_calendar_events';
 const TABLE_PROJECTS = 'blueprint_projects';
-const SETTINGS_ID = 'default'; // Singleton row for settings
+const SETTINGS_ID = '00000000-0000-4000-8000-000000000001'; // Singleton UUID for settings
 
 // Legacy tables from the split-table architecture (to be cleaned up)
 const LEGACY_TABLES = ['blueprint_notes', 'blueprint_diagrams', 'blueprint_canvases', 'blueprint_boards'];
