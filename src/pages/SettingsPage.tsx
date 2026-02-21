@@ -1,4 +1,4 @@
-import { Settings, Database, Eye, EyeOff } from 'lucide-react';
+import { Settings, Database, Eye, EyeOff, Upload, X, Palette } from 'lucide-react';
 import { ToolHeader } from '../components/layout/ToolHeader';
 import { Switch } from '../components/ui/switch';
 import { Label } from '../components/ui/label';
@@ -15,7 +15,7 @@ import { useBlueprintState, useBlueprintActions } from '../contexts/BlueprintCon
 import { ALL_TOOLS, initializeStorageAdapter, loadDbConfig, saveDbConfig, isEnvConfig } from '../lib/storage';
 import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from '../lib/storage/schema';
 import { TOOL_CONFIG } from '../lib/toolConfig';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import type { ChangeEvent } from 'react';
 import { toast } from '../hooks/use-toast';
 import { useForm, Controller } from 'react-hook-form';
@@ -23,6 +23,9 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { checkBlueprintUpdates } from '../lib/updateChecker';
 import { ArrowUpCircle } from 'lucide-react';
+import { getProjectColor, PRESET_COLORS, getFgForHsl } from '../lib/projectColors';
+import { useNavigate } from 'react-router-dom';
+import { useBasePath } from '../lib/basePath';
 
 const dbConfigSchema = z.object({
   provider: z.enum(['local', 'instantdb']),
