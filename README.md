@@ -16,6 +16,37 @@ Plus: Tags, Favorites, deep-linking, and a gallery view for each artifact type.
 
 ---
 
+## Dual Build Architecture
+
+Blueprint produces **two independent build outputs** so it can run as a standalone site *and* be embedded in other projects:
+
+| Mode | Command | Output | Use Case |
+|------|---------|--------|----------|
+| **SPA** (default) | `npm run build` | `dist/` | Standalone app — Lovable publish, `npm run dev`, etc. |
+| **Library** | `npm run build:lib` | `dist-lib/` | Embedding into another React project |
+
+### SPA Mode (Multi-Project / Standalone)
+
+The default `vite build` produces a standard `index.html` + JS/CSS bundle in `dist/`. This is what Lovable's publish pipeline uses. No special configuration needed.
+
+### Library Mode (Embedded / Solo)
+
+`npm run build:lib` uses a separate `vite.config.lib.ts` to produce:
+- `dist-lib/blueprint.es.js` — ES module with React/ReactDOM externalized
+- `dist-lib/style.css` — All styles bundled
+
+The host project provides React and ReactDOM, preventing duplicate instances and `useRef` crashes.
+
+```tsx
+// Host project usage
+import BlueprintApp from './blueprint/dist-lib/blueprint.es.js';
+import './blueprint/dist-lib/style.css';
+
+<Route path="/blueprint/*" element={<BlueprintApp basename="/blueprint" />} />
+```
+
+---
+
 ## Storage Configuration
 
 Blueprint supports a **three-tier storage configuration model** to balance standalone deployment with project portability:
@@ -61,44 +92,39 @@ The InstantDB adapter implements a **local outbox and optimistic caching system*
 
 ## Quick Start & Installation
 
-Because Blueprint is designed to live *inside* your existing project (without messy Git submodules), installation is handled via a single script that downloads the files into a `blueprint` folder.
-
 ### Scenario A: Installing via AI (Lovable, Cursor, etc.)
-If you are using an AI coding assistant, simply copy and paste this prompt to the AI so it knows how to integrate Blueprint with your existing app:
+
+Copy and paste this prompt to the AI:
 
 ```text
 Hey AI, install the Blueprint Idea Room into my project: 
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
 
 Once the script finishes:
-1. Import `<BlueprintApp />` from `./blueprint/dist/blueprint.es.js` and mount it at the `/blueprint/*` route.
-2. Import the CSS file: `import './blueprint/dist/style.css'`
+1. Import `<BlueprintApp />` from `./blueprint/dist-lib/blueprint.es.js` and mount it at the `/blueprint/*` route.
+2. Import the CSS file: `import './blueprint/dist-lib/style.css'`
 ```
 
 ### Scenario B: Manual Fresh Install
-If you want to install Blueprint yourself into a new or existing project, run this single command in your terminal from the root of your project:
+
+Run this single command from the root of your project:
 
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
 ```
-This script will automatically:
-- Download the latest Blueprint template without any confusing Git history into a `blueprint` folder.
 
-*(Note: It does **NOT** automatically run `npm install` inside the folder. If you are embedding Blueprint into a host app, you should install the dependencies in your HOST project's `package.json` to avoid duplicate React instances. Only run `npm install` inside the `blueprint` folder if running standalone!)*
+This downloads Blueprint into a `blueprint` folder. The library bundle is pre-built at `dist-lib/`.
 
-*(Note: You will still need to manually mount the App via your router. See `INSTALL.md` for step-by-step guidance).*
+**Embedding:** Import `dist-lib/blueprint.es.js` and `dist-lib/style.css` into your host project. Do NOT run `npm install` inside the blueprint folder — the host provides React.
+
+**Standalone:** Run `cd blueprint && npm install && npm run dev`.
 
 ### Scenario C: Updating an Existing Blueprint
-Blueprint has a built-in update checker! If you are running an outdated version, you'll see a teal banner at the top of the **Settings** page letting you know a new version has been published to GitHub.
 
-To update an existing project:
-1. **Backup:** Export your settings/data from the Blueprint Settings page just in case!
-2. **Delete Old:** Delete your project's local `blueprint` folder (`rm -rf blueprint`).
-3. **Re-Install:** Run the install script again:
-   ```bash
-   bash -c "$(curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh)"
-   ```
-4. **Done:** Because you already configured Vite and your router previously, the new files will drop right into place and work immediately!
+1. **Backup:** Export your settings/data from the Blueprint Settings page.
+2. **Delete Old:** `rm -rf blueprint`
+3. **Re-Install:** Run the install script again.
+4. **Done:** Your existing Vite and router config will work with the new files.
 
 ---
 
@@ -158,7 +184,7 @@ The Calendar tool is architected to aggregate time-based data from the entire pr
 
 ## Tech Stack
 
-- **Build:** Vite + TypeScript
+- **Build:** Vite + TypeScript (dual SPA + library config)
 - **UI:** React, Tailwind CSS, shadcn/ui
 - **State:** TanStack Query (React Query)
 - **Whiteboard:** tldraw

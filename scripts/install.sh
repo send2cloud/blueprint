@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Blueprint Install Script
-# Usage: curl -fsSL https://raw.githubusercontent.com/YOUR_REPO/main/scripts/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/send2cloud/blueprint/main/scripts/install.sh | bash
 # Or: ./scripts/install.sh /path/to/target
 
 set -e
@@ -31,15 +31,16 @@ echo "✅ Blueprint downloaded successfully!"
 echo ""
 
 if [ -f "$TARGET_DIR/package.json" ]; then
-  echo "📦 Host package.json detected!"
-  echo "Because Blueprint is pre-bundled, zero host dependencies are required!"
-  
+  echo "📦 Host package.json detected — embedding mode."
+  echo ""
+  echo "Blueprint ships with a pre-built library bundle."
+  echo "To embed it in your React app:"
+  echo ""
+  echo "  1. import BlueprintApp from './blueprint/dist-lib/blueprint.es.js';"
+  echo "  2. import './blueprint/dist-lib/style.css';"
+  echo "  3. Mount: <Route path=\"/blueprint/*\" element={<BlueprintApp basename=\"/blueprint\" />} />"
   echo ""
   echo "🎉 EMBED INSTALLATION COMPLETE!"
-  echo "To finish setup in your React app, ask your AI (or do manually):"
-  echo "  1. import BlueprintApp from './blueprint/dist/blueprint.es.js';"
-  echo "  2. import './blueprint/dist/style.css';"
-  echo "  3. Mount <Route path=\"/blueprint/*\" element={<BlueprintApp />} />"
 else
   echo "⚠️ No host package.json found. If running standalone:"
   echo "  1. cd $BLUEPRINT_DIR && npm install && npm run dev"
