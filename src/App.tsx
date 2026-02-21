@@ -33,7 +33,7 @@ const queryClient = new QueryClient();
 // doesn't blank-screen if the editor chunk fails to initialize.
 const NotesGallery = lazy(() => import("./pages/NotesGallery"));
 const NotesPage = lazy(() => import("./pages/NotesPage"));
-const LandingPage = lazy(() => import("./pages/LandingPage"));
+const LandingPage = lazy(() => import("./pages/LandingPageV2"));
 
 interface AppProps {
   // Solo mode: pass the sub-path Blueprint is mounted at in the host app.
