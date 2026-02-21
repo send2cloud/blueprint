@@ -28,7 +28,7 @@ import {
 
 export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
-  const { isToolEnabled, loading, settings } = useBlueprint();
+  const { isToolEnabled, loading } = useBlueprint();
   const { resolvedTheme, setTheme } = useTheme();
   const collapsed = state === 'collapsed';
   const { artifacts } = useAllArtifacts();

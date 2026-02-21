@@ -9,7 +9,7 @@ import { CommandPalette } from '../CommandPalette';
 
 function AppLayoutContent() {
   const { commandPaletteOpen, setCommandPaletteOpen } = useKeyboardShortcuts();
-  const { storage, currentProjectId, setCurrentProject, settings, getProjectBySlug, projects, loading } = useBlueprint();
+  const { storage, currentProjectId, setCurrentProject, getProjectBySlug, projects, loading } = useBlueprint();
   const { projectId: projectSlug } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
