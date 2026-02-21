@@ -196,6 +196,7 @@ export class InstantDbAdapter implements StorageAdapter {
         [TABLE_PROJECTS]: {},
       });
       const rows = (resp.data?.[TABLE_PROJECTS] ?? []) as Project[];
+      console.log('Blueprint: loaded projects from InstantDB, count:', rows.length, rows.map(r => ({ id: r.id, name: r.name, slug: r.slug })));
       const normalized = rows
         .map(row => normalizeProject(row))
         .filter((row): row is Project => Boolean(row));
@@ -206,8 +207,9 @@ export class InstantDbAdapter implements StorageAdapter {
       this.saveCache('projects', sorted);
       return sorted;
     } catch (e) {
-      console.error('Failed to load projects from InstantDB:', e);
+      console.error('Blueprint: Failed to load projects from InstantDB:', e);
       const cache = this.loadCache<Project[]>('projects') ?? [];
+      console.log('Blueprint: falling back to cached projects, count:', cache.length);
       return cache
         .map(row => normalizeProject(row))
         .filter((row): row is Project => Boolean(row))
@@ -218,22 +220,28 @@ export class InstantDbAdapter implements StorageAdapter {
   async saveProject(project: Project): Promise<void> {
     try {
       const projectToSave = normalizeProject(project);
-      if (!projectToSave) return;
+      if (!projectToSave) {
+        console.warn('Blueprint: normalizeProject returned null, skipping save', project);
+        return;
+      }
 
+      console.log('Blueprint: saving project to InstantDB', projectToSave.id, projectToSave.name);
       const tx = (this.db.tx as any)[TABLE_PROJECTS][projectToSave.id].update(projectToSave);
       await this.db.transact(tx);
+      console.log('Blueprint: project saved successfully', projectToSave.id);
 
       const cached = this.loadCache<Project[]>('projects') ?? [];
       const next = cached.filter(p => p.id !== projectToSave.id);
       next.unshift(projectToSave);
       this.saveCache('projects', next);
     } catch (e) {
-      console.error('Failed to save project to InstantDB:', e);
+      console.error('Blueprint: Failed to save project to InstantDB:', e);
       const normalized = normalizeProject(project);
       if (normalized) {
         const outbox = this.loadOutbox();
         outbox.projects[normalized.id] = normalized;
         this.saveOutbox(outbox);
+        console.warn('Blueprint: project queued in outbox for retry', normalized.id);
       }
     }
   }
