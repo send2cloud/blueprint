@@ -1,14 +1,11 @@
 import * as React from "react"
-import { ChevronsUpDown, Plus, FolderSync } from "lucide-react"
+import { useState, useMemo } from "react"
+import { ChevronsUpDown, Plus, Check, Search } from "lucide-react"
 import { useNavigate, useLocation } from "react-router-dom"
 
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
 import {
@@ -26,13 +23,22 @@ export function ProjectSwitcher() {
     const navigate = useNavigate()
     const location = useLocation()
     const basePath = useBasePath()
+    const [search, setSearch] = useState("")
+    const [open, setOpen] = useState(false)
 
     const activeProject = getCurrentProject() || projects[0]
     const collapsed = state === 'collapsed'
 
+    const filteredProjects = useMemo(() => {
+        const q = search.trim().toLowerCase()
+        if (!q) return projects
+        return projects.filter(p =>
+            p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q)
+        )
+    }, [projects, search])
+
     const handleSwitchProject = (project: typeof projects[0]) => {
         setCurrentProject(project.id)
-        // Navigate to the new project's slug, keeping the current sub-path
         const currentSlug = activeProject?.slug
         let subPath = ''
         if (currentSlug) {
@@ -42,6 +48,8 @@ export function ProjectSwitcher() {
             }
         }
         navigate(`${basePath}/${project.slug}${subPath}`)
+        setOpen(false)
+        setSearch("")
     }
 
     const handleCreateProject = async () => {
@@ -50,22 +58,27 @@ export function ProjectSwitcher() {
             const newProj = await createProject(name.trim());
             setCurrentProject(newProj.id);
             navigate(`${basePath}/${newProj.slug}`)
+            setOpen(false)
+            setSearch("")
         }
     }
 
     if (!activeProject) return null;
 
+    // Get first letter for avatar
+    const initial = activeProject.name.charAt(0).toUpperCase()
+
     return (
         <SidebarMenu>
             <SidebarMenuItem>
-                <DropdownMenu>
+                <DropdownMenu open={open} onOpenChange={(v) => { setOpen(v); if (!v) setSearch("") }}>
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton
                             size="lg"
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
-                            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                                <FolderSync className="size-4" />
+                            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold">
+                                {initial}
                             </div>
                             {!collapsed && (
                                 <>
@@ -75,45 +88,76 @@ export function ProjectSwitcher() {
                                         </span>
                                         <span className="truncate text-xs text-muted-foreground">/{activeProject.slug}</span>
                                     </div>
-                                    <ChevronsUpDown className="ml-auto size-4" />
+                                    <ChevronsUpDown className="ml-auto size-4 text-muted-foreground" />
                                 </>
                             )}
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
-                        className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                        className="w-[--radix-dropdown-menu-trigger-width] min-w-64 rounded-lg bg-popover border border-border shadow-lg z-50 p-0"
                         align="start"
                         side={isMobile ? "bottom" : "right"}
                         sideOffset={4}
                     >
-                        <DropdownMenuLabel className="text-xs text-muted-foreground">
-                            Projects
-                        </DropdownMenuLabel>
-                        {projects.map((project) => (
-                            <DropdownMenuItem
-                                key={project.id}
-                                onClick={() => handleSwitchProject(project)}
-                                className="gap-2 p-2"
-                            >
-                                <div className="flex size-6 items-center justify-center rounded-sm border">
-                                    <FolderSync className="size-4 shrink-0" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <span>{project.name}</span>
-                                    <span className="text-xs text-muted-foreground">/{project.slug}</span>
-                                </div>
-                                {project.id === currentProjectId && (
-                                    <DropdownMenuShortcut>✓</DropdownMenuShortcut>
-                                )}
-                            </DropdownMenuItem>
-                        ))}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="gap-2 p-2" onClick={handleCreateProject}>
-                            <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                                <Plus className="size-4" />
+                        {/* Search */}
+                        <div className="p-2 border-b border-border">
+                            <div className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5">
+                                <Search className="size-3.5 text-muted-foreground shrink-0" />
+                                <input
+                                    type="text"
+                                    placeholder="Search projects…"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none border-none"
+                                    autoFocus
+                                />
                             </div>
-                            <div className="font-medium text-muted-foreground">Add project</div>
-                        </DropdownMenuItem>
+                        </div>
+
+                        {/* Project list */}
+                        <div className="max-h-64 overflow-y-auto p-1">
+                            {filteredProjects.length === 0 ? (
+                                <div className="px-3 py-4 text-center text-sm text-muted-foreground">
+                                    No projects found
+                                </div>
+                            ) : (
+                                filteredProjects.map((project) => {
+                                    const isActive = project.id === currentProjectId
+                                    const projectInitial = project.name.charAt(0).toUpperCase()
+                                    return (
+                                        <button
+                                            key={project.id}
+                                            onClick={() => handleSwitchProject(project)}
+                                            className={`w-full flex items-center gap-3 rounded-md px-2.5 py-2 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${isActive ? 'bg-accent/50' : ''}`}
+                                        >
+                                            <div className={`flex size-7 items-center justify-center rounded-md text-xs font-bold shrink-0 ${isActive ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                                                {projectInitial}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="truncate font-medium">{project.name}</div>
+                                                <div className="truncate text-xs text-muted-foreground">/{project.slug}</div>
+                                            </div>
+                                            {isActive && (
+                                                <Check className="size-4 text-primary shrink-0" />
+                                            )}
+                                        </button>
+                                    )
+                                })
+                            )}
+                        </div>
+
+                        {/* Add project */}
+                        <div className="border-t border-border p-1">
+                            <button
+                                onClick={handleCreateProject}
+                                className="w-full flex items-center gap-3 rounded-md px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                            >
+                                <div className="flex size-7 items-center justify-center rounded-md border border-dashed border-muted-foreground/40">
+                                    <Plus className="size-3.5" />
+                                </div>
+                                <span className="font-medium">New project</span>
+                            </button>
+                        </div>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>
