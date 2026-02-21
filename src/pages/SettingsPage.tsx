@@ -238,20 +238,7 @@ export default function SettingsPage() {
     }, 600);
   };
 
-  const handleModeChange = async (newMode: 'solo' | 'multi') => {
-    try {
-      await storage.saveSettings({ ...settings, mode: newMode });
-      toast({
-        title: 'Project Mode Changed',
-        description: `Blueprint is now running in ${newMode === 'multi' ? 'Workspace' : 'Standard'} mode.`,
-      });
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 600);
-    } catch (e) {
-      toast({ title: 'Failed to update mode', variant: 'destructive' });
-    }
-  };
+
 
   const handleExport = async () => {
     try {
