@@ -20,11 +20,12 @@ const TYPE_LABELS: Record<ToolType, string> = {
 
 export function ShareButton({ artifactId, type, className }: ShareButtonProps) {
   const { toast } = useToast();
-  const { currentProjectId, settings } = useBlueprint();
+  const { settings, getCurrentProject } = useBlueprint();
 
   const handleShare = async () => {
     const baseUrl = window.location.origin;
-    const projectPrefix = settings.mode === 'multi' && currentProjectId ? `/${currentProjectId}` : '';
+    const currentProject = getCurrentProject();
+    const projectPrefix = settings.mode === 'multi' && currentProject ? `/${currentProject.slug}` : '';
     const url = `${baseUrl}${projectPrefix}/${type}/${artifactId}`;
 
     const message = `Here is the link I want you to reference: ${url}\nPlease check the page source for LLM instructions (look for the "blueprint-llm" JSON block).`;
