@@ -226,7 +226,7 @@ export default function LandingPageV2() {
         <CheckboxDoodle x={820} y={480} scale={1.3} delay={2.4} />
         <CheckboxDoodle x={870} y={520} scale={1.3} delay={2.7} />
         <MarkerCircle cx={200} cy={600} r={25} color="#c3b1e1" strokeWidth={2.2} delay={2.9} />
-        <MarkerCircle cx={1150} y={150} cx2={1150} cy={150} r={18} color="#ff8b94" strokeWidth={2} delay={3} />
+        <MarkerCircle cx={1150} cy={150} r={18} color="#ff8b94" strokeWidth={2} delay={3} />
         <MarkerLine x1={100} y1={500} x2={170} y2={480} color="#bbb" strokeWidth={1.8} delay={3.1} />
         <MarkerLine x1={1000} y1={650} x2={1080} y2={640} color="#ccc" strokeWidth={1.5} delay={3.2} />
 
