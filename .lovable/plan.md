@@ -1,46 +1,47 @@
 
-# Dual Build Architecture — Solo + Multi-Project
 
-## Status: ✅ Implemented
+# Simplify Mode Terminology
 
-## Terminology
-- **Multi-Project** = This Lovable standalone installation. Runs as its own published site. Default `npm run build` → `dist/`.
-- **Solo** = Blueprint embedded inside another project as a library bundle. `npm run build:lib` → `dist-lib/`.
+Remove the Solo/Multi-Project toggle and cross-references so each context only talks about what it actually is.
 
-## Problem
-Blueprint needs to serve two use cases:
-1. **Multi-Project** — Published via Lovable as its own site
-2. **Solo** — Embedded into other React projects as a pre-built JS bundle
+## What Changes
 
-A single `vite.config.ts` with `build.lib` broke the Multi-Project pipeline (no `index.html` in production).
+### 1. App.tsx - Remove Solo/isSolo logic
+- Remove `isSolo` variable and `basename` prop
+- Always show landing page at `/` (this is always the standalone app)
+- Remove Solo-related comments
+- Simplify `AppRoutes` to not take `isSolo` prop
 
-## Solution: Two Independent Vite Configs
+### 2. Settings Page - Remove Project Mode section
+- Remove the entire "Project Mode" card (the Solo/Multi select dropdown) since this Lovable project is always multi-project
+- Remove `handleModeChange` function
+- The mode will always be `'multi'`
 
-| Mode | Config File | Command | Output | Use Case |
-|------|-------------|---------|--------|----------|
-| **Multi-Project** | `vite.config.ts` | `npm run build` | `dist/` | Lovable publish, standalone dev |
-| **Solo** | `vite.config.lib.ts` | `npm run build:lib` | `dist-lib/` | Embedded in other projects |
+### 3. Storage types - Remove mode field
+- Remove `mode?: 'solo' | 'multi'` from `BlueprintSettings` interface (or keep it but stop exposing it in UI)
+- Actually, keep the type for backward compatibility with stored data, but default to `'multi'` everywhere and remove the UI toggle
 
-### Key Files
+### 4. lib-entry.ts - Remove Multi-Project references from comments
+- Update comments to only describe what this file does (library entry point) without referencing "Multi-Project"
 
-- `vite.config.ts` — Multi-Project build (standard SPA, no `build.lib`)
-- `vite.config.lib.ts` — Solo build with React externalized
-- `src/lib-entry.ts` — Clean entry point for Solo consumers (exports `App` + types)
-- `scripts/install.sh` — Updated to reference `dist-lib/` for Solo mode
+### 5. Documentation files - Strip cross-references
+- **LLM_INSTALL.md**: Remove "Multi-Project" column from the build table, remove references to standalone mode. This doc is purely about embedding.
+- **INSTALL.md**: Remove "Multi-Project" references from the embedding instructions. Keep standalone instructions but label them simply as "Running Blueprint standalone" without the "Multi-Project" label.
+- **README.md**: Same treatment - simplify dual-build table to just describe "default build" vs "library build"
+- **.lovable/plan.md**: Update terminology
 
-### How Solo Mode Works
+### 6. Test files
+- Update mocks in `ShareButton.test.tsx`, `SettingsPage.test.tsx`, `AppSidebar.test.tsx` that reference `mode: 'solo'`
 
-Host projects import the pre-built bundle:
-```tsx
-import BlueprintApp from './blueprint/dist-lib/blueprint.es.js';
-import './blueprint/dist-lib/style.css';
+### 7. BlueprintContext.tsx
+- Remove solo-mode comment, simplify the fallback logic
 
-<Route path="/blueprint/*" element={<BlueprintApp basename="/blueprint" />} />
-```
+### 8. scripts/install.sh
+- Remove "Solo" terminology, just say "embedding" or "library mode"
 
-No dependency merging, no Vite dedupe in host, no shadcn setup. The Solo bundle is self-contained (minus React/ReactDOM/react-router-dom which the host provides).
+## Technical Details
 
-### Documentation Updated
-- `README.md` — Uses Solo / Multi-Project terminology throughout
-- `INSTALL.md` — Updated all references and build table
-- `LLM_INSTALL.md` — Simplified for Solo embedding workflow
+- The `mode` field stays in `BlueprintSettings` type for data compatibility but defaults to `'multi'` and the UI toggle is removed
+- The `basename` prop on `App` stays for the library build (it's still needed there), but comments are simplified
+- `isSolo` logic in App.tsx is removed since this build always shows the landing page
+
