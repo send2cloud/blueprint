@@ -41,6 +41,9 @@ function createMemoryStorage(): StorageAdapter & {
     },
     async saveCalendarEvent() {},
     async deleteCalendarEvent() {},
+    async getProjects() { return []; },
+    async saveProject() {},
+    async deleteProject() {},
   };
 }
 
