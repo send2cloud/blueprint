@@ -274,3 +274,12 @@
 .calendar-container .rbc-row.rbc-month-header .rbc-header:nth-last-child(-n+2) {
   @apply text-muted-foreground/70;
 }
+
+/* Force tldraw UI below sidebar & popover portals */
+.tl-container .tlui-layout {
+  z-index: 200 !important;
+}
+
+[data-radix-popper-content-wrapper] {
+  z-index: 600 !important;
+}
