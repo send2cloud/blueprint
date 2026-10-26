@@ -69,73 +69,24 @@ describe("SettingsPage", () => {
             </MemoryRouter>
         );
     };
+    };
 
-    it("renders correctly", () => {
-        (loadDbConfig as any).mockReturnValue({ provider: "local" });
+    it("renders the backend picker", () => {
+        (loadDbConfig as any).mockReturnValue(null);
         renderWithProviders(<SettingsPage />);
-        expect(screen.getByText("Database Connection")).toBeInTheDocument();
+        expect(screen.getByText("Backend")).toBeInTheDocument();
+        expect(screen.getByText("Browser only")).toBeInTheDocument();
     });
 
-    it("masks the App ID by default", () => {
-        (loadDbConfig as any).mockReturnValue({
-            provider: "instantdb",
-            instantAppId: "b7f9d8e2-1234-5678-9abc-def012345678"
-        });
-
+    it("shows InstantDB App ID field when saved config is InstantDB", () => {
+        (loadDbConfig as any).mockReturnValue({ provider: 'instantdb', instantAppId: 'app_1', source: 'localStorage' });
         renderWithProviders(<SettingsPage />);
-
-        const input = screen.getByPlaceholderText("app_...");
-        expect(input).toHaveValue("••••••••-••••-••••-••••-••••5678");
+        expect(screen.getByLabelText("App ID")).toHaveValue('app_1');
     });
 
-    it("reveals App ID on focus", () => {
-        (loadDbConfig as any).mockReturnValue({
-            provider: "instantdb",
-            instantAppId: "testing-id-123"
-        });
-
+    it("hides the picker when config comes from the build", () => {
+        (loadDbConfig as any).mockReturnValue({ provider: 'cloudflare', url: 'https://x.workers.dev', source: 'env' });
         renderWithProviders(<SettingsPage />);
-        const input = screen.getByPlaceholderText("app_...");
-
-        fireEvent.focus(input);
-        expect(input).toHaveValue("testing-id-123");
-
-        fireEvent.blur(input);
-        expect(input.getAttribute('value')).not.toBe("testing-id-123");
-    });
-
-    it("clears cache and saves new config when App ID changes", async () => {
-        (loadDbConfig as any).mockReturnValue({
-            provider: "instantdb",
-            instantAppId: "old-id"
-        });
-
-        renderWithProviders(<SettingsPage />);
-
-        // Simulate changing the ID
-        const input = screen.getByPlaceholderText("app_...");
-        fireEvent.focus(input);
-        fireEvent.change(input, { target: { value: "new-id" } });
-
-        // Check save button enabled?
-        const saveBtn = screen.getByText("Save & Connect");
-        await waitFor(() => {
-            expect(saveBtn).not.toBeDisabled();
-        });
-
-        fireEvent.click(saveBtn);
-
-        await waitFor(() => {
-            expect(saveDbConfig).toHaveBeenCalledWith({
-                provider: "instantdb",
-                instantAppId: "new-id",
-            });
-        });
-        expect(initializeStorageAdapter).toHaveBeenCalled();
-
-        // Check reload called
-        await waitFor(() => {
-            expect(mockReload).toHaveBeenCalled();
-        });
+        expect(screen.queryByText("Save & Connect")).not.toBeInTheDocument();
     });
 });
