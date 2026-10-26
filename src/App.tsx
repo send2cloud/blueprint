@@ -42,6 +42,10 @@ interface AppProps {
   /** When embedding Blueprint as a library, pass the sub-path it's mounted at
    *  (e.g. basename="/blueprint") so internal navigation resolves correctly. */
   basename?: string;
+  /** Host-supplied storage backend; overrides the Settings picker. */
+  adapter?: StorageAdapter;
+  /** Links to live host tools, shown in the sidebar "Live" section. */
+  liveConnectors?: LiveConnector[];
 }
 
 /** Dashboard + tool routes (shared across all contexts) */
