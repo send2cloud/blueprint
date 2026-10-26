@@ -230,10 +230,10 @@ export class InstantDbAdapter implements StorageAdapter {
       });
       const row = resp.data?.[TABLE_SETTINGS]?.[0] as { enabledTools?: ToolType[]; seededNoteCreated?: boolean; mode?: 'solo' | 'multi' } | undefined;
       if (row?.enabledTools && Array.isArray(row.enabledTools)) {
+        const { id: _id, ...rest } = row as Record<string, unknown>;
         const settings: BlueprintSettings = {
+          ...(rest as Partial<BlueprintSettings>),
           enabledTools: row.enabledTools.filter((t) => ALL_TOOLS.includes(t)),
-          seededNoteCreated: row.seededNoteCreated,
-          mode: row.mode,
         };
         this.saveCache('settings', settings);
         return settings;
@@ -266,9 +266,8 @@ export class InstantDbAdapter implements StorageAdapter {
   async saveSettings(settings: BlueprintSettings): Promise<void> {
     try {
       const tx = (this.db.tx as any)[TABLE_SETTINGS][SETTINGS_ID].update({
-        enabledTools: settings.enabledTools,
+        ...settings,
         seededNoteCreated: settings.seededNoteCreated ?? false,
-        mode: settings.mode,
       });
       await this.db.transact(tx);
       this.saveCache('settings', settings);

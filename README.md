@@ -53,10 +53,15 @@ import './blueprint/dist-lib/style.css';
 } />
 ```
 
+- Pass `user={{ id, name, email }}` to use the host's signed-in user; Blueprint then skips its own PIN and setup.
 - Supports React 18 and 19.
 - Theme colours use `--bp-*` variables, so they don't overwrite the host's `--primary`, `--background`, etc.
 
 ---
+
+## First-run setup
+
+A brand-new standalone install shows a short wizard: backend → team PIN → workspace name and colour. Existing installs skip it and keep PIN 5555 until changed in Settings → Access.
 
 ## Storage Configuration
 

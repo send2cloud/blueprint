@@ -22,7 +22,7 @@ import RelationshipsPage from "./pages/RelationshipsPage";
 import NotFound from "./pages/NotFound";
 import { initializeStorageAdapter, getStorageAdapter, setStorageAdapter, type StorageAdapter } from './lib/storage';
 import { BasePathProvider } from './lib/basePath';
-import { HostProvider, type LiveConnector } from './contexts/HostContext';
+import { HostProvider, type LiveConnector, type HostUser } from './contexts/HostContext';
 
 // Initialize storage as soon as this module loads.
 initializeStorageAdapter();
@@ -46,6 +46,8 @@ interface AppProps {
   adapter?: StorageAdapter;
   /** Links to live host tools, shown in the sidebar "Live" section. */
   liveConnectors?: LiveConnector[];
+  /** Host's signed-in user; skips Blueprint's own PIN and setup wizard. */
+  user?: HostUser;
 }
 
 /** Dashboard + tool routes (shared across all contexts) */
@@ -169,12 +171,12 @@ const AppRoutes = () => (
   </div>
 );
 
-const App = ({ basename = '', adapter, liveConnectors = [] }: AppProps = {}) => {
+const App = ({ basename = '', adapter, liveConnectors = [], user }: AppProps = {}) => {
   // Host-provided adapter wins over Settings; set before children read it.
   if (adapter && getStorageAdapter() !== adapter) setStorageAdapter(adapter, 'host');
   return (
     <BasePathProvider value={basename}>
-      <HostProvider value={{ liveConnectors }}>
+      <HostProvider value={{ liveConnectors, user }}>
         <AppRoutes />
       </HostProvider>
     </BasePathProvider>

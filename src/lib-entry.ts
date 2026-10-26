@@ -17,7 +17,7 @@ export type {
   Artifact, ToolType, BlueprintSettings, CalendarEventRecord, Project, StorageAdapter,
 } from "./lib/storage/types";
 export type { RecordStore, RecordKind } from "./lib/storage/recordStore";
-export type { LiveConnector } from "./contexts/HostContext";
+export type { LiveConnector, HostUser } from "./contexts/HostContext";
 export { RecordStoreAdapter } from "./lib/storage/recordStore";
 export { RestStore } from "./lib/storage/restStore";
 export { LocalStorageAdapter } from "./lib/storage/localStorage";

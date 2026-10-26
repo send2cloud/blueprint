@@ -15,8 +15,8 @@ export class LocalStorageAdapter implements StorageAdapter {
       if (stored) {
         const parsed = JSON.parse(stored) as BlueprintSettings;
         return {
+          ...parsed,
           enabledTools: Array.isArray(parsed.enabledTools) ? parsed.enabledTools : [...ALL_TOOLS],
-          seededNoteCreated: parsed.seededNoteCreated,
         };
       }
     } catch (e) {

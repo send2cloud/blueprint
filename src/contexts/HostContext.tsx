@@ -13,8 +13,17 @@ export interface LiveConnector {
   badgeVariant?: 'default' | 'success' | 'warning' | 'danger';
 }
 
+/** Signed-in user supplied by a host app. When present, Blueprint skips its own PIN and setup. */
+export interface HostUser {
+  id: string;
+  name?: string;
+  email?: string;
+  role?: 'admin' | 'member';
+}
+
 interface HostValue {
   liveConnectors: LiveConnector[];
+  user?: HostUser;
 }
 
 const HostContext = createContext<HostValue>({ liveConnectors: [] });

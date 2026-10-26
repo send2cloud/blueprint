@@ -10,6 +10,12 @@ export interface BlueprintSettings {
   enabledTools: ToolType[];
   seededNoteCreated?: boolean;
   mode?: 'solo' | 'multi';
+  /** First-run wizard finished */
+  setupComplete?: boolean;
+  /** false = no PIN screen */
+  pinEnabled?: boolean;
+  pinHash?: string;
+  pinSalt?: string;
 }
 
 export interface Project {
