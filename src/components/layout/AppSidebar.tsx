@@ -5,6 +5,7 @@ import { useBlueprint } from '../../contexts/BlueprintContext';
 import { TOOL_LIST, TOOL_CONFIG } from '../../lib/toolConfig';
 import { useAllArtifacts } from '../../hooks/useArtifacts';
 import { TagCloud } from '../sidebar/TagCloud';
+import { LiveConnectors } from '../sidebar/LiveConnectors';
 
 import { ProjectSwitcher } from './ProjectSwitcher';
 import {
@@ -94,6 +95,8 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <LiveConnectors collapsed={collapsed} />
 
         {/* Library */}
         <SidebarGroup>

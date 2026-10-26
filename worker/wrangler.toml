@@ -1,0 +1,16 @@
+name = "blueprint-backend"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+
+# One D1 database per host project. Create with:
+#   wrangler d1 create blueprint
+# then paste the database_id below.
+[[d1_databases]]
+binding = "DB"
+database_name = "blueprint"
+database_id = "REPLACE_WITH_D1_ID"
+migrations_dir = "migrations"
+
+# Secrets (not in this file):
+#   wrangler secret put WRITE_KEY
+# Optional var: ALLOWED_ORIGINS = "https://myapp.com,https://other.com"

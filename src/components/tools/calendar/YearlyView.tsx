@@ -89,7 +89,7 @@ export function YearlyView({ date, events, onSelectEvent, onNavigate, weekStarts
                             <div
                               key={i}
                               className="w-1 h-1 rounded-full"
-                              style={{ backgroundColor: event.color || 'hsl(var(--primary))' }}
+                              style={{ backgroundColor: event.color || 'hsl(var(--bp-primary))' }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onSelectEvent(event);

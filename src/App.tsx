@@ -20,8 +20,9 @@ import HelpPage from "./pages/HelpPage";
 import TagPage from "./pages/TagPage";
 import RelationshipsPage from "./pages/RelationshipsPage";
 import NotFound from "./pages/NotFound";
-import { initializeStorageAdapter } from './lib/storage';
+import { initializeStorageAdapter, getStorageAdapter, setStorageAdapter, type StorageAdapter } from './lib/storage';
 import { BasePathProvider } from './lib/basePath';
+import { HostProvider, type LiveConnector } from './contexts/HostContext';
 
 // Initialize storage as soon as this module loads.
 initializeStorageAdapter();
@@ -41,6 +42,10 @@ interface AppProps {
   /** When embedding Blueprint as a library, pass the sub-path it's mounted at
    *  (e.g. basename="/blueprint") so internal navigation resolves correctly. */
   basename?: string;
+  /** Host-supplied storage backend; overrides the Settings picker. */
+  adapter?: StorageAdapter;
+  /** Links to live host tools, shown in the sidebar "Live" section. */
+  liveConnectors?: LiveConnector[];
 }
 
 /** Dashboard + tool routes (shared across all contexts) */
@@ -164,10 +169,16 @@ const AppRoutes = () => (
   </div>
 );
 
-const App = ({ basename = '' }: AppProps = {}) => (
-  <BasePathProvider value={basename}>
-    <AppRoutes />
-  </BasePathProvider>
-);
+const App = ({ basename = '', adapter, liveConnectors = [] }: AppProps = {}) => {
+  // Host-provided adapter wins over Settings; set before children read it.
+  if (adapter && getStorageAdapter() !== adapter) setStorageAdapter(adapter, 'host');
+  return (
+    <BasePathProvider value={basename}>
+      <HostProvider value={{ liveConnectors }}>
+        <AppRoutes />
+      </HostProvider>
+    </BasePathProvider>
+  );
+};
 
 export default App;
