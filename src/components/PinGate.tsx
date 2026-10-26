@@ -6,7 +6,6 @@ import { Lock, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const PIN_COOKIE_KEY = 'blueprint:pin-auth';
-const PIN_HASH = '5555'; // Simple PIN — not cryptographic, just a gate
 const REMEMBER_DAYS = 90;
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MS = 60_000; // 1 minute lockout after max attempts
@@ -42,9 +41,10 @@ export function usePinGate() {
 
 interface PinGateProps {
   onSuccess: (remember: boolean) => void;
+  verify: (pin: string) => Promise<boolean>;
 }
 
-export function PinGate({ onSuccess }: PinGateProps) {
+export function PinGate({ onSuccess, verify }: PinGateProps) {
   const [pin, setPin] = useState('');
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState('');
@@ -75,7 +75,7 @@ export function PinGate({ onSuccess }: PinGateProps) {
     return () => clearInterval(interval);
   }, [lockedUntil]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Anti-bot: check honeypot
     if (honeypotRef.current?.value) {
       // Silently reject — don't reveal it's a bot trap
@@ -94,7 +94,7 @@ export function PinGate({ onSuccess }: PinGateProps) {
       return;
     }
 
-    if (pin === PIN_HASH) {
+    if (await verify(pin)) {
       onSuccess(remember);
     } else {
       const newAttempts = attempts + 1;
