@@ -6,9 +6,9 @@ Yes — D1 + Worker goes behind the existing storage adapter. Hosts can plug in 
 Blueprint screens
       |
   Storage plug  (one shape, swappable)
-   |        |          |
- Browser   D1 Worker   Host's own backend
- (offline) (default)   (any URL / custom)
+   |         |            |          |          |
+ Browser  Cloudflare   Supabase   InstantDB   Custom
+          (default)               (self-host)  (any URL)
 ```
 
 ## 1. Replace InstantDB with Cloudflare D1 + Worker
