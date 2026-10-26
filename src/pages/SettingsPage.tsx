@@ -12,15 +12,13 @@ import {
   SelectValue,
 } from '../components/ui/select';
 import { useBlueprintState, useBlueprintActions } from '../contexts/BlueprintContext';
-import { ALL_TOOLS, initializeStorageAdapter, loadDbConfig, saveDbConfig, isEnvConfig } from '../lib/storage';
+import { ALL_TOOLS } from '../lib/storage';
+import { BackendSettings } from '../components/settings/BackendSettings';
 import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from '../lib/storage/schema';
 import { TOOL_CONFIG } from '../lib/toolConfig';
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import type { ChangeEvent } from 'react';
 import { toast } from '../hooks/use-toast';
-import { useForm, Controller } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { checkBlueprintUpdates } from '../lib/updateChecker';
 import { ArrowUpCircle } from 'lucide-react';
 import { getProjectColor } from '../lib/projectColors';
@@ -57,20 +55,6 @@ function hexToHsl(hex: string): string {
   return `${Math.round(h)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 }
 
-const dbConfigSchema = z.object({
-  provider: z.enum(['local', 'instantdb']),
-  instantAppId: z.string().optional(),
-}).refine((data) => {
-  if (data.provider === 'instantdb') {
-    return !!data.instantAppId && data.instantAppId.trim().length > 0;
-  }
-  return true;
-}, {
-  message: "Instant App ID is required for InstantDB provider",
-  path: ["instantAppId"],
-});
-
-type DbConfigForm = z.infer<typeof dbConfigSchema>;
 
 export default function SettingsPage() {
   const { enabledTools, loading, storage, settings, projects, currentProjectId } = useBlueprintState();
@@ -156,9 +140,6 @@ export default function SettingsPage() {
     }
   }, [currentProject, projectName, projectColor, projectLogo, updateProject, navigate, basePath]);
 
-  const [showFullId, setShowFullId] = useState(false);
-  const [savedId, setSavedId] = useState('');
-  const [isFromEnv, setIsFromEnv] = useState(false);
   const importInputRef = useRef<HTMLInputElement | null>(null);
 
   const [updateInfo, setUpdateInfo] = useState<{ hasUpdate: boolean, current: string, latest: string } | null>(null);
@@ -169,74 +150,6 @@ export default function SettingsPage() {
     }).catch(console.error);
   }, []);
 
-  const { control, handleSubmit, watch, setValue, reset, formState: { isDirty, isValid } } = useForm<DbConfigForm>({
-    resolver: zodResolver(dbConfigSchema),
-    defaultValues: {
-      provider: 'local',
-      instantAppId: '',
-    }
-  });
-
-  const provider = watch('provider');
-  const instantAppId = watch('instantAppId') || '';
-
-  useEffect(() => {
-    const envConfigured = isEnvConfig();
-    setIsFromEnv(envConfigured);
-
-    const config = loadDbConfig();
-    if (config) {
-      reset({
-        provider: config.provider,
-        instantAppId: config.instantAppId ?? '',
-      });
-      setSavedId(config.instantAppId ?? '');
-    }
-  }, [reset]);
-
-  const handleSave = (data: DbConfigForm) => {
-    const isNewId = data.provider === 'instantdb' && data.instantAppId?.trim() !== savedId;
-
-    if (data.provider === 'local') {
-      saveDbConfig({ provider: 'local' });
-      initializeStorageAdapter();
-      toast({
-        title: 'Using Local Storage',
-        description: 'Blueprint will store artifacts in this browser only.',
-      });
-    } else {
-      const trimmed = data.instantAppId?.trim() || '';
-
-      // If ID changed, clear old caches to prevent data leaking
-      if (isNewId && savedId) {
-        try {
-          const prefix = `blueprint:instant:${savedId}`;
-          Object.keys(localStorage).forEach(key => {
-            if (key.startsWith(prefix)) {
-              localStorage.removeItem(key);
-            }
-          });
-        } catch (e) {
-          console.error('Failed to clear old caches:', e);
-        }
-      }
-
-      saveDbConfig({ provider: 'instantdb', instantAppId: trimmed });
-      initializeStorageAdapter();
-
-      toast({
-        title: isNewId ? 'Database Switched' : 'Connected to InstantDB',
-        description: isNewId
-          ? 'Switched to a new project. Caches cleared and loading new data.'
-          : 'Blueprint will now store artifacts in your project database.',
-      });
-    }
-
-    // Reload to ensure all screens use the new adapter and fresh data.
-    setTimeout(() => {
-      window.location.reload();
-    }, 600);
-  };
 
 
 
@@ -320,11 +233,6 @@ export default function SettingsPage() {
     }
   };
 
-  const displayId = useMemo(() => {
-    if (showFullId || !instantAppId) return instantAppId;
-    if (instantAppId.length <= 4) return '****';
-    return `••••••••-••••-••••-••••-••••${instantAppId.slice(-4)}`;
-  }, [instantAppId, showFullId]);
 
   return (
     <div className="flex flex-col h-full">
@@ -354,107 +262,7 @@ export default function SettingsPage() {
             </div>
           )}
 
-          <div className="space-y-4 rounded-lg border border-border bg-card p-4 sm:p-6 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-md bg-primary/10">
-                  <Database className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground">Database Connection</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Store Blueprint artifacts inside your project database.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 text-xs font-medium self-start sm:self-center bg-muted/50 px-2 py-1 rounded-full">
-                <span
-                  className={`inline-block h-2 w-2 rounded-full ${provider === 'instantdb' && instantAppId.trim().length > 0
-                    ? 'bg-emerald-500 animate-pulse'
-                    : 'bg-muted-foreground/40'
-                    }`}
-                />
-                <span className="text-muted-foreground uppercase tracking-wider">
-                  {provider === 'instantdb' && instantAppId.trim().length > 0 ? 'Live Output' : 'Local Only'}
-                </span>
-              </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-[200px_1fr] mt-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="db-provider" className="text-xs font-bold uppercase text-muted-foreground">Store Mode</Label>
-                <Controller
-                  name="provider"
-                  control={control}
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger id="db-provider" className="h-10">
-                        <SelectValue placeholder="Select provider" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="local">Local Storage</SelectItem>
-                        <SelectItem value="instantdb">InstantDB (Sync)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
-
-              <div className={`space-y-1.5 transition-opacity ${provider === 'local' ? 'opacity-40 grayscale' : ''}`}>
-                <Label htmlFor="instant-app-id" className="text-xs font-bold uppercase text-muted-foreground">Instant App ID</Label>
-                <div className="relative group">
-                  <Controller
-                    name="instantAppId"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        id="instant-app-id"
-                        placeholder="app_..."
-                        {...field}
-                        value={showFullId ? field.value : displayId}
-                        onFocus={() => setShowFullId(true)}
-                        onBlur={() => setShowFullId(false)}
-                        disabled={provider === 'local'}
-                        className="h-10 pr-10 font-mono text-sm tracking-tight"
-                      />
-                    )}
-                  />
-                  {provider === 'instantdb' && (
-                    <button
-                      type="button"
-                      onClick={() => setShowFullId(!showFullId)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {showFullId ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 border-t border-border/50">
-              <p className="text-[11px] leading-relaxed text-muted-foreground max-w-[70%] italic">
-                {isFromEnv ? (
-                  <>
-                    <span className="font-semibold text-primary">Environment config active.</span> App ID is set via <span className="font-mono">VITE_INSTANTDB_APP_ID</span> and applies to all published builds.
-                  </>
-                ) : provider === 'instantdb' ? (
-                  <>
-                    Blueprint uses isolated namespaces (<span className="font-mono text-primary">blueprint_notes</span>) to prevent collisions with your main app schema.
-                  </>
-                ) : (
-                  <>Artifacts are scoped to your browser session and won't sync across machines.</>
-                )}
-              </p>
-              <Button
-                onClick={handleSubmit(handleSave)}
-                disabled={!isValid || isFromEnv || !isDirty}
-                className="w-full sm:w-auto shadow-md hover:shadow-lg transition-all px-8"
-              >
-                {isFromEnv ? 'Configured via Env' : 'Save & Connect'}
-              </Button>
-            </div>
-          </div>
+          <BackendSettings />
 
 
 
