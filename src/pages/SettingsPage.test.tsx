@@ -69,7 +69,6 @@ describe("SettingsPage", () => {
             </MemoryRouter>
         );
     };
-    };
 
     it("renders the backend picker", () => {
         (loadDbConfig as any).mockReturnValue(null);
