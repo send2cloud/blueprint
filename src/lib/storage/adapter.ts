@@ -1,12 +1,16 @@
-import { StorageAdapter } from './types';
+import type { StorageAdapter } from './types';
 import { LocalStorageAdapter } from './localStorage';
-import { loadDbConfig } from './dbConfig';
-import { InstantDbAdapter } from './instantDb';
+import { loadDbConfig, type DbConfig, type DbProvider } from './dbConfig';
+import { RecordStoreAdapter } from './recordStore';
+import { RestStore } from './restStore';
+import { lazyAdapter } from './lazyAdapter';
+
+export type AdapterType = DbProvider | 'host';
 
 let currentAdapter: StorageAdapter = new LocalStorageAdapter();
-let currentAdapterType: 'localStorage' | 'instantdb' = 'localStorage';
+let currentAdapterType: AdapterType = 'local';
 
-export function setStorageAdapter(adapter: StorageAdapter, type: 'localStorage' | 'instantdb'): void {
+export function setStorageAdapter(adapter: StorageAdapter, type: AdapterType): void {
   currentAdapter = adapter;
   currentAdapterType = type;
 }
@@ -15,32 +19,40 @@ export function getStorageAdapter(): StorageAdapter {
   return currentAdapter;
 }
 
-/**
- * Returns the current storage adapter type for UI display
- */
-export function getStorageAdapterType(): 'localStorage' | 'instantdb' {
+export function getStorageAdapterType(): AdapterType {
   return currentAdapterType;
 }
 
-/**
- * Returns the InstantDB App ID from Settings (localStorage config).
- * This is the single source of truth - configure in Settings page.
- */
-export function getInstantAppId(): string | null {
-  const config = loadDbConfig();
-  if (config?.provider === 'instantdb' && config.instantAppId) {
-    return config.instantAppId;
+/** Builds the adapter for a config. Heavy SDKs load only when chosen. */
+export function createAdapter(config: DbConfig): StorageAdapter {
+  switch (config.provider) {
+    case 'cloudflare':
+      return new RecordStoreAdapter(
+        new RestStore(config.url!, config.key ? { Authorization: `Bearer ${config.key}` } : {}),
+      );
+    case 'rest':
+      return new RecordStoreAdapter(new RestStore(config.url!, config.headers ?? {}));
+    case 'supabase':
+      return lazyAdapter(async () => {
+        const [{ createClient }, { SupabaseStore }] = await Promise.all([
+          import('@supabase/supabase-js'),
+          import('./supabaseStore'),
+        ]);
+        return new RecordStoreAdapter(new SupabaseStore(createClient(config.supabaseUrl!, config.supabaseKey!)));
+      });
+    case 'instantdb':
+      return lazyAdapter(async () => {
+        const { InstantDbAdapter } = await import('./instantDb');
+        return new InstantDbAdapter(config.instantAppId!);
+      });
+    default:
+      return new LocalStorageAdapter();
   }
-  return null;
 }
 
 export function initializeStorageAdapter(): StorageAdapter {
-  const instantAppId = getInstantAppId();
-  
-  if (instantAppId) {
-    setStorageAdapter(new InstantDbAdapter(instantAppId), 'instantdb');
-  } else {
-    setStorageAdapter(new LocalStorageAdapter(), 'localStorage');
-  }
+  if (currentAdapterType === 'host') return currentAdapter;
+  const config = loadDbConfig();
+  setStorageAdapter(config ? createAdapter(config) : new LocalStorageAdapter(), config?.provider ?? 'local');
   return currentAdapter;
 }

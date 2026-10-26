@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@blocknote/mantine": "^0.46.2",
-    "@hello-pangea/dnd": "^16.6.0",
+    "@hello-pangea/dnd": "^18",
     "@hookform/resolvers": "^3.10.0",
     "@instantdb/react": "^0.22.123",
     "@radix-ui/react-accordion": "^1.2.11",
@@ -47,6 +47,7 @@
     "@radix-ui/react-tooltip": "^1.2.7",
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
+    "@supabase/supabase-js": "^2.118.0",
     "@tanstack/react-query": "^5.83.0",
     "@types/three": "^0.170.0",
     "@types/uuid": "^9.0.8",
