@@ -15,7 +15,9 @@ Blueprint screens
 - Formalize one storage contract (settings, projects, artifacts, events) returning `{ success, data, error }`.
 - Adapters: Browser (local), REST (any URL), D1 Worker (default, built on REST).
 - Deploy a Blueprint Worker + D1 from here. Each host gets its own Worker/DB (same idea as old per-host App IDs).
-- Settings: "Database" becomes a Worker URL field instead of InstantDB App ID.
+- Settings: "Backend" picker — Browser only / Cloudflare Worker (URL + key) / Custom REST (URL + headers). Fields change per choice.
+- Hosts can also pass their own adapter in code (e.g. InstantDB, Supabase) — Settings then shows "Provided by host" and hides the picker.
+- InstantDB adapter dropped from Blueprint itself (sunsetting); a host can still wire it via the custom adapter.
 - Export current InstantDB data (just yours) and import into D1, then remove InstantDB code and package.
 - Write-protection: simple shared key header so bots can't write.
 
