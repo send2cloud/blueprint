@@ -14,6 +14,7 @@ import {
 import { useBlueprintState, useBlueprintActions } from '../contexts/BlueprintContext';
 import { ALL_TOOLS } from '../lib/storage';
 import { BackendSettings } from '../components/settings/BackendSettings';
+import { AccessSettings } from '../components/settings/AccessSettings';
 import { normalizeArtifact, CURRENT_SCHEMA_VERSION } from '../lib/storage/schema';
 import { TOOL_CONFIG } from '../lib/toolConfig';
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
@@ -263,6 +264,7 @@ export default function SettingsPage() {
           )}
 
           <BackendSettings />
+          <AccessSettings />
 
 
 
