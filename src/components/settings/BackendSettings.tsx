@@ -6,7 +6,7 @@ import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { toast } from '../../hooks/use-toast';
 import {
-  loadDbConfig, saveDbConfig, validateDbConfig, getStorageAdapterType,
+  loadDbConfig, saveDbConfig, validateDbConfig, getStorageAdapterType, createAdapter,
   type DbConfig, type DbProvider,
 } from '../../lib/storage';
 import { SUPABASE_SQL } from '../../lib/storage/supabaseStore';
@@ -55,8 +55,23 @@ export function BackendSettings() {
   }
   const error = headersError ?? validateDbConfig(cfg);
 
-  const save = () => {
-    saveDbConfig({ ...cfg, headers });
+  const [testing, setTesting] = useState(false);
+  const save = async () => {
+    const next = { ...cfg, headers };
+    if (next.provider !== 'local') {
+      setTesting(true);
+      try {
+        await Promise.race([
+          createAdapter(next).getProjects(),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('Timed out')), 10_000)),
+        ]);
+      } catch (e) {
+        setTesting(false);
+        toast({ title: "Couldn't connect", description: e instanceof Error ? e.message : String(e), variant: 'destructive' });
+        return;
+      }
+    }
+    saveDbConfig(next);
     toast({ title: `Backend: ${LABELS[cfg.provider]}`, description: 'Reloading…' });
     setTimeout(() => window.location.reload(), 500);
   };
@@ -115,7 +130,7 @@ export function BackendSettings() {
 
           <div className="flex items-center justify-between gap-4 pt-2 border-t border-border/50">
             <p className="text-xs text-destructive">{error ?? ''}</p>
-            <Button onClick={save} disabled={!!error} className="px-8">Save & Connect</Button>
+            <Button onClick={save} disabled={!!error || testing} className="px-8">{testing ? 'Testing…' : 'Save & Connect'}</Button>
           </div>
         </div>
       )}
