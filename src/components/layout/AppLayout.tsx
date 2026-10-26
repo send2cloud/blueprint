@@ -6,7 +6,7 @@ import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 import { useEffect } from 'react';
 import { ensureSeedNote } from '../../lib/seed';
 import { CommandPalette } from '../CommandPalette';
-import { PinGate, usePinGate } from '../PinGate';
+import { AccessGate } from '../setup/AccessGate';
 
 function AppLayoutContent() {
   const { commandPaletteOpen, setCommandPaletteOpen } = useKeyboardShortcuts();
@@ -67,17 +67,13 @@ function AppLayoutContent() {
 }
 
 export function AppLayout() {
-  const { authenticated, authenticate } = usePinGate();
-
-  if (!authenticated) {
-    return <PinGate onSuccess={authenticate} />;
-  }
-
   return (
-    <BlueprintProvider>
-      <SidebarProvider>
-        <AppLayoutContent />
-      </SidebarProvider>
-    </BlueprintProvider>
+    <AccessGate>
+      <BlueprintProvider>
+        <SidebarProvider>
+          <AppLayoutContent />
+        </SidebarProvider>
+      </BlueprintProvider>
+    </AccessGate>
   );
 }
