@@ -42,51 +42,72 @@ The host project provides React and ReactDOM, preventing duplicate instances and
 import BlueprintApp from './blueprint/dist-lib/blueprint.es.js';
 import './blueprint/dist-lib/style.css';
 
-<Route path="/blueprint/*" element={<BlueprintApp basename="/blueprint" />} />
+<Route path="/blueprint/*" element={
+  <BlueprintApp
+    basename="/blueprint"
+    adapter={myAdapter}          // optional, overrides Settings
+    liveConnectors={[            // optional, sidebar "Live" section
+      { id: 'map', label: 'Sitemap', url: '/admin/map', target: 'top', badge: 'live', badgeVariant: 'success' },
+    ]}
+  />
+} />
+```
+
+- Supports React 18 and 19.
+- Theme colours use `--bp-*` variables, so they don't overwrite the host's `--primary`, `--background`, etc.
+
+```text
 ```
 
 ---
 
 ## Storage Configuration
 
-Blueprint supports a **three-tier storage configuration model** to balance standalone deployment with project portability:
+Pick a backend in **Settings → Backend**, bake one in at build time, or pass your own from the host app.
 
-### Tier 1: Environment Variable (Recommended for Published Apps)
-Set `VITE_INSTANTDB_APP_ID` in your build environment. This bakes the App ID into all builds, ensuring both Preview and Published domains use the same database automatically.
+| Backend | Setup |
+|---------|-------|
+| Browser only | Nothing. Data stays in this browser. |
+| Cloudflare | Deploy `worker/` (Worker + D1). See `worker/README.md`. |
+| Supabase | Run the setup script (Settings → Copy setup script) once, then paste project URL + publishable key. |
+| InstantDB | App ID (hosted or self-hosted). |
+| Custom | Any backend serving the REST record API below. |
+
+**Priority:** host `adapter` prop → build env vars → Settings → Browser only.
 
 ```bash
-# .env or build environment
-VITE_INSTANTDB_APP_ID=your-app-id-here
+# Build env (applies to Preview + Published)
+VITE_BLUEPRINT_BACKEND=cloudflare            # local | cloudflare | supabase | instantdb | rest
+VITE_BLUEPRINT_BACKEND_URL=https://blueprint-backend.you.workers.dev
+VITE_BLUEPRINT_BACKEND_KEY=...               # Cloudflare write key
+VITE_BLUEPRINT_SUPABASE_URL=...              # Supabase
+VITE_BLUEPRINT_SUPABASE_KEY=...
+VITE_INSTANTDB_APP_ID=...                    # InstantDB (also implies backend=instantdb)
 ```
 
-### Tier 2: UI Configuration (Settings Page)
-If no environment variable is set, users can manually configure InstantDB via **Settings → Database Connection**. This is stored in localStorage and is domain-specific.
+Supabase and InstantDB SDKs load only when that backend is picked.
 
-### Tier 3: Local Storage (Default)
-When no InstantDB is configured, Blueprint falls back to browser-only localStorage. Data won't sync across devices or domains.
+### REST record API (Cloudflare / Custom)
 
-**Priority Order:** Environment Variable → localStorage Config → Local Storage fallback
+```
+GET    /records/:kind          -> T[]
+GET    /records/:kind/:id      -> T | 404
+PUT    /records/:kind/:id      body: T
+DELETE /records/:kind/:id
+kind = settings | projects | artifacts | events
+```
 
----
+### Bring your own backend
 
-## InstantDB Schema
+Implement four calls (`RecordStore`) and wrap it:
 
-Blueprint uses **isolated namespaces** to prevent collisions with your main app's data:
+```tsx
+import BlueprintApp, { RecordStoreAdapter, type RecordStore } from './blueprint/dist-lib/blueprint.es.js';
+const store: RecordStore = { list, get, put, remove };
+<BlueprintApp adapter={new RecordStoreAdapter(store)} />
+```
 
-| Table | Purpose |
-|-------|---------|
-| `blueprint_artifacts` | All artifacts (notes, diagrams, canvases, boards) |
-| `blueprint_calendar_events` | Calendar events (global, not per-artifact) |
-| `blueprint_settings` | App settings (enabled tools, etc.) |
-
-A single `blueprint_artifacts` table stores all artifact types, filtered by the `type` field. This simplifies cross-tool queries (favorites, tags, global gallery) and reduces adapter complexity.
-
-### Persistence Architecture
-The InstantDB adapter implements a **local outbox and optimistic caching system**:
-- All writes are cached locally first for instant UI feedback
-- Changes queue in an outbox for network resilience
-- Failed transactions retry on next app load
-- Calendar events use this pattern extensively for cross-session persistence
+Or implement the full `StorageAdapter` interface directly.
 
 ---
 
@@ -200,13 +221,13 @@ The Calendar tool is architected to aggregate time-based data from the entire pr
 ## Troubleshooting
 
 ### Data not persisting between sessions
-You're using localStorage, which is browser-specific. Set `VITE_INSTANTDB_APP_ID` for persistent cloud storage.
+You're on Browser only. Pick a cloud backend in Settings or set `VITE_BLUEPRINT_BACKEND`.
 
 ### Preview and Published domains have different data
-This happens when using localStorage or UI-configured InstantDB (domain isolation). Set the App ID via environment variable to sync across all domains.
+Settings choices are saved per domain. Use build env vars to share one backend across all domains.
 
 ### Calendar events disappear on refresh
-The outbox system should preserve events. Check console for "Blueprint:" prefixed logs to debug sync issues.
+Check console for "Blueprint:" prefixed logs to debug sync issues.
 
 ---
 
