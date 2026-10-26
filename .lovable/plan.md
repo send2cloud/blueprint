@@ -1,5 +1,20 @@
 # First-Run Setup Wizard
 
+## Two ways Blueprint runs
+
+```text
+Embedded in a host app (Killbill, Firstshow)     Standalone (this app)
+  Host app                                         Blueprint
+   |- its database  <- Blueprint adds its own       |- its own backend (wizard picks)
+   |                   tables beside the host's     |- its own admin / PIN
+   |- its logins    <- Blueprint uses the host's
+                       signed-in user
+```
+
+- **Embedded:** Blueprint borrows the host's backend. It gets its own tables (all `blueprint_*`), so it never touches the host's data. It uses whoever is signed in to the host. The host passes this in once (`adapter` + `user`), and no wizard is shown.
+- **Standalone:** there's no host to borrow from, so the wizard below sets it all up.
+- Embedded hosts on Supabase or Cloudflare use the matching built-in option, pointed at the host's own project.
+
 ## Your question: where does the backend choice live?
 Yes, the backend serves the whole app. But the app has to know *where* the backend is before it can read anything from it, so the address can't be stored in the backend itself. That leaves two places for it:
 
