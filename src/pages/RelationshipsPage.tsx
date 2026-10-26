@@ -52,7 +52,7 @@ export default function RelationshipsPage() {
           type: node.type,
         },
         style: {
-          background: TYPE_COLORS[node.type] || 'hsl(var(--primary))',
+          background: TYPE_COLORS[node.type] || 'hsl(var(--bp-primary))',
           color: 'white',
           border: 'none',
           borderRadius: '8px',
@@ -68,7 +68,7 @@ export default function RelationshipsPage() {
       source: edge.source,
       target: edge.target,
       animated: true,
-      style: { stroke: 'hsl(var(--muted-foreground))' },
+      style: { stroke: 'hsl(var(--bp-muted-foreground))' },
     }));
 
     return { initialNodes: nodes, initialEdges: edges };
@@ -126,7 +126,7 @@ export default function RelationshipsPage() {
           >
             <Controls />
             <MiniMap
-              nodeColor={(node) => TYPE_COLORS[node.data?.type as string] || 'hsl(var(--primary))'}
+              nodeColor={(node) => TYPE_COLORS[node.data?.type as string] || 'hsl(var(--bp-primary))'}
             />
             <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
           </ReactFlow>

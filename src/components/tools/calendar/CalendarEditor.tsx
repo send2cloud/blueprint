@@ -119,7 +119,7 @@ export function CalendarEditor({
     const isLinked = event.sourceType && event.sourceType !== 'manual';
     return {
       style: {
-        backgroundColor: event.color || 'hsl(var(--primary))',
+        backgroundColor: event.color || 'hsl(var(--bp-primary))',
         borderRadius: '4px',
         opacity: isLinked ? 0.8 : 1,
         color: 'white',
