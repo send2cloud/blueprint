@@ -47,7 +47,7 @@ async function sha256(text: string): Promise<string> {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-export async function hashPin(pin: string, salt = crypto.randomUUID()): Promise<{ pinHash: string; pinSalt: string }> {
+export async function hashPin(pin: string, salt: string = crypto.randomUUID()): Promise<{ pinHash: string; pinSalt: string }> {
   return { pinHash: await sha256(`${salt}:${pin}`), pinSalt: salt };
 }
 
