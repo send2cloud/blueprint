@@ -38,10 +38,12 @@ That's it. No Vite dedupe config, no dependency merging, no shadcn setup needed 
 
 ## Optional: Cloud Storage
 
-For persistent storage across devices, set the InstantDB App ID in the host's environment:
+For persistent storage across devices, pick a backend in Settings → Backend, or set it in the host's build environment (see README → Storage Configuration):
 
 ```bash
-VITE_INSTANTDB_APP_ID=your-app-id-here
+VITE_BLUEPRINT_BACKEND=cloudflare   # local | cloudflare | supabase | instantdb | rest
+VITE_BLUEPRINT_BACKEND_URL=https://blueprint-backend.you.workers.dev
+VITE_BLUEPRINT_BACKEND_KEY=your-write-key
 ```
 
 Without this, Blueprint defaults to browser localStorage.

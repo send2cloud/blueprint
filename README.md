@@ -56,9 +56,6 @@ import './blueprint/dist-lib/style.css';
 - Supports React 18 and 19.
 - Theme colours use `--bp-*` variables, so they don't overwrite the host's `--primary`, `--background`, etc.
 
-```text
-```
-
 ---
 
 ## Storage Configuration

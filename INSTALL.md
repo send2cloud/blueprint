@@ -90,11 +90,13 @@ The library bundle externalizes React, ReactDOM, and react-router-dom — your h
 
 ### 2. Configure Storage (Optional)
 
-For cloud persistence, set the InstantDB App ID:
+For cloud persistence, pick a backend in Settings → Backend, or set it at build time (see README → Storage Configuration):
 
 ```bash
 # .env
-VITE_INSTANTDB_APP_ID=your-app-id-here
+VITE_BLUEPRINT_BACKEND=cloudflare   # local | cloudflare | supabase | instantdb | rest
+VITE_BLUEPRINT_BACKEND_URL=https://blueprint-backend.you.workers.dev
+VITE_BLUEPRINT_BACKEND_KEY=your-write-key
 ```
 
 Or configure via Blueprint's Settings page after launching.
