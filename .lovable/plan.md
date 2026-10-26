@@ -64,6 +64,7 @@ Sign-in has to happen on the backend, and each backend handles accounts differen
 Phase 1 = wizard + PIN + workspace + Cloudflare accounts. It needs the Cloudflare token (still pending) and a Plunk API key.
 
 ## Technical details
+- New optional App prop `user?: { id, name, email, role }`. When it's given, Blueprint skips the admin, PIN and wizard steps and tags records with that user.
 - New `src/core/setup.ts`: pure setup-state machine (steps, validation, "is setup complete") with `{ success, data, error }` results.
 - Setup record stored as `kind: 'settings'` fields: `setupComplete`, `pinHash`, `pinEnabled`. PIN is checked with a hash compare (WebCrypto SHA-256 + salt).
 - `RecordStore` gains an optional `ping()` for "Test connection".
