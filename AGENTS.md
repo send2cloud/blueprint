@@ -7,3 +7,5 @@
 - Theme CSS variables are prefixed `--bp-*`. Why: embedding must not overwrite host theme variables.
 - The SPA build (`vite.config.ts`) and library build (`vite.config.lib.ts`) stay separate. Why: library options break the SPA build.
 - StorageAdapter methods throw on failure rather than returning `{ success, data, error }`. Why: existing hooks depend on it; migrate as a separate change.
+- Pure business rules live in `src/core/` (no React/storage) and return `{ success, data, error }`. Why: testable and portable.
+- Access flow is decided once in `AccessGate`: host `user` > setup wizard (new install only) > PIN > app. Why: one place owns gating.
