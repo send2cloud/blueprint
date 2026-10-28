@@ -2,13 +2,14 @@
 
 - [x] Backend picker: Browser / Cloudflare / Supabase / InstantDB / Custom REST + host adapter
 - [x] Cloudflare Worker + D1 code
-- [ ] Deploy Worker + D1 (blocked: no Cloudflare credentials in sandbox)
-- [ ] Move InstantDB data to D1 (after deploy)
+- [ ] Provision a fresh Cloudflare D1 database and deploy the backend Worker (credentials available; confirm named resources and usage costs)
+- [ ] Switch the standalone app to the fresh database; do not migrate the empty InstantDB data
+- [ ] Retire old data only after a verified fresh installation; no deletion required to switch backends
 - [x] CSS vars renamed to --bp-*
 - [x] Live Connectors sidebar shelf
 - [x] React 19: drag-and-drop lib v18, peer range 18–19
 - [x] Docs update
-- [ ] Full style isolation (scoped classes + scoped dark mode) — deferred: popups render outside Blueprint's root
+- [ ] Full style isolation, including popups, editor styles, and local dark mode
 - [x] Setup wizard: backend, PIN, workspace (skipped for host apps that pass a user)
 - [x] Access card in Settings (change/turn off PIN)
 - [ ] Admin + email accounts on Cloudflare Worker (blocked: Cloudflare token + Plunk API key)
